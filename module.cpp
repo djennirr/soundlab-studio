@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include <cmath>
 #include <SDL2/SDL.h>
 
@@ -15,8 +14,6 @@ enum WaveType {
 
 class AudioModule {
 public:
-    virtual ~AudioModule() = default;
-
     virtual void process(Uint8* stream, int length) = 0;
 };
 
@@ -123,13 +120,14 @@ void audioCallback(void* userdata, Uint8* stream, int len) {
 }
 
 int main() {
-    Oscillator oscillator(440.0, TRIANGLE);
+    Oscillator oscillator(440.0, SINE);
 
     SDL_AudioSpec wavSpec;
     wavSpec.freq = SAMPLE_RATE;
     wavSpec.format = AUDIO_U8;
     wavSpec.channels = 2;
     wavSpec.samples = 512;
+    wavSpec.size = 512;
     wavSpec.callback = audioCallback;
     wavSpec.userdata = &oscillator;
 
