@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 # Добавьте путь к модулям CMake из imgui-node-editor
 list(APPEND CMAKE_MODULE_PATH "${IMGUI_NODE_EDITOR_ROOT_DIR}/misc/cmake-modules")
 
+set(imgui_DIR "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor/external/imgui") 
+
 # Найдите пакеты imgui и imgui-node-editor
 find_package(imgui REQUIRED)
 find_package(imgui_node_editor REQUIRED)
