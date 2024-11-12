@@ -7,8 +7,8 @@ AudioOutput::AudioOutput(AudioModule* module) : module(module) {
     wavSpec.freq = 44100;
     wavSpec.format = AUDIO_U8;
     wavSpec.channels = 2;
-    wavSpec.samples = 512;
-    wavSpec.size = 512;
+    wavSpec.samples = 512; // ?
+    wavSpec.size = 1024;   // ?
     wavSpec.callback = audioCallback;
     wavSpec.userdata = module;
 
