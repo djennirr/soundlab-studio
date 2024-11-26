@@ -26,7 +26,7 @@ add_subdirectory(libs/imgui-node-editor/examples/application)
 # Добавьте исполняемый файл для basic-interactions.cpp
 add_executable(basic-interaction-example 
     ${CMAKE_SOURCE_DIR}/basic-example.cpp
-    ${CMAKE_SOURCE_DIR}/AudioOutput.cpp  # Добавьте ваш файл
+    ${CMAKE_SOURCE_DIR}/AudioOutput.cpp
     ${CMAKE_SOURCE_DIR}/Oscillator.cpp  
 )
 
