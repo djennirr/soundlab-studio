@@ -1,6 +1,7 @@
 #include <imgui.h>
 #include <imgui_node_editor.h>
 #include <application.h>
+#include <algorithm>
 #include <cmath>
 #include "AudioOutput.h"
 #include "Oscillator.h"
@@ -22,7 +23,8 @@ struct Example : public Application {
     bool isConnected = false; // Флаг для отслеживания соединения
 
     void OnStart() override {
-        oscillator = new Oscillator(440.0, WaveType::SINE);
+        float f1;
+        oscillator = new Oscillator(440.0, WaveType::SINE, &f1);
         audioOutput = new AudioOutput(oscillator);
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
@@ -60,6 +62,8 @@ struct Example : public Application {
             ed::BeginPin(oscOutputPinId, ed::PinKind::Output);
                 ImGui::Text("Signal Out");
             ed::EndPin();
+            float f1 = 1.00f;
+            ImGui::DragFloat("drag float", &f1, 0.005f, 0.001F, 1.0F);
         ed::EndNode();
 
         // Узел аудиовыхода

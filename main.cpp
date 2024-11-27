@@ -5,8 +5,8 @@
 #include "Adder.h"
 
 int main() {
-    Oscillator oscillator1(440.0, SAWTOOTH);
-    Oscillator oscillator2(440.0, SINE);
+    Oscillator oscillator1(440.0, SAWTOOTH, 1);
+    Oscillator oscillator2(440.0, SINE, 1);
     Adder adder(&oscillator1, &oscillator2);
     AudioOutput audioOutput(&adder);
 
