@@ -23,6 +23,9 @@ struct Example : public Application {
     bool isConnected = false; // Флаг для отслеживания соединения
 
     void OnStart() override {
+        static float f1;
+        oscillator = new Oscillator(440.0, WaveType::SINE, &f1);
+        audioOutput = new AudioOutput(oscillator);
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
         m_Context = ed::CreateEditor(&config);
@@ -36,9 +39,7 @@ struct Example : public Application {
     }
 
     void OnFrame(float deltaTime) override {
-        float f1;
-        oscillator = new Oscillator(440.0, WaveType::SINE, &f1);
-        audioOutput = new AudioOutput(oscillator);
+        static float f1;
         auto& io = ImGui::GetIO();
         ImGui::Text("FPS: %.2f (%.2gms)", io.Framerate, io.Framerate ? 1000.0f / io.Framerate : 0.0f);
         ImGui::Separator();
