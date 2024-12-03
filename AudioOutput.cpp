@@ -1,8 +1,8 @@
 #include <SDL2/SDL.h>
 #include "AudioOutput.h"
 #include <iostream>
-
-AudioOutput::AudioOutput(AudioModule* module) : module(module) {
+//надо передавать ссылку на аудио аутпут который выполняется
+AudioOutput::AudioOutput(...) : module(module) {
     SDL_AudioSpec wavSpec;
     wavSpec.freq = 44100;
     wavSpec.format = AUDIO_U8;
@@ -10,7 +10,7 @@ AudioOutput::AudioOutput(AudioModule* module) : module(module) {
     wavSpec.samples = 512; // ?
     wavSpec.size = 1024;   // ?
     wavSpec.callback = audioCallback;
-    wavSpec.userdata = module;
+    wavSpec.userdata = this;
 
     if (SDL_OpenAudio(&wavSpec, nullptr) < 0) {
         std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;

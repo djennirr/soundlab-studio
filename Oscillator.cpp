@@ -24,6 +24,23 @@ void Oscillator::process(Uint8* stream, int length) {
     }
 }
 
+//
+void Oscillator::render() {
+    
+    if (m_FirstFrame) ed::SetNodePosition(oscNodeId, ImVec2(10, 10));
+        ed::BeginNode(oscNodeId);
+            ImGui::Text("Oscillator");
+            ed::BeginPin(oscInputPinId, ed::PinKind::Input);
+                ImGui::Text("Frequency In");
+            ed::EndPin();
+            ImGui::SameLine();
+            ed::BeginPin(oscOutputPinId, ed::PinKind::Output);
+                ImGui::Text("Signal Out");
+            ed::EndPin();
+        ed::EndNode();
+
+}
+
 void Oscillator::generateSineWave(Uint8* stream, int length) {
     static double phase = 0.0;
     for (int i = 0; i < length; i += 2) {

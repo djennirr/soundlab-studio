@@ -17,13 +17,16 @@ struct Example : public Application {
 
     using Application::Application;
 
-    AudioOutput* audioOutput = nullptr;
-    Oscillator* oscillator = nullptr;
+    //сделать вектор аудиомодуль для нашиз модулей чтобы потом могли по ним итерироваться и было хранение модулей
+    //storage of audio modules in our synthesizer 
+    //потом пушим новые обьекты в наш вектор при ините новых модулей
+    //
+
     bool isConnected = false; // Флаг для отслеживания соединения
 
     void OnStart() override {
         oscillator = new Oscillator(440.0, WaveType::SINE);
-        audioOutput = new AudioOutput(oscillator);
+        audioOutput = new AudioOutput();
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
         m_Context = ed::CreateEditor(&config);
@@ -46,33 +49,25 @@ struct Example : public Application {
 
         int uniqueId = 1;
 
-        // Узел осциллятора
-        ed::NodeId oscNodeId = uniqueId++;
-        ed::PinId oscInputPinId = uniqueId++;
-        ed::PinId oscOutputPinId = uniqueId++;
-        if (m_FirstFrame) ed::SetNodePosition(oscNodeId, ImVec2(10, 10));
-        ed::BeginNode(oscNodeId);
-            ImGui::Text("Oscillator");
-            ed::BeginPin(oscInputPinId, ed::PinKind::Input);
-                ImGui::Text("Frequency In");
-            ed::EndPin();
-            ImGui::SameLine();
-            ed::BeginPin(oscOutputPinId, ed::PinKind::Output);
-                ImGui::Text("Signal Out");
-            ed::EndPin();
-        ed::EndNode();
+        // // Узел аудиовыхода
+        // ed::NodeId audioOutNodeId = uniqueId++;
+        // ed::PinId audioOutInputPinId = uniqueId++;
+        // ed::PinId audioOutOutputPinId = uniqueId++;
+        // if (m_FirstFrame) ed::SetNodePosition(audioOutNodeId, ImVec2(210, 60));
+        // ed::BeginNode(audioOutNodeId);
+        //     ImGui::Text("Audio Output");
+        //     ed::BeginPin(audioOutInputPinId, ed::PinKind::Input);
+        //         ImGui::Text("Signal In");
+        //     ed::EndPin();
+        // ed::EndNode();
 
-        // Узел аудиовыхода
-        ed::NodeId audioOutNodeId = uniqueId++;
-        ed::PinId audioOutInputPinId = uniqueId++;
-        ed::PinId audioOutOutputPinId = uniqueId++;
-        if (m_FirstFrame) ed::SetNodePosition(audioOutNodeId, ImVec2(210, 60));
-        ed::BeginNode(audioOutNodeId);
-            ImGui::Text("Audio Output");
-            ed::BeginPin(audioOutInputPinId, ed::PinKind::Input);
-                ImGui::Text("Signal In");
-            ed::EndPin();
-        ed::EndNode();
+
+
+        foreach(module in modules):
+            module.render();
+
+
+
 
         // Отрисовка всех существующих связей
         bool hasConnection = false;
@@ -85,13 +80,13 @@ struct Example : public Application {
         }
 
         // Управление воспроизведением звука на основе наличия связи
-        if (hasConnection && !isConnected) {
-            audioOutput->start();
-            isConnected = true;
-        } else if (!hasConnection && isConnected) {
-            audioOutput->stop();
-            isConnected = false;
-        }
+        // if (hasConnection && !isConnected) {
+        //     audioOutput->start();
+        //     isConnected = true;
+        // } else if (!hasConnection && isConnected) {
+            // audioOutput->stop();
+        //     isConnected = false;
+        // }
 
         // Обработка создания новых соединений
         if (ed::BeginCreate()) {

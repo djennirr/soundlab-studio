@@ -8,10 +8,16 @@ class Oscillator : public AudioModule {
 private:
     double frequency;
     WaveType waveType;
+    ed::PinId InputPinId;
+    ed::PinId OutputPinId; //задефайнить внутри констуктора
+    //звать также суперкласс конструктор
+    //добавить айдишники ноды и пинов в конструктор аргументами
+
 
 public:
     Oscillator(double freq, WaveType type);
     void process(Uint8* stream, int length) override;
+    void render(...) override;
 
 private:
     void generateSineWave(Uint8* stream, int length);

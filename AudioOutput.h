@@ -4,6 +4,9 @@
 #include "WaveType.h"
 #include <SDL2/SDL.h>
 
+//проделать все те же махинации что и с осцилятором
+
+
 class AudioOutput : public AudioModule {
 public:
     AudioOutput(AudioModule* module);
