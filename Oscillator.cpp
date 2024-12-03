@@ -4,8 +4,13 @@
 
 const int AMPLITUDE = 128;
 const int SAMPLE_RATE = 44100;
+static int m_FirstFrame = 1;
 
-Oscillator::Oscillator(double freq, WaveType type) : frequency(freq), waveType(type) {}
+Oscillator::Oscillator(double freq, WaveType type) : frequency(freq), waveType(type)  {
+    nodeId = nextNodeId++;
+    inputPinId = nextPinId++;
+    outputPinId = nextPinId++;
+}
 
 void Oscillator::process(Uint8* stream, int length) {
     switch (waveType) {
@@ -27,17 +32,19 @@ void Oscillator::process(Uint8* stream, int length) {
 //
 void Oscillator::render() {
     
-    if (m_FirstFrame) ed::SetNodePosition(oscNodeId, ImVec2(10, 10));
-        ed::BeginNode(oscNodeId);
+    if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(10, 10));
+        ed::BeginNode(nodeId);
             ImGui::Text("Oscillator");
-            ed::BeginPin(oscInputPinId, ed::PinKind::Input);
+            ed::BeginPin(inputPinId, ed::PinKind::Input);
                 ImGui::Text("Frequency In");
             ed::EndPin();
             ImGui::SameLine();
-            ed::BeginPin(oscOutputPinId, ed::PinKind::Output);
+            ed::BeginPin(outputPinId, ed::PinKind::Output);
                 ImGui::Text("Signal Out");
             ed::EndPin();
         ed::EndNode();
+
+        m_FirstFrame = 0;
 
 }
 

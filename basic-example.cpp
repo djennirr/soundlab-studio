@@ -9,11 +9,11 @@
 namespace ed = ax::NodeEditor;
 
 struct Example : public Application {
-    struct LinkInfo {
-        ed::LinkId Id;
-        ed::PinId  InputId;
-        ed::PinId  OutputId;
-    };
+    // struct LinkInfo {
+    //     ed::LinkId Id;
+    //     ed::PinId  InputId;
+    //     ed::PinId  OutputId;
+    // };
 
     using Application::Application;
 
@@ -25,17 +25,27 @@ struct Example : public Application {
     bool isConnected = false; // Флаг для отслеживания соединения
 
     void OnStart() override {
-        oscillator = new Oscillator(440.0, WaveType::SINE);
-        audioOutput = new AudioOutput();
+
+        AudioModule::nextNodeId = 1;
+        AudioModule::nextPinId = 1;
+
+
+        Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
+        modules.push_back(oscillator);
+
+        AudioOutput* audiooutput = new AudioOutput();
+        modules.push_back(audiooutput);
+        
+        //audioOutput = new AudioOutput();
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
         m_Context = ed::CreateEditor(&config);
     }
 
     void OnStop() override {
-        audioOutput->stop();
-        delete audioOutput;
-        delete oscillator;
+        // audioOutput->stop();
+        // delete audioOutput;
+        // delete oscillator;
         ed::DestroyEditor(m_Context);
     }
 
@@ -47,37 +57,22 @@ struct Example : public Application {
         ed::SetCurrentEditor(m_Context);
         ed::Begin("My Editor", ImVec2(0.0, 0.0f));
 
-        int uniqueId = 1;
-
-        // // Узел аудиовыхода
-        // ed::NodeId audioOutNodeId = uniqueId++;
-        // ed::PinId audioOutInputPinId = uniqueId++;
-        // ed::PinId audioOutOutputPinId = uniqueId++;
-        // if (m_FirstFrame) ed::SetNodePosition(audioOutNodeId, ImVec2(210, 60));
-        // ed::BeginNode(audioOutNodeId);
-        //     ImGui::Text("Audio Output");
-        //     ed::BeginPin(audioOutInputPinId, ed::PinKind::Input);
-        //         ImGui::Text("Signal In");
-        //     ed::EndPin();
-        // ed::EndNode();
-
-
-
-        foreach(module in modules):
-            module.render();
+        for (auto& module : modules) {
+            module->render();
+        }
 
 
 
 
         // Отрисовка всех существующих связей
-        bool hasConnection = false;
-        for (auto& linkInfo : m_Links) {
-            ed::Link(linkInfo.Id, linkInfo.InputId, linkInfo.OutputId);
-            if ((linkInfo.InputId == audioOutInputPinId && linkInfo.OutputId == oscOutputPinId) ||
-                (linkInfo.InputId == oscInputPinId && linkInfo.OutputId == audioOutOutputPinId)) {
-                hasConnection = true;
-            }
-        }
+        // bool hasConnection = false;
+        // for (auto& linkInfo : m_Links) {
+        //     ed::Link(linkInfo.Id, linkInfo.InputId, linkInfo.OutputId);
+        //     if ((linkInfo.InputId == audioOutInputPinId && linkInfo.OutputId == oscOutputPinId) ||
+        //         (linkInfo.InputId == oscInputPinId && linkInfo.OutputId == audioOutOutputPinId)) {
+        //         hasConnection = true;
+        //     }
+        // }
 
         // Управление воспроизведением звука на основе наличия связи
         // if (hasConnection && !isConnected) {
@@ -89,47 +84,48 @@ struct Example : public Application {
         // }
 
         // Обработка создания новых соединений
-        if (ed::BeginCreate()) {
-            ed::PinId inputPinId, outputPinId;
-            if (ed::QueryNewLink(&inputPinId, &outputPinId)) {
-                if ((inputPinId == audioOutInputPinId && outputPinId == oscOutputPinId) ||
-                    (inputPinId == oscInputPinId && outputPinId == audioOutOutputPinId)) {
-                    if (ed::AcceptNewItem()) {
-                        m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });
-                        ed::Link(m_Links.back().Id, m_Links.back().InputId, m_Links.back().OutputId);
-                    }
-                }
-            }
-        }
-        ed::EndCreate();
+        // if (ed::BeginCreate()) {
+        //     ed::PinId inputPinId, outputPinId;
+        //     if (ed::QueryNewLink(&inputPinId, &outputPinId)) {
+        //         if ((inputPinId == audioOutInputPinId && outputPinId == oscOutputPinId) ||
+        //             (inputPinId == oscInputPinId && outputPinId == audioOutOutputPinId)) {
+        //             if (ed::AcceptNewItem()) {
+        //                 m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });
+        //                 ed::Link(m_Links.back().Id, m_Links.back().InputId, m_Links.back().OutputId);
+        //             }
+        //         }
+        //     }
+        // }
+        // ed::EndCreate();
 
-        // Обработка удаления соединений
-        if (ed::BeginDelete()) {
-            ed::LinkId deletedLinkId;
-            while (ed::QueryDeletedLink(&deletedLinkId)) {
-                if (ed::AcceptDeletedItem()) {
-                    auto it = std::remove_if(m_Links.begin(), m_Links.end(), [&](LinkInfo& link) {
-                        return link.Id == deletedLinkId;
-                    });
-                    m_Links.erase(it, m_Links.end());
-                }
-            }
-        }
-        ed::EndDelete();
+        // // Обработка удаления соединений
+        // if (ed::BeginDelete()) {
+        //     ed::LinkId deletedLinkId;
+        //     while (ed::QueryDeletedLink(&deletedLinkId)) {
+        //         if (ed::AcceptDeletedItem()) {
+        //             auto it = std::remove_if(m_Links.begin(), m_Links.end(), [&](LinkInfo& link) {
+        //                 return link.Id == deletedLinkId;
+        //             });
+        //             m_Links.erase(it, m_Links.end());
+        //         }
+        //     }
+        // }
+        // ed::EndDelete();
 
-        ed::End();
+        // ed::End();
 
-        if (m_FirstFrame) {
-            ed::NavigateToContent(0.0f);
-            m_FirstFrame = false;
-        }
+        // if (m_FirstFrame) {
+        //     ed::NavigateToContent(0.0f);
+        //     m_FirstFrame = false;
+        // }
 
         ed::SetCurrentEditor(nullptr);
     }
 
     ed::EditorContext* m_Context = nullptr;
     bool m_FirstFrame = true;
-    ImVector<LinkInfo> m_Links;
+    // ImVector<LinkInfo> m_Links;
+    ImVector<AudioModule*> modules;
     int m_NextLinkId = 100;
 };
 
