@@ -22,20 +22,16 @@ struct Example : public Application {
     //потом пушим новые обьекты в наш вектор при ините новых модулей
     //
 
-    bool isConnected = false; // Флаг для отслеживания соединения
+    // bool isConnected = false; // Флаг для отслеживания соединения
 
     void OnStart() override {
 
-        AudioModule::nextNodeId = 1;
-        AudioModule::nextPinId = 1;
-
+        AudioOutput* audiooutput = new AudioOutput();
+        modules.push_back(audiooutput);
 
         Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
         modules.push_back(oscillator);
 
-        AudioOutput* audiooutput = new AudioOutput();
-        modules.push_back(audiooutput);
-        
         //audioOutput = new AudioOutput();
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
@@ -60,9 +56,6 @@ struct Example : public Application {
         for (auto& module : modules) {
             module->render();
         }
-
-
-
 
         // Отрисовка всех существующих связей
         // bool hasConnection = false;
@@ -112,7 +105,7 @@ struct Example : public Application {
         // }
         // ed::EndDelete();
 
-        // ed::End();
+        ed::End();
 
         // if (m_FirstFrame) {
         //     ed::NavigateToContent(0.0f);

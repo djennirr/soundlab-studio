@@ -29,7 +29,6 @@ void Oscillator::process(Uint8* stream, int length) {
     }
 }
 
-//
 void Oscillator::render() {
     
     if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(10, 10));

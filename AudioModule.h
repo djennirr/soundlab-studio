@@ -11,7 +11,7 @@ class AudioModule {
     public:
     ed::NodeId nodeId;
     virtual void process(Uint8* stream, int length) = 0;
-    virtual void render();
+    virtual void render() = 0;
     static int nextNodeId;
     static int nextPinId;
     //constructor for audiomodule аргументом передаем айди и присваивается полю

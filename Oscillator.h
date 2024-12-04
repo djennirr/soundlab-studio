@@ -9,7 +9,7 @@ private:
     double frequency;
     WaveType waveType;
     ed::PinId inputPinId;
-    ed::PinId outputPinId; //задефайнить внутри констуктора
+    ed::PinId outputPinId; //задефайнить внутри констуктора 
     //звать также суперкласс конструктор
     //добавить айдишники ноды и пинов в конструктор аргументами
 

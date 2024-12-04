@@ -5,7 +5,7 @@
 
 static int m_FirstFrame = 1;
 //надо передавать ссылку на аудио аутпут который выполняется
-AudioOutput::AudioOutput() : module(module) {
+AudioOutput::AudioOutput() {
     SDL_AudioSpec wavSpec;
     wavSpec.freq = 44100;
     wavSpec.format = AUDIO_U8;
@@ -13,7 +13,7 @@ AudioOutput::AudioOutput() : module(module) {
     wavSpec.samples = 512; // ?
     wavSpec.size = 1024;   // ?
     wavSpec.callback = audioCallback;
-    wavSpec.userdata = this;
+    wavSpec.userdata = this->inputModule;
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
 
@@ -28,7 +28,7 @@ void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
 }
 
 void AudioOutput::process(Uint8* stream, int length) {
-    module->process(stream, length);
+    inputModule->process(stream, length);
 }
 
 void AudioOutput::render() {
@@ -41,6 +41,7 @@ void AudioOutput::render() {
         ed::EndNode();
         m_FirstFrame = 0;
 }
+
 void AudioOutput::start() {
     SDL_PauseAudio(0);
 }

@@ -18,7 +18,7 @@ public:
 private:
     static void audioCallback(void* userdata, Uint8* stream, int len);
     SDL_AudioSpec wavSpec;
-    AudioModule* module;
+    AudioModule* inputModule;
     ed::PinId inputPinId;
     ed::PinId outputPinId;
 };
