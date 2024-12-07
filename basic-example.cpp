@@ -5,16 +5,26 @@
 #include "AudioOutput.h"
 #include "Oscillator.h"
 #include "WaveType.h"
+#include <vector>
 
 namespace ed = ax::NodeEditor;
 
 struct Example : public Application {
-    // struct LinkInfo {
-    //     ed::LinkId Id;
-    //     ed::PinId  InputId;
-    //     ed::PinId  OutputId;
-    // };
+    struct LinkInfo {
+        ed::LinkId Id;
+        ed::PinId  InputId;
+        ed::PinId  OutputId;
+    };
 
+    AudioModule* findNode(ed::PinId pin) {
+        for (AudioModule* module : modules) {
+        const auto& pins = module->getPins();
+        if (std::find(pins.begin(), pins.end(), pin) != pins.end()) {
+            return module;
+        }
+    }
+    return nullptr;
+    }
     using Application::Application;
 
     //сделать вектор аудиомодуль для нашиз модулей чтобы потом могли по ним итерироваться и было хранение модулей
@@ -32,7 +42,6 @@ struct Example : public Application {
         Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
         modules.push_back(oscillator);
 
-        //audioOutput = new AudioOutput();
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
         m_Context = ed::CreateEditor(&config);
@@ -57,15 +66,8 @@ struct Example : public Application {
             module->render();
         }
 
-        // Отрисовка всех существующих связей
-        // bool hasConnection = false;
-        // for (auto& linkInfo : m_Links) {
-        //     ed::Link(linkInfo.Id, linkInfo.InputId, linkInfo.OutputId);
-        //     if ((linkInfo.InputId == audioOutInputPinId && linkInfo.OutputId == oscOutputPinId) ||
-        //         (linkInfo.InputId == oscInputPinId && linkInfo.OutputId == audioOutOutputPinId)) {
-        //         hasConnection = true;
-        //     }
-        // }
+        for (auto& linkInfo : m_Links)
+            ed::Link(linkInfo.Id, linkInfo.InputId, linkInfo.OutputId);
 
         // Управление воспроизведением звука на основе наличия связи
         // if (hasConnection && !isConnected) {
@@ -76,20 +78,60 @@ struct Example : public Application {
         //     isConnected = false;
         // }
 
-        // Обработка создания новых соединений
-        // if (ed::BeginCreate()) {
-        //     ed::PinId inputPinId, outputPinId;
-        //     if (ed::QueryNewLink(&inputPinId, &outputPinId)) {
-        //         if ((inputPinId == audioOutInputPinId && outputPinId == oscOutputPinId) ||
-        //             (inputPinId == oscInputPinId && outputPinId == audioOutOutputPinId)) {
-        //             if (ed::AcceptNewItem()) {
-        //                 m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });
-        //                 ed::Link(m_Links.back().Id, m_Links.back().InputId, m_Links.back().OutputId);
-        //             }
-        //         }
-        //     }
-        // }
-        // ed::EndCreate();
+         // Handle creation action, returns true if editor want to create new object (node or link)
+        if (ed::BeginCreate())
+        {
+            ed::PinId inputPinId, outputPinId;
+            if (ed::QueryNewLink(&inputPinId, &outputPinId))
+            {
+                // QueryNewLink returns true if editor want to create new link between pins.
+                //
+                // Link can be created only for two valid pins, it is up to you to
+                // validate if connection make sense. Editor is happy to make any.
+                //
+                // Link always goes from input to output. User may choose to drag
+                // link from output pin or input pin. This determine which pin ids
+                // are valid and which are not:
+                //   * input valid, output invalid - user started to drag new ling from input pin
+                //   * input invalid, output valid - user started to drag new ling from output pin
+                //   * input valid, output valid   - user dragged link over other pin, can be validated
+
+                if (inputPinId && outputPinId) // both are valid, let's accept link
+                {
+                    if (inputPinId == outputPinId) {
+                        ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+                    }
+
+                    AudioModule* inputNode = findNode(inputPinId);
+                    AudioModule* outputNode = findNode(outputPinId);
+
+                    if (!inputNode || !outputNode) {
+                        ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+                    }
+                    // printf(" %d %d |", inputPinId, outputPinId);
+
+                    // Проверяем тип пинов.
+                    else if (inputNode->getPinKind(inputPinId) == outputNode->getPinKind(outputPinId)) {
+                        ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+                    }
+                    
+                    // ed::AcceptNewItem() return true when user release mouse button.
+                    else if (ed::AcceptNewItem())
+                    {
+                        // Since we accepted new link, lets add one to our list of links.
+                        m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });
+
+                        // Draw new link.
+                        ed::Link(m_Links.back().Id, m_Links.back().InputId, m_Links.back().OutputId);
+                    }
+
+                    // You may choose to reject connection between these nodes
+                    // by calling ed::RejectNewItem(). This will allow editor to give
+                    // visual feedback by changing link thickness and color.
+                }
+            }
+        }
+        ed::EndCreate(); // Wraps up object creation action handling.
 
         // // Обработка удаления соединений
         // if (ed::BeginDelete()) {
@@ -117,9 +159,9 @@ struct Example : public Application {
 
     ed::EditorContext* m_Context = nullptr;
     bool m_FirstFrame = true;
-    // ImVector<LinkInfo> m_Links;
+    ImVector<LinkInfo> m_Links;
     ImVector<AudioModule*> modules;
-    int m_NextLinkId = 100;
+    int m_NextLinkId = 2000;
 };
 
 int Main(int argc, char** argv) {

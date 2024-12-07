@@ -1,6 +1,7 @@
 #include "Oscillator.h"
 #include <cmath>
 #include <SDL2/SDL.h>
+#include <vector>
 
 const int AMPLITUDE = 128;
 const int SAMPLE_RATE = 44100;
@@ -45,6 +46,18 @@ void Oscillator::render() {
 
         m_FirstFrame = 0;
 
+}
+
+std::vector<ed::PinId> Oscillator::getPins() const {
+    return { inputPinId ,outputPinId };
+}
+
+ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
+    if (outputPinId == pin) {
+        return ed::PinKind::Output;
+    } else if (inputPinId == pin) {
+        return ed::PinKind::Input;
+    }
 }
 
 void Oscillator::generateSineWave(Uint8* stream, int length) {

@@ -16,6 +16,7 @@ AudioOutput::AudioOutput() {
     wavSpec.userdata = this->inputModule;
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
+    // outputPinId = nextPinId++;
 
     if (SDL_OpenAudio(&wavSpec, nullptr) < 0) {
         std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
@@ -38,8 +39,22 @@ void AudioOutput::render() {
             ed::BeginPin(inputPinId, ed::PinKind::Input);
                 ImGui::Text("Signal In");
             ed::EndPin();
+            // ImGui::SameLine();
+            // ed::BeginPin(outputPinId, ed::PinKind::Output);
+            //     ImGui::Text("Signal Out");
+            // ed::EndPin();
         ed::EndNode();
         m_FirstFrame = 0;
+}
+
+std::vector<ed::PinId> AudioOutput::getPins() const {
+    return { inputPinId };
+}
+
+ed::PinKind AudioOutput::getPinKind(ed::PinId pin) const {
+    if (inputPinId == pin) {
+        return ed::PinKind::Input;
+    }
 }
 
 void AudioOutput::start() {

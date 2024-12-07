@@ -17,6 +17,8 @@ private:
 public:
     Oscillator(double freq, WaveType type);
     void process(Uint8* stream, int length) override;
+    std::vector<ed::PinId> getPins() const override;
+    ed::PinKind getPinKind(ed::PinId pin) const override;
     void render() override;
 
 private:
