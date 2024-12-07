@@ -4,6 +4,7 @@
 #include <cmath>
 #include "AudioOutput.h"
 #include "Oscillator.h"
+#include "Adder.h"
 #include "WaveType.h"
 #include <vector>
 
@@ -26,21 +27,31 @@ struct Example : public Application {
     return nullptr;
     }
 
-    void createConnection(AudioModule* input, AudioModule* output) {
-        if (input->getNodeType() == NodeType::AudioOutput) {
-            input->connect(output);
-        } else if (output->getNodeType() == NodeType::AudioOutput){
-            output->connect(input);
+    void createConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
+        if (inputId->getNodeType() == NodeType::AudioOutput) {
+            AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
+            audioOutput->connect(outputID);
+        } else if (outputID->getNodeType() == NodeType::AudioOutput){
+            AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
+            audioOutput->connect(inputId);
+        } else if (inputId->getNodeType() == NodeType::Adder) {
+            Adder* adder = static_cast<Adder*>(inputId);
+            adder->connect(outputID, adder->chooseIn(outputPin));
+        } else if (outputID->getNodeType() == NodeType::Adder){
+            Adder* adder = static_cast<Adder*>(outputID);
+            adder->connect(inputId, adder->chooseIn(outputPin));
         }
-
     }
 
-    void deleteConnection(AudioModule* input, AudioModule* output) {
-        if (input->getNodeType() == NodeType::AudioOutput) {
-            input->connect(nullptr);
-        } else if (output->getNodeType() == NodeType::AudioOutput){
-            output->connect(nullptr);
+    void deleteConnection(AudioModule* inputId, AudioModule* outputId) {
+        if (inputId->getNodeType() == NodeType::AudioOutput) {
+            audiooutput = static_cast<AudioOutput*>(inputId);
+            audiooutput->connect(nullptr);
+        } else if (outputId->getNodeType() == NodeType::AudioOutput){
+            audiooutput = static_cast<AudioOutput*>(outputId);
+            audiooutput->connect(nullptr);
         }
+
     }
 
     using Application::Application;
@@ -56,6 +67,9 @@ struct Example : public Application {
         
         modules.push_back(audiooutput);
         audiooutput->start();
+
+        Adder* adder = new Adder();
+        modules.push_back(adder);
 
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
@@ -130,7 +144,7 @@ struct Example : public Application {
                     // ed::AcceptNewItem() return true when user release mouse button.
                     else if (ed::AcceptNewItem())
                     {
-                        createConnection(inputNode, outputNode);
+                        createConnection(inputNode, inputPinId, outputNode, outputPinId);
                         
                         // Since we accepted new link, lets add one to our list of links.
                         m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });

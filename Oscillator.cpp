@@ -60,10 +60,6 @@ ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
     }
 }
 
-void Oscillator::connect(AudioModule* input) {
-    return;
-}
-
 ed::NodeId Oscillator::getNodeId() {
     return nodeId;
 }

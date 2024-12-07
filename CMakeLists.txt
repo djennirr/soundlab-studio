@@ -28,7 +28,8 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/basic-example.cpp
     ${CMAKE_SOURCE_DIR}/AudioOutput.cpp  # Добавьте ваш файл
     ${CMAKE_SOURCE_DIR}/Oscillator.cpp  
-    ${CMAKE_SOURCE_DIR}/AudioModule.cpp  
+    ${CMAKE_SOURCE_DIR}/AudioModule.cpp
+    ${CMAKE_SOURCE_DIR}/Adder.cpp
 )
 
 # Подключите библиотеки, включая SDL2, imgui и imgui_node_editor
