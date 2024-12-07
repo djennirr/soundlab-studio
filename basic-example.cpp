@@ -50,17 +50,12 @@ struct Example : public Application {
     //потом пушим новые обьекты в наш вектор при ините новых модулей
     //
 
-    // bool isConnected = false; // Флаг для отслеживания соединения
-
     AudioOutput* audiooutput = new AudioOutput();
 
     void OnStart() override {
         
         modules.push_back(audiooutput);
         audiooutput->start();
-
-        // Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
-        // modules.push_back(oscillator);
 
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
@@ -156,6 +151,23 @@ struct Example : public Application {
          // Handle deletion action
         if (ed::BeginDelete())
         {
+
+        ed::NodeId nodeId = 0;
+        while (ed::QueryDeletedNode(&nodeId)) {
+        if (ed::AcceptDeletedItem()) {
+            // Найти узел в modules по его ID
+            auto it = std::find_if(modules.begin(), modules.end(), [nodeId](AudioModule* node) {
+                return node->getNodeId() == nodeId;
+            });
+
+            // Если узел найден, удалить его
+            if (it != modules.end()) {
+                delete *it;         // Освободить память
+                modules.erase(it);  // Удалить из вектора
+            }
+        }
+    }
+
             // There may be many links marked for deletion, let's loop over them.
             ed::LinkId deletedLinkId;
             while (ed::QueryDeletedLink(&deletedLinkId))
@@ -207,8 +219,8 @@ struct Example : public Application {
             ImGui::OpenPopup("Create New Node");
         }
         ed::Resume();
-        ed::Suspend();
 
+        ed::Suspend();
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
         if (ImGui::BeginPopup("Create New Node"))
         {
@@ -225,6 +237,9 @@ struct Example : public Application {
         ImGui::PopStyleVar();
         ed::Resume();
     # endif
+
+
+
     ed::End();
 
 
@@ -233,7 +248,7 @@ struct Example : public Application {
         //     m_FirstFrame = false;
         // }
 
-        // ed::SetCurrentEditor(nullptr);
+        ed::SetCurrentEditor(nullptr);
     }
 
     ed::EditorContext* m_Context = nullptr;
