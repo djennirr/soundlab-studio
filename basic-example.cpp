@@ -43,13 +43,19 @@ struct Example : public Application {
         }
     }
 
-    void deleteConnection(AudioModule* inputId, AudioModule* outputId) {
+    void deleteConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
         if (inputId->getNodeType() == NodeType::AudioOutput) {
-            audiooutput = static_cast<AudioOutput*>(inputId);
-            audiooutput->connect(nullptr);
-        } else if (outputId->getNodeType() == NodeType::AudioOutput){
-            audiooutput = static_cast<AudioOutput*>(outputId);
-            audiooutput->connect(nullptr);
+            AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
+            audioOutput->connect(nullptr);
+        } else if (outputID->getNodeType() == NodeType::AudioOutput){
+            AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
+            audioOutput->connect(nullptr);
+        } else if (inputId->getNodeType() == NodeType::Adder) {
+            Adder* adder = static_cast<Adder*>(inputId);
+            adder->connect(nullptr, adder->chooseIn(outputPin));
+        } else if (outputID->getNodeType() == NodeType::Adder){
+            Adder* adder = static_cast<Adder*>(outputID);
+            adder->connect(nullptr, adder->chooseIn(outputPin));
         }
 
     }
@@ -67,9 +73,6 @@ struct Example : public Application {
         
         modules.push_back(audiooutput);
         audiooutput->start();
-
-        Adder* adder = new Adder();
-        modules.push_back(adder);
 
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
@@ -197,7 +200,7 @@ struct Example : public Application {
                             AudioModule* first = findNode(link.InputId);
                             AudioModule* second = findNode(link.OutputId);
 
-                            deleteConnection(first, second);
+                            deleteConnection(first, link.InputId, second, link.OutputId);
 
                             m_Links.erase(&link);
                             break;
@@ -243,6 +246,10 @@ struct Example : public Application {
             
             if (ImGui::MenuItem("Oscillator")){
                 node = new Oscillator(440.0, WaveType::SINE);
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Adder")) {
+                node = new Adder();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
