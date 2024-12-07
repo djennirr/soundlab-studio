@@ -60,6 +60,10 @@ ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
     }
 }
 
+void Oscillator::connect(AudioModule* input) {
+    return;
+}
+
 void Oscillator::generateSineWave(Uint8* stream, int length) {
     static double phase = 0.0;
     for (int i = 0; i < length; i += 2) {

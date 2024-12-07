@@ -6,9 +6,7 @@
 
 int main() {
     Oscillator oscillator1(440.0, SAWTOOTH);
-    Oscillator oscillator2(440.0, SINE);
-    Adder adder(&oscillator1, &oscillator2);
-    AudioOutput audioOutput(&adder);
+    AudioOutput audioOutput(&oscillator1);
 
     audioOutput.start();
     std::cout << "Press Enter to stop..." << std::endl;

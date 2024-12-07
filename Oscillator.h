@@ -9,7 +9,8 @@ private:
     double frequency;
     WaveType waveType;
     ed::PinId inputPinId;
-    ed::PinId outputPinId; //задефайнить внутри констуктора 
+    ed::PinId outputPinId; //задефайнить внутри констуктора
+    NodeType type;
     //звать также суперкласс конструктор
     //добавить айдишники ноды и пинов в конструктор аргументами
 
@@ -19,6 +20,10 @@ public:
     void process(Uint8* stream, int length) override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
+    NodeType getNodeType() const override {
+        return NodeType::Oscillator;
+    }
+    void connect(AudioModule* input) override;
     void render() override;
 
 private:

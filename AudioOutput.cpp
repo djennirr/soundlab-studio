@@ -13,7 +13,7 @@ AudioOutput::AudioOutput() {
     wavSpec.samples = 512; // ?
     wavSpec.size = 1024;   // ?
     wavSpec.callback = audioCallback;
-    wavSpec.userdata = this->inputModule;
+    wavSpec.userdata = this;
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
     // outputPinId = nextPinId++;
@@ -24,8 +24,14 @@ AudioOutput::AudioOutput() {
 }
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
-    AudioModule* module = static_cast<AudioModule*>(userdata);
-    module->process(stream, len);
+    AudioOutput* audioOutput = static_cast<AudioOutput*>(userdata);
+    if (audioOutput && audioOutput->isPlaying && audioOutput->inputModule) {
+        // Если есть ссылка на inputModule и флаг воспроизведения включен
+        audioOutput->inputModule->process(stream, len);
+    } else {
+        // Если нет ссылки или воспроизведение выключено, заполняем тишиной
+        memset(stream, 0, len);
+    }
 }
 
 void AudioOutput::process(Uint8* stream, int length) {
@@ -55,6 +61,10 @@ ed::PinKind AudioOutput::getPinKind(ed::PinId pin) const {
     if (inputPinId == pin) {
         return ed::PinKind::Input;
     }
+}
+
+void AudioOutput::connect(AudioModule* input) {
+    this->inputModule = input; // Подключаем входной модуль
 }
 
 void AudioOutput::start() {

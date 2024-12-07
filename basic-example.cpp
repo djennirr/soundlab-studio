@@ -25,6 +25,16 @@ struct Example : public Application {
     }
     return nullptr;
     }
+
+    void createConnection(AudioModule* input, AudioModule* output) {
+        if (input->getNodeType() == NodeType::AudioOutput) {
+            input->connect(output);
+        } else if (output->getNodeType() == NodeType::AudioOutput){
+            output->connect(input);
+        }
+
+    }
+
     using Application::Application;
 
     //сделать вектор аудиомодуль для нашиз модулей чтобы потом могли по ним итерироваться и было хранение модулей
@@ -34,10 +44,13 @@ struct Example : public Application {
 
     // bool isConnected = false; // Флаг для отслеживания соединения
 
-    void OnStart() override {
+    AudioOutput* audiooutput = new AudioOutput();
 
-        AudioOutput* audiooutput = new AudioOutput();
+    void OnStart() override {
+        
         modules.push_back(audiooutput);
+
+        audiooutput->start();
 
         Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
         modules.push_back(oscillator);
@@ -48,6 +61,7 @@ struct Example : public Application {
     }
 
     void OnStop() override {
+        audiooutput->stop();
         // audioOutput->stop();
         // delete audioOutput;
         // delete oscillator;
@@ -114,10 +128,15 @@ struct Example : public Application {
                     else if (inputNode->getPinKind(inputPinId) == outputNode->getPinKind(outputPinId)) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                     }
+
+                    else if (inputNode == outputNode) {
+                        ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+                    }
                     
                     // ed::AcceptNewItem() return true when user release mouse button.
                     else if (ed::AcceptNewItem())
                     {
+                        createConnection(inputNode, outputNode);
                         // Since we accepted new link, lets add one to our list of links.
                         m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });
 
