@@ -59,8 +59,8 @@ struct Example : public Application {
         modules.push_back(audiooutput);
         audiooutput->start();
 
-        Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
-        modules.push_back(oscillator);
+        // Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
+        // modules.push_back(oscillator);
 
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
@@ -184,7 +184,7 @@ struct Example : public Application {
             }
         }
         ed::EndDelete(); // Wrap up deletion action
-        
+
         // // Обработка удаления соединений
         // if (ed::BeginDelete()) {
         //     ed::LinkId deletedLinkId;
@@ -199,14 +199,41 @@ struct Example : public Application {
         // }
         // ed::EndDelete();
 
-        ed::End();
+    #if 1
+        auto openPopupPosition = ImGui::GetMousePos();
+        ed::Suspend();
+        if (ed::ShowBackgroundContextMenu())
+        {
+            ImGui::OpenPopup("Create New Node");
+        }
+        ed::Resume();
+        ed::Suspend();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+        if (ImGui::BeginPopup("Create New Node"))
+        {
+            auto newNodePostion = openPopupPosition;
+            AudioModule* node = nullptr;
+            
+            if (ImGui::MenuItem("Oscillator")){
+                node = new Oscillator(440.0, WaveType::SINE);
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            }
+            ImGui::EndPopup();
+        } 
+        ImGui::PopStyleVar();
+        ed::Resume();
+    # endif
+    ed::End();
+
 
         // if (m_FirstFrame) {
         //     ed::NavigateToContent(0.0f);
         //     m_FirstFrame = false;
         // }
 
-        ed::SetCurrentEditor(nullptr);
+        // ed::SetCurrentEditor(nullptr);
     }
 
     ed::EditorContext* m_Context = nullptr;

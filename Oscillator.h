@@ -24,6 +24,7 @@ public:
         return NodeType::Oscillator;
     }
     void connect(AudioModule* input) override;
+    ed::NodeId getNodeId() override;
     void render() override;
 
 private:

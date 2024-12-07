@@ -18,6 +18,7 @@ public:
         return NodeType::AudioOutput;
     }
     void connect(AudioModule* input) override;
+    ed::NodeId getNodeId() override;
     void start();
     void stop();
     

@@ -32,7 +32,7 @@ void Oscillator::process(Uint8* stream, int length) {
 
 void Oscillator::render() {
     
-    if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(10, 10));
+    // if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(10, 10));
         ed::BeginNode(nodeId);
             ImGui::Text("Oscillator");
             ed::BeginPin(inputPinId, ed::PinKind::Input);
@@ -44,7 +44,7 @@ void Oscillator::render() {
             ed::EndPin();
         ed::EndNode();
 
-        m_FirstFrame = 0;
+        // m_FirstFrame = 0;
 
 }
 
@@ -62,6 +62,10 @@ ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
 
 void Oscillator::connect(AudioModule* input) {
     return;
+}
+
+ed::NodeId Oscillator::getNodeId() {
+    return nodeId;
 }
 
 void Oscillator::generateSineWave(Uint8* stream, int length) {

@@ -20,6 +20,7 @@ class AudioModule {
     virtual std::vector<ed::PinId> getPins() const = 0;
     virtual ed::PinKind getPinKind(ed::PinId pin) const = 0;
     virtual NodeType getNodeType() const = 0;
+    virtual ed::NodeId getNodeId() = 0;
     virtual void connect(AudioModule* input) = 0;
     static int nextNodeId;
     static int nextPinId;

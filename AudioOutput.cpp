@@ -68,6 +68,10 @@ void AudioOutput::connect(AudioModule* input) {
     this->isPlaying = true;
 }
 
+ed::NodeId AudioOutput::getNodeId() {
+    return nodeId;
+}
+
 void AudioOutput::start() {
     SDL_PauseAudio(0);
 }
