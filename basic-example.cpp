@@ -51,7 +51,7 @@ struct Example : public Application {
         modules.push_back(audiooutput);
 
         audiooutput->start();
-
+        
         Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
         modules.push_back(oscillator);
 
@@ -137,6 +137,7 @@ struct Example : public Application {
                     else if (ed::AcceptNewItem())
                     {
                         createConnection(inputNode, outputNode);
+                        
                         // Since we accepted new link, lets add one to our list of links.
                         m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });
 

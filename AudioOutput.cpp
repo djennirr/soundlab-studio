@@ -65,6 +65,7 @@ ed::PinKind AudioOutput::getPinKind(ed::PinId pin) const {
 
 void AudioOutput::connect(AudioModule* input) {
     this->inputModule = input; // Подключаем входной модуль
+    this->isPlaying = true;
 }
 
 void AudioOutput::start() {
