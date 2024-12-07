@@ -35,6 +35,14 @@ struct Example : public Application {
 
     }
 
+    void deleteConnection(AudioModule* input, AudioModule* output) {
+        if (input->getNodeType() == NodeType::AudioOutput) {
+            input->connect(nullptr);
+        } else if (output->getNodeType() == NodeType::AudioOutput){
+            output->connect(nullptr);
+        }
+    }
+
     using Application::Application;
 
     //сделать вектор аудиомодуль для нашиз модулей чтобы потом могли по ним итерироваться и было хранение модулей
@@ -49,9 +57,8 @@ struct Example : public Application {
     void OnStart() override {
         
         modules.push_back(audiooutput);
-
         audiooutput->start();
-        
+
         Oscillator* oscillator = new Oscillator(440.0, WaveType::SINE);
         modules.push_back(oscillator);
 
@@ -61,10 +68,12 @@ struct Example : public Application {
     }
 
     void OnStop() override {
+
         audiooutput->stop();
-        // audioOutput->stop();
-        // delete audioOutput;
-        // delete oscillator;
+
+        for (auto& module : modules) {
+            delete module;
+        }
         ed::DestroyEditor(m_Context);
     }
 
@@ -82,15 +91,6 @@ struct Example : public Application {
 
         for (auto& linkInfo : m_Links)
             ed::Link(linkInfo.Id, linkInfo.InputId, linkInfo.OutputId);
-
-        // Управление воспроизведением звука на основе наличия связи
-        // if (hasConnection && !isConnected) {
-        //     audioOutput->start();
-        //     isConnected = true;
-        // } else if (!hasConnection && isConnected) {
-            // audioOutput->stop();
-        //     isConnected = false;
-        // }
 
          // Handle creation action, returns true if editor want to create new object (node or link)
         if (ed::BeginCreate())
@@ -122,7 +122,6 @@ struct Example : public Application {
                     if (!inputNode || !outputNode) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                     }
-                    // printf(" %d %d |", inputPinId, outputPinId);
 
                     // Проверяем тип пинов.
                     else if (inputNode->getPinKind(inputPinId) == outputNode->getPinKind(outputPinId)) {
@@ -153,6 +152,39 @@ struct Example : public Application {
         }
         ed::EndCreate(); // Wraps up object creation action handling.
 
+
+         // Handle deletion action
+        if (ed::BeginDelete())
+        {
+            // There may be many links marked for deletion, let's loop over them.
+            ed::LinkId deletedLinkId;
+            while (ed::QueryDeletedLink(&deletedLinkId))
+            {
+                // If you agree that link can be deleted, accept deletion.
+                if (ed::AcceptDeletedItem())
+                {
+                    // Then remove link from your data.
+                    for (auto& link : m_Links)
+                    {
+                        if (link.Id == deletedLinkId)
+                        {
+                            AudioModule* first = findNode(link.InputId);
+                            AudioModule* second = findNode(link.OutputId);
+
+                            deleteConnection(first, second);
+
+                            m_Links.erase(&link);
+                            break;
+                        }
+                    }
+                }
+
+                // You may reject link deletion by calling:
+                // ed::RejectDeletedItem();
+            }
+        }
+        ed::EndDelete(); // Wrap up deletion action
+        
         // // Обработка удаления соединений
         // if (ed::BeginDelete()) {
         //     ed::LinkId deletedLinkId;
