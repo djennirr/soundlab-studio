@@ -7,7 +7,7 @@ const int AMPLITUDE = 128;
 const int SAMPLE_RATE = 44100;
 static int m_FirstFrame = 1;
 
-Oscillator::Oscillator(double freq, WaveType type) : frequency(freq), waveType(type)  {
+Oscillator::Oscillator(float freq, float quot, WaveType type) : frequency(freq), quotient(quot), waveType(type)  {
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
     outputPinId = nextPinId++;
@@ -31,21 +31,24 @@ void Oscillator::process(Uint8* stream, int length) {
 }
 
 void Oscillator::render() {
-    
     // if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(10, 10));
-        ed::BeginNode(nodeId);
-            ImGui::Text("Oscillator");
-            ed::BeginPin(inputPinId, ed::PinKind::Input);
-                ImGui::Text("Frequency In");
-            ed::EndPin();
-            ImGui::SameLine();
-            ed::BeginPin(outputPinId, ed::PinKind::Output);
-                ImGui::Text("Signal Out");
-            ed::EndPin();
-        ed::EndNode();
+    ed::BeginNode(nodeId);
+        ImGui::Text("Oscillator");
+        ed::BeginPin(inputPinId, ed::PinKind::Input);
+            ImGui::Text("Frequency In");
+        ed::EndPin();
+        ImGui::SameLine();
+        ed::BeginPin(outputPinId, ed::PinKind::Output);
+            ImGui::Text("Signal Out");
+        ed::EndPin();
+        ImGui::SetNextItemWidth(150.0f);
+        ImGui::DragFloat("f float", &this->frequency, 7.0F, 0.0F, 1000.0F);
+        
+        ImGui::SetNextItemWidth(150.0f);
+        ImGui::DragFloat("q float", &this->quotient, 0.007F, 0.0F, 1.0F);
+    ed::EndNode();
 
-        // m_FirstFrame = 0;
-
+    // m_FirstFrame = 0;
 }
 
 std::vector<ed::PinId> Oscillator::getPins() const {
@@ -67,8 +70,8 @@ ed::NodeId Oscillator::getNodeId() {
 void Oscillator::generateSineWave(Uint8* stream, int length) {
     static double phase = 0.0;
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint8>((AMPLITUDE * sin(phase)) + 128);
-        stream[i + 1] = static_cast<Uint8>((AMPLITUDE * sin(phase)) + 128);
+        stream[i] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * quotient);
+        stream[i + 1] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * quotient);
         phase += (frequency * 2.0 * M_PI) / SAMPLE_RATE;
     }
 }
@@ -81,11 +84,11 @@ void Oscillator::generateSquareWave(Uint8* stream, int length) {
 
     for (int i = 0; i < length; i += 2) {
         if (phase < period / 2) {
-            stream[i] = highValue;
-            stream[i + 1] = highValue;
+            stream[i] = static_cast<Uint8>(highValue * quotient);
+            stream[i + 1] = static_cast<Uint8>(highValue * quotient);
         } else {
-            stream[i] = lowValue;
-            stream[i + 1] = lowValue;
+            stream[i] = static_cast<Uint8>(lowValue * quotient);
+            stream[i + 1] = static_cast<Uint8>(lowValue * quotient);
         }
         
         phase += 1.0;
@@ -100,8 +103,8 @@ void Oscillator::generateSawtoothWave(Uint8* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint8>((255 * phase) / period);
-        stream[i + 1] = static_cast<Uint8>((255 * phase) / period);
+        stream[i] = static_cast<Uint8>((255 * phase) / period * quotient);
+        stream[i + 1] = static_cast<Uint8>((255 * phase) / period * quotient);
 
         phase += 1.0;
         if (phase >= period) {
@@ -116,9 +119,9 @@ void Oscillator::generateTriangleWave(Uint8* stream, int length) {
 
     for (int i = 0; i < length; i++) {
         if (phase < period / 2) {
-            stream[i] = static_cast<Uint8>((255 * phase) / (period / 2));
+            stream[i] = static_cast<Uint8>((255 * phase) / (period / 2) * quotient);
         } else {
-            stream[i] = static_cast<Uint8>(255 - (255 * (phase - (period / 2)) / (period / 2)));
+            stream[i] = static_cast<Uint8>(255 - (255 * (phase - (period / 2)) / (period / 2)) * quotient);
         }
 
         phase += 1.0;

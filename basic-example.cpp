@@ -7,6 +7,8 @@
 #include "Adder.h"
 #include "WaveType.h"
 #include <vector>
+#include <algorithm>
+
 
 namespace ed = ax::NodeEditor;
 
@@ -283,7 +285,7 @@ struct Example : public Application {
             AudioModule* node = nullptr;
             
             if (ImGui::MenuItem("Oscillator")){
-                node = new Oscillator(440.0, WaveType::SINE);
+                node = new Oscillator(440.0, 0.5, WaveType::SINE);
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Adder")) {

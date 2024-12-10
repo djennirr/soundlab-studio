@@ -6,7 +6,8 @@
 
 class Oscillator : public AudioModule {
 private:
-    double frequency;
+    float frequency;
+    float quotient;
     WaveType waveType;
     ed::PinId inputPinId;
     ed::PinId outputPinId; //задефайнить внутри констуктора
@@ -16,7 +17,7 @@ private:
 
 
 public:
-    Oscillator(double freq, WaveType type);
+    Oscillator(float freq, float quot, WaveType type);
     void process(Uint8* stream, int length) override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
