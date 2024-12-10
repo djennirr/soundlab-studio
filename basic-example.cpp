@@ -41,9 +41,11 @@ struct Example : public Application {
         if (inputId->getNodeType() == NodeType::AudioOutput) {
             AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
             audioOutput->connect(outputID);
+            audioOutput->start();
         } else if (outputID->getNodeType() == NodeType::AudioOutput){
             AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
             audioOutput->connect(inputId);
+            audioOutput->start();
         } else if (inputId->getNodeType() == NodeType::Adder) {
             Adder* adder = static_cast<Adder*>(inputId);
             adder->connect(outputID, adder->chooseIn(outputPin));
@@ -51,14 +53,17 @@ struct Example : public Application {
             Adder* adder = static_cast<Adder*>(outputID);
             adder->connect(inputId, adder->chooseIn(outputPin));
         }
+        
     }
 
     void deleteConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
         if (inputId->getNodeType() == NodeType::AudioOutput) {
             AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
+            audioOutput->stop();
             audioOutput->connect(nullptr);
         } else if (outputID->getNodeType() == NodeType::AudioOutput){
             AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
+            audioOutput->stop();
             audioOutput->connect(nullptr);
         } else if (inputId->getNodeType() == NodeType::Adder) {
             Adder* adder = static_cast<Adder*>(inputId);
@@ -82,7 +87,6 @@ struct Example : public Application {
     void OnStart() override {
         
         modules.push_back(audiooutput);
-        audiooutput->start();
 
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
