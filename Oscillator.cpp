@@ -37,16 +37,16 @@ void Oscillator::render() {
         ed::BeginPin(inputPinId, ed::PinKind::Input);
             ImGui::Text("-> In");
         ed::EndPin();
-        ImGui::SameLine();
+        ImGui::SameLine(180.0F);
         ed::BeginPin(outputPinId, ed::PinKind::Output);
             ImGui::Text("Out ->");
         ed::EndPin();
         
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat("f float", &this->frequency, 7.0F, 0.0F, 1000.0F);
+        ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(nodeId.Get()) - 1000) + ">").c_str(), &this->frequency, 7.0F, 0.0F, 1000.0F);
         
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat("q float", &this->quotient, 0.007F, 0.0F, 1.0F);
+        ImGui::DragFloat(("quotient##<" + std::to_string(static_cast<int>(nodeId.Get()) - 1000) + ">").c_str(), &this->quotient, 0.007F, 0.0F, 1.0F);
     ed::EndNode();
 
     // m_FirstFrame = 0;
