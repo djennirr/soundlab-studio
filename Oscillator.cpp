@@ -35,12 +35,13 @@ void Oscillator::render() {
     ed::BeginNode(nodeId);
         ImGui::Text("Oscillator");
         ed::BeginPin(inputPinId, ed::PinKind::Input);
-            ImGui::Text("Frequency In");
+            ImGui::Text("-> In");
         ed::EndPin();
         ImGui::SameLine();
         ed::BeginPin(outputPinId, ed::PinKind::Output);
-            ImGui::Text("Signal Out");
+            ImGui::Text("Out ->");
         ed::EndPin();
+        
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat("f float", &this->frequency, 7.0F, 0.0F, 1000.0F);
         

@@ -43,7 +43,7 @@ void AudioOutput::render() {
         ed::BeginNode(nodeId);
             ImGui::Text("Audio Output");
             ed::BeginPin(inputPinId, ed::PinKind::Input);
-                ImGui::Text("Signal In");
+                ImGui::Text("=> Signal In");
             ed::EndPin();
             // ImGui::SameLine();
             // ed::BeginPin(outputPinId, ed::PinKind::Output);

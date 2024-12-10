@@ -33,10 +33,10 @@ void Adder::process(Uint8* stream, int length) {
         // Если module2 пустой, заполняем массив значениями по умолчанию (например, 0)
         memset(stream2, 0, sizeof(stream2));
     }
-    for (int i = 0; i < length; i += 2){
-        stream[i] = (stream1[i] + stream2[i]) % 255;
+    for (int i = 0; i < length; i += 2) {
+        stream[i] = (stream1[i] + stream2[i]) / 2 % 256;
         if (i + 1 < length) {
-            stream[i + 1] = (stream1[i + 1] + stream2[i + 1]) % 255;
+            stream[i + 1] = (stream1[i + 1] + stream2[i + 1]) / 2 % 256;
         }
     }
 }
@@ -46,17 +46,17 @@ void Adder::render() {
 
         ImGui::Text("Adder");
         ed::BeginPin(input1PinId, ed::PinKind::Input);
-            ImGui::Text("In");
+            ImGui::Text("-> In");
         ed::EndPin();
 
         ImGui::SameLine();
 
         ed::BeginPin(outputPinId, ed::PinKind::Output);
-            ImGui::Text("Out");
+            ImGui::Text("Out ->");
         ed::EndPin();
 
         ed::BeginPin(input2PinId, ed::PinKind::Input);
-            ImGui::Text("In");
+            ImGui::Text("-> In");
         ed::EndPin();
 
         ed::EndNode();
