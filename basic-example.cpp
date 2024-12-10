@@ -17,6 +17,16 @@ struct Example : public Application {
         ed::PinId  OutputId;
     };
 
+
+    LinkInfo* findLinkByPin(ed::PinId pinId) {
+    for (auto& link : m_Links) {
+        if (link.InputId == pinId || link.OutputId == pinId) {
+            return &link;
+        }
+    }
+    return nullptr;
+}
+
     AudioModule* findNode(ed::PinId pin) {
         for (AudioModule* module : modules) {
         const auto& pins = module->getPins();
@@ -147,6 +157,30 @@ struct Example : public Application {
                     // ed::AcceptNewItem() return true when user release mouse button.
                     else if (ed::AcceptNewItem())
                     {
+                        LinkInfo* existingLinkOutput = findLinkByPin(outputPinId);
+
+                        if (existingLinkOutput) {
+                            AudioModule* inputNode = findNode(existingLinkOutput->InputId);
+                            AudioModule* outputNode = findNode(existingLinkOutput->OutputId);
+                            if (inputNode && outputNode) {
+                                deleteConnection(inputNode, existingLinkOutput->InputId, outputNode, existingLinkOutput->OutputId);
+                            }
+                            m_Links.erase(existingLinkOutput);
+                        }
+
+                        LinkInfo* existingLinkInput = findLinkByPin(inputPinId);
+                        
+                        if (existingLinkInput) {
+                            AudioModule* inputNode = findNode(existingLinkInput->InputId);
+                            AudioModule* outputNode = findNode(existingLinkInput->OutputId);
+                            if (inputNode && outputNode) {
+                                deleteConnection(inputNode, existingLinkInput->InputId, outputNode, existingLinkInput->OutputId);
+                            }
+                            m_Links.erase(existingLinkInput);
+                        }
+
+
+
                         createConnection(inputNode, inputPinId, outputNode, outputPinId);
                         
                         // Since we accepted new link, lets add one to our list of links.
