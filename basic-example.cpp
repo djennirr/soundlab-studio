@@ -237,7 +237,7 @@ while (ed::QueryDeletedNode(&nodeId)) {
 
         // Если это не AudioOutput и удаление подтверждено
         if (ed::AcceptDeletedItem()) {
-            // deleteNode(*it);
+            deleteNode(*it);
         }
     }
 }
