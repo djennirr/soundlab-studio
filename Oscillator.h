@@ -25,6 +25,7 @@ public:
         return NodeType::Oscillator;
     }
     ed::NodeId getNodeId() override;
+    virtual void disconnect(AudioModule* module) override;
     void render() override;
 
 private:

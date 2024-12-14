@@ -27,9 +27,9 @@ struct Example : public Application {
         }
     }
     return nullptr;
-}
+    }
 
-    AudioModule* findNode(ed::PinId pin) {
+    AudioModule* findNodeByPin(ed::PinId pin) {
         for (AudioModule* module : modules) {
         const auto& pins = module->getPins();
         if (std::find(pins.begin(), pins.end(), pin) != pins.end()) {
@@ -61,28 +61,39 @@ struct Example : public Application {
     void deleteConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
         if (inputId->getNodeType() == NodeType::AudioOutput) {
             AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
-            audioOutput->stop();
-            audioOutput->connect(nullptr);
+            audioOutput->disconnect(outputID);
         } else if (outputID->getNodeType() == NodeType::AudioOutput){
             AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
-            audioOutput->stop();
-            audioOutput->connect(nullptr);
+            audioOutput->disconnect(inputId);
         } else if (inputId->getNodeType() == NodeType::Adder) {
             Adder* adder = static_cast<Adder*>(inputId);
-            adder->connect(nullptr, adder->chooseIn(outputPin));
+            adder->disconnect(outputID);
         } else if (outputID->getNodeType() == NodeType::Adder){
             Adder* adder = static_cast<Adder*>(outputID);
-            adder->connect(nullptr, adder->chooseIn(outputPin));
+            adder->disconnect(inputId);
         }
-
     }
+
+void deleteNode(AudioModule* nodeToDelete) {
+    if (!nodeToDelete) return;
+
+    // Убираем ссылки на удаляемую ноду
+    for (auto& module : modules) {
+        if (module != nodeToDelete) {
+            module->disconnect(nodeToDelete);
+        }
+    }
+
+    // Удаляем саму ноду
+    auto it = std::find(modules.begin(), modules.end(), nodeToDelete);
+    if (it != modules.end()) {
+        delete *it;          // Освобождаем память
+        modules.erase(it);   // Удаляем из списка
+    }
+}
 
     using Application::Application;
 
-    //сделать вектор аудиомодуль для нашиз модулей чтобы потом могли по ним итерироваться и было хранение модулей
-    //storage of audio modules in our synthesizer 
-    //потом пушим новые обьекты в наш вектор при ините новых модулей
-    //
 
     AudioOutput* audiooutput = new AudioOutput();
 
@@ -144,8 +155,8 @@ struct Example : public Application {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                     }
 
-                    AudioModule* inputNode = findNode(inputPinId);
-                    AudioModule* outputNode = findNode(outputPinId);
+                    AudioModule* inputNode = findNodeByPin(inputPinId);
+                    AudioModule* outputNode = findNodeByPin(outputPinId);
 
                     if (!inputNode || !outputNode) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
@@ -166,8 +177,8 @@ struct Example : public Application {
                         LinkInfo* existingLinkOutput = findLinkByPin(outputPinId);
 
                         if (existingLinkOutput) {
-                            AudioModule* inputNode = findNode(existingLinkOutput->InputId);
-                            AudioModule* outputNode = findNode(existingLinkOutput->OutputId);
+                            AudioModule* inputNode = findNodeByPin(existingLinkOutput->InputId);
+                            AudioModule* outputNode = findNodeByPin(existingLinkOutput->OutputId);
                             if (inputNode && outputNode) {
                                 deleteConnection(inputNode, existingLinkOutput->InputId, outputNode, existingLinkOutput->OutputId);
                             }
@@ -177,8 +188,8 @@ struct Example : public Application {
                         LinkInfo* existingLinkInput = findLinkByPin(inputPinId);
                         
                         if (existingLinkInput) {
-                            AudioModule* inputNode = findNode(existingLinkInput->InputId);
-                            AudioModule* outputNode = findNode(existingLinkInput->OutputId);
+                            AudioModule* inputNode = findNodeByPin(existingLinkInput->InputId);
+                            AudioModule* outputNode = findNodeByPin(existingLinkInput->OutputId);
                             if (inputNode && outputNode) {
                                 deleteConnection(inputNode, existingLinkInput->InputId, outputNode, existingLinkInput->OutputId);
                             }
@@ -209,21 +220,27 @@ struct Example : public Application {
         if (ed::BeginDelete())
         {
 
-        ed::NodeId nodeId = 0;
-        while (ed::QueryDeletedNode(&nodeId)) {
-        if (ed::AcceptDeletedItem()) {
-            // Найти узел в modules по его ID
-            auto it = std::find_if(modules.begin(), modules.end(), [nodeId](AudioModule* node) {
-                return node->getNodeId() == nodeId;
-            });
+       ed::NodeId nodeId = 0;
+while (ed::QueryDeletedNode(&nodeId)) {
+    // Найти узел по ID
+    auto it = std::find_if(modules.begin(), modules.end(), [nodeId](AudioModule* node) {
+        return node->getNodeId() == nodeId;
+    });
 
-            // Если узел найден, удалить его
-            if (it != modules.end()) {
-                delete *it;         // Освободить память
-                modules.erase(it);  // Удалить из вектора
-            }
+    // Проверка: если узел найден
+    if (it != modules.end()) {
+        // Если узел является AudioOutput, отклонить удаление
+        if ((*it)->getNodeType() == NodeType::AudioOutput) {
+            ed::RejectDeletedItem();
+            continue; // Переходим к следующему удаляемому узлу
+        }
+
+        // Если это не AudioOutput и удаление подтверждено
+        if (ed::AcceptDeletedItem()) {
+            // deleteNode(*it);
         }
     }
+}
 
             // There may be many links marked for deletion, let's loop over them.
             ed::LinkId deletedLinkId;
@@ -232,19 +249,21 @@ struct Example : public Application {
                 // If you agree that link can be deleted, accept deletion.
                 if (ed::AcceptDeletedItem())
                 {
-                    // Then remove link from your data.
-                    for (auto& link : m_Links)
+                    // Найти ссылку в m_Links
+                    auto it = std::find_if(m_Links.begin(), m_Links.end(), [deletedLinkId](const auto& link) {
+                        return link.Id == deletedLinkId;
+                    });
+
+                    if (it != m_Links.end())
                     {
-                        if (link.Id == deletedLinkId)
-                        {
-                            AudioModule* first = findNode(link.InputId);
-                            AudioModule* second = findNode(link.OutputId);
+                        AudioModule* first = findNodeByPin(it->InputId);
+                        AudioModule* second = findNodeByPin(it->OutputId);
 
-                            deleteConnection(first, link.InputId, second, link.OutputId);
+                        if (first && second)
+                            deleteConnection(first, it->InputId, second, it->OutputId);
 
-                            m_Links.erase(&link);
-                            break;
-                        }
+                        // Удалить ссылку
+                        m_Links.erase(it);
                     }
                 }
 
