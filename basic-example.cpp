@@ -40,38 +40,46 @@ struct Example : public Application {
     }
 
     void createConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
-        if (inputId->getNodeType() == NodeType::AudioOutput) {
-            AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
-            audioOutput->connect(outputID);
-            audioOutput->start();
-        } else if (outputID->getNodeType() == NodeType::AudioOutput){
-            AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
-            audioOutput->connect(inputId);
-            audioOutput->start();
-        } else if (inputId->getNodeType() == NodeType::Adder) {
-            Adder* adder = static_cast<Adder*>(inputId);
-            adder->connect(outputID, adder->chooseIn(outputPin));
-        } else if (outputID->getNodeType() == NodeType::Adder){
-            Adder* adder = static_cast<Adder*>(outputID);
-            adder->connect(inputId, adder->chooseIn(outputPin));
+        if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
+            outputID->connect(inputId, outputID->chooseIn(outputPin));
+        } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
+            inputId->connect(outputID, inputId->chooseIn(inputPin));
         }
+        // if (inputId->getNodeType() == NodeType::AudioOutput) {
+        //     AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
+        //     audioOutput->connect(outputID);
+        // } else if (outputID->getNodeType() == NodeType::AudioOutput){
+        //     AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
+        //     audioOutput->connect(inputId);
+        // } else if (inputId->getNodeType() == NodeType::Adder) {
+        //     Adder* adder = static_cast<Adder*>(inputId);
+        //     adder->connect(outputID, adder->chooseIn(outputPin));
+        // } else if (outputID->getNodeType() == NodeType::Adder){
+        //     Adder* adder = static_cast<Adder*>(outputID);
+        //     adder->connect(inputId, adder->chooseIn(outputPin));
+    // }
         
     }
 
     void deleteConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
-        if (inputId->getNodeType() == NodeType::AudioOutput) {
-            AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
-            audioOutput->disconnect(outputID);
-        } else if (outputID->getNodeType() == NodeType::AudioOutput){
-            AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
-            audioOutput->disconnect(inputId);
-        } else if (inputId->getNodeType() == NodeType::Adder) {
-            Adder* adder = static_cast<Adder*>(inputId);
-            adder->disconnect(outputID);
-        } else if (outputID->getNodeType() == NodeType::Adder){
-            Adder* adder = static_cast<Adder*>(outputID);
-            adder->disconnect(inputId);
+        if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
+            outputID->disconnect(inputId);
+        } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
+            inputId->disconnect(outputID);
         }
+        // if (inputId->getNodeType() == NodeType::AudioOutput) {
+        //     AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
+        //     audioOutput->disconnect(outputID);
+        // } else if (outputID->getNodeType() == NodeType::AudioOutput){
+        //     AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
+        //     audioOutput->disconnect(inputId);
+        // } else if (inputId->getNodeType() == NodeType::Adder) {
+        //     Adder* adder = static_cast<Adder*>(inputId);
+        //     adder->disconnect(outputID);
+        // } else if (outputID->getNodeType() == NodeType::Adder){
+        //     Adder* adder = static_cast<Adder*>(outputID);
+        //     adder->disconnect(inputId);
+        // }
     }
 
 void deleteNode(AudioModule* nodeToDelete) {

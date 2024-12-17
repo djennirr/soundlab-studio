@@ -23,7 +23,9 @@ class AudioModule {
     virtual ed::PinKind getPinKind(ed::PinId pin) const = 0;
     virtual NodeType getNodeType() const = 0;
     virtual ed::NodeId getNodeId() = 0;
+    virtual void connect(AudioModule* input, int id = 1) = 0;
     virtual void disconnect(AudioModule* module) = 0;
+    virtual int chooseIn(ed::PinId pin) = 0;
     static int nextNodeId;
     static int nextPinId;
     //constructor for audiomodule аргументом передаем айди и присваивается полю

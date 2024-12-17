@@ -12,34 +12,35 @@ Adder::Adder()  {
     outputPinId = nextPinId++;
 }
 
+// Hazard zone внимание не трогать, оно тебя сожрёт
 void Adder::process(Uint8* stream, int length) {
-    if (length > 1024) { // ?
-        length = 1024;
-    }
-    Uint8 stream1[1024];
-    Uint8 stream2[1024];
-    // Если module1 не пустой, обрабатываем его
+    // Ограничиваем длину буфера
+    length = std::min(length, 1024); // Максимальная длина
+
+    // Временные буферы для входных сигналов
+    Uint8 stream1[1024] = {0};
+    Uint8 stream2[1024] = {0};
+
+    // Получаем данные от подключённых модулей
     if (module1 != nullptr) {
         module1->process(stream1, length);
-    } else {
-        // Если module1 пустой, заполняем массив значениями по умолчанию (например, 0)
-        memset(stream1, 0, sizeof(stream1));
     }
-
-    // Если module2 не пустой, обрабатываем его
     if (module2 != nullptr) {
         module2->process(stream2, length);
-    } else {
-        // Если module2 пустой, заполняем массив значениями по умолчанию (например, 0)
-        memset(stream2, 0, sizeof(stream2));
     }
-    for (int i = 0; i < length; i += 2) {
-        stream[i] = (stream1[i] + stream2[i]) / 2 % 256;
-        if (i + 1 < length) {
-            stream[i + 1] = (stream1[i + 1] + stream2[i + 1]) / 2 % 256;
-        }
+
+    // Суммируем и ограничиваем результаты для каждого канала
+    for (int i = 0; i < length; i += 2) {  // Шаг на 2 для стерео
+        // Суммируем левый канал (stream1[i] + stream2[i])
+        int left = stream1[i] + stream2[i];
+        stream[i] = static_cast<Uint8>(std::min(left, 255)); // Ограничиваем в пределах [0, 255]
+
+        // Суммируем правый канал (stream1[i+1] + stream2[i+1])
+        int right = stream1[i + 1] + stream2[i + 1];
+        stream[i + 1] = static_cast<Uint8>(std::min(right, 255)); // Ограничиваем в пределах [0, 255]
     }
 }
+
 
 void Adder::render() {
     ed::BeginNode(nodeId);

@@ -26,6 +26,8 @@ public:
     }
     ed::NodeId getNodeId() override;
     virtual void disconnect(AudioModule* module) override;
+    virtual void connect(AudioModule* input, int id = 1) override;
+    virtual int chooseIn(ed::PinId pin) override;
     void render() override;
 
 private:
