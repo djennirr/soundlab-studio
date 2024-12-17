@@ -11,7 +11,7 @@ AudioOutput::AudioOutput() {
     wavSpec.format = AUDIO_U8;
     wavSpec.channels = 2;
     wavSpec.samples = 512; // ?
-    wavSpec.size = 1024;   // ?
+    wavSpec.size = 512;   // ?
     wavSpec.callback = audioCallback;
     wavSpec.userdata = this;
     nodeId = nextNodeId++;
@@ -63,9 +63,10 @@ ed::PinKind AudioOutput::getPinKind(ed::PinId pin) const {
     }
 }
 
-void AudioOutput::connect(AudioModule* input) {
+void AudioOutput::connect(AudioModule* input, int id) {
     this->inputModule = input; // Подключаем входной модуль
     this->isPlaying = true;
+    this->start();
 }
 
 void AudioOutput::disconnect(AudioModule* module) {
@@ -73,6 +74,10 @@ void AudioOutput::disconnect(AudioModule* module) {
         inputModule = nullptr;
         stop();
     }
+}
+
+int AudioOutput::chooseIn(ed::PinId id) {
+    return 1;
 }
 
 ed::NodeId AudioOutput::getNodeId() {

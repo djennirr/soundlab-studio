@@ -133,6 +133,12 @@ void Oscillator::generateTriangleWave(Uint8* stream, int length) {
     }
 }
 
+void Oscillator::connect(AudioModule* module, int id) {
+    return;
+}
 void Oscillator::disconnect(AudioModule* module) {
     return;
+}
+int Oscillator::chooseIn(ed::PinId id) {
+    return 1;
 }

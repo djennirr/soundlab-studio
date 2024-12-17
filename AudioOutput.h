@@ -17,9 +17,10 @@ public:
     NodeType getNodeType() const override {
         return NodeType::AudioOutput;
     }
-    void connect(AudioModule* input);
+    void connect(AudioModule* input, int id = 1) override;
     ed::NodeId getNodeId() override;
     virtual void disconnect(AudioModule* module) override;
+    virtual int chooseIn(ed::PinId pin) override;
     void start();
     void stop();
     

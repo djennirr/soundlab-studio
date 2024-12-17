@@ -12,6 +12,8 @@ class Adder : public AudioModule{
         ed::PinId input1PinId;
         ed::PinId input2PinId;
         ed::PinId outputPinId;
+        // float mixFactor1;
+        // float mixFactor2;
 
     public:
         Adder();
@@ -24,6 +26,6 @@ class Adder : public AudioModule{
         }
         void connect(AudioModule* input, int id);
         ed::NodeId getNodeId() override;
-        int chooseIn(ed::PinId pin);
+        int chooseIn(ed::PinId pin) override;
         virtual void disconnect(AudioModule* module) override;
 };
