@@ -34,6 +34,23 @@ void Oscillator::render() {
     // if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(10, 10));
     ed::BeginNode(nodeId);
         ImGui::Text("Oscillator");
+        ImGui::SetNextItemWidth(150.0f);
+        if (ImGui::BeginMenu(("wave##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())){
+            if (ImGui::MenuItem("sine")) {
+                this->waveType = SINE;
+            }
+            if (ImGui::MenuItem("square")) {
+                this->waveType = SQUARE;
+            }   
+            if (ImGui::MenuItem("sawtooth")) {
+                this->waveType = SAWTOOTH;
+            }   
+            if (ImGui::MenuItem("triangle")) {
+                this->waveType = TRIANGLE;
+            } 
+            ImGui::EndMenu();
+        }
+
         ed::BeginPin(inputPinId, ed::PinKind::Input);
             ImGui::Text("-> In");
         ed::EndPin();
