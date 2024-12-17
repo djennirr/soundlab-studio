@@ -25,4 +25,5 @@ class Adder : public AudioModule{
         void connect(AudioModule* input, int id);
         ed::NodeId getNodeId() override;
         int chooseIn(ed::PinId pin);
+        virtual void disconnect(AudioModule* module) override;
 };

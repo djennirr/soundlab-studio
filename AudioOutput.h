@@ -19,6 +19,7 @@ public:
     }
     void connect(AudioModule* input);
     ed::NodeId getNodeId() override;
+    virtual void disconnect(AudioModule* module) override;
     void start();
     void stop();
     

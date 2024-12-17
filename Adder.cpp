@@ -83,6 +83,7 @@ void Adder::connect(AudioModule* input, int id) {
     } else if (id == 2) {
         this->module2 = input;
     }
+    return;
 }
 
 ed::NodeId Adder::getNodeId() {
@@ -95,4 +96,13 @@ int Adder::chooseIn(ed::PinId pin) {
     } else if(pin == input2PinId) {
         return 2;
     }
+}
+
+void Adder::disconnect(AudioModule* module) {
+    if (module1 == module) {
+        module1 = nullptr;
+    } else if (module2 == module) {
+        module2 = nullptr;
+    }
+    return;
 }

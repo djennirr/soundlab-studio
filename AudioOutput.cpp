@@ -25,7 +25,7 @@ AudioOutput::AudioOutput() {
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
     AudioOutput* audioOutput = static_cast<AudioOutput*>(userdata);
-    if (audioOutput && audioOutput->isPlaying && audioOutput->inputModule) {
+    if (audioOutput && audioOutput->inputModule) {
         // Если есть ссылка на inputModule и флаг воспроизведения включен
         audioOutput->inputModule->process(stream, len);
     } else {
@@ -66,6 +66,13 @@ ed::PinKind AudioOutput::getPinKind(ed::PinId pin) const {
 void AudioOutput::connect(AudioModule* input) {
     this->inputModule = input; // Подключаем входной модуль
     this->isPlaying = true;
+}
+
+void AudioOutput::disconnect(AudioModule* module) {
+    if (inputModule == module) {
+        inputModule = nullptr;
+        stop();
+    }
 }
 
 ed::NodeId AudioOutput::getNodeId() {
