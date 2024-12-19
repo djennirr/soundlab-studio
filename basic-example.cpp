@@ -6,6 +6,7 @@
 #include "Oscillator.h"
 #include "Adder.h"
 #include "WaveType.h"
+#include "Distortion.h"
 #include <vector>
 #include <algorithm>
 
@@ -317,6 +318,10 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Adder")) {
                 node = new Adder();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Distortion")) {
+                node = new Distortion();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

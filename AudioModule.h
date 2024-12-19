@@ -11,6 +11,7 @@ enum class NodeType {
     Oscillator,
     AudioOutput,
     Adder,
+    Distortion,
 };
 
 class AudioModule {

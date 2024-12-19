@@ -24,8 +24,8 @@ class Adder : public AudioModule{
         NodeType getNodeType() const override {
             return NodeType::Adder;
         }
-        void connect(AudioModule* input, int id);
+        void connect(AudioModule* input, int id) override;
         ed::NodeId getNodeId() override;
         int chooseIn(ed::PinId pin) override;
-        virtual void disconnect(AudioModule* module) override;
+        void disconnect(AudioModule* module) override;
 };
