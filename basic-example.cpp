@@ -7,6 +7,7 @@
 #include "Adder.h"
 #include "WaveType.h"
 #include "Distortion.h"
+#include "NoiseGenerator.h"
 #include <vector>
 #include <algorithm>
 
@@ -322,6 +323,10 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Distortion")) {
                 node = new Distortion();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Noise Generator")) {
+                node = new NoiseGenerator();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

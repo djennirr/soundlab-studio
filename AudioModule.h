@@ -12,6 +12,7 @@ enum class NodeType {
     AudioOutput,
     Adder,
     Distortion,
+    NoiseGenerator,
 };
 
 class AudioModule {
@@ -29,6 +30,7 @@ class AudioModule {
     virtual int chooseIn(ed::PinId pin) = 0;
     static int nextNodeId;
     static int nextPinId;
+    static bool do_popup;
     //constructor for audiomodule аргументом передаем айди и присваивается полю
     //либо просто в каждом классе определить поля для пинов айди
 };

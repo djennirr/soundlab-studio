@@ -6,7 +6,7 @@ project(basic-interaction-example)
 set(IMGUI_NODE_EDITOR_ROOT_DIR "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor" CACHE PATH "Path to ImGui Node Editor")
 
 # Укажите стандарт C++
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 # Добавьте путь к модулям CMake из imgui-node-editor
@@ -31,6 +31,7 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/AudioModule.cpp
     ${CMAKE_SOURCE_DIR}/Adder.cpp
     ${CMAKE_SOURCE_DIR}/Distortion.cpp
+    ${CMAKE_SOURCE_DIR}/NoiseGenerator.cpp
 )
 
 # Подключите библиотеки, включая SDL2, imgui и imgui_node_editor
