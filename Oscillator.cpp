@@ -31,7 +31,6 @@ void Oscillator::process(Uint8* stream, int length) {
     }
 }
 
-    bool do_popup = false;
     
 void Oscillator::render() {
 

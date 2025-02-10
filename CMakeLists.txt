@@ -4,7 +4,8 @@ project(basic-interaction-example)
 
 set(IMGUI_NODE_EDITOR_ROOT_DIR "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor" CACHE PATH "Path to ImGui Node Editor")
 
-set(CMAKE_CXX_STANDARD 14)
+
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 list(APPEND CMAKE_MODULE_PATH "${IMGUI_NODE_EDITOR_ROOT_DIR}/misc/cmake-modules")
@@ -23,6 +24,8 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/Oscillator.cpp  
     ${CMAKE_SOURCE_DIR}/AudioModule.cpp
     ${CMAKE_SOURCE_DIR}/Adder.cpp
+    ${CMAKE_SOURCE_DIR}/Distortion.cpp
+    ${CMAKE_SOURCE_DIR}/NoiseGenerator.cpp
 )
 
 target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application)
