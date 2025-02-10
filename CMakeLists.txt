@@ -18,7 +18,6 @@ find_package(SDL2 REQUIRED)
 
 add_subdirectory(libs/imgui-node-editor/examples/application)
 
-add_subdirectory(json)
 
 add_executable(basic-interaction-example 
     ${CMAKE_SOURCE_DIR}/basic-example.cpp
@@ -30,7 +29,7 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/NoiseGenerator.cpp
 )
 
-target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
+target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application)
 
 add_custom_command(TARGET basic-interaction-example POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
