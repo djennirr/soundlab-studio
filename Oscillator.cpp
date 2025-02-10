@@ -36,6 +36,7 @@ void Oscillator::process(Uint8* stream, int length) {
 void Oscillator::render() {
 
     ed::BeginNode(nodeId);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
         ImGui::Text("Oscillator");
         ed::BeginPin(inputPinId, ed::PinKind::Input);
             ImGui::Text("-> In");

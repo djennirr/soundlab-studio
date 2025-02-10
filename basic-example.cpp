@@ -4,6 +4,7 @@
 #include <cmath>
 #include "AudioOutput.h"
 #include "Oscillator.h"
+#include "Oscilloscope.h"
 #include "Adder.h"
 #include "WaveType.h"
 #include "Distortion.h"
@@ -322,6 +323,10 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Distortion")) {
                 node = new Distortion();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Oscilloscope")) {
+                node = new Oscilloscope();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

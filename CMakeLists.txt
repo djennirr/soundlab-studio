@@ -16,7 +16,7 @@ list(APPEND CMAKE_MODULE_PATH "${IMGUI_NODE_EDITOR_ROOT_DIR}/misc/cmake-modules"
 set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/libs/SDL2")
 
 # Найдите пакеты imgui и imgui-node-editor
-find_package(imgui REQUIRED)
+# find_package(imgui REQUIRED)
 find_package(imgui_node_editor REQUIRED)
 find_package(SDL2 REQUIRED)
 
@@ -27,7 +27,8 @@ add_subdirectory(libs/imgui-node-editor/examples/application)
 add_executable(basic-interaction-example 
     ${CMAKE_SOURCE_DIR}/basic-example.cpp
     ${CMAKE_SOURCE_DIR}/AudioOutput.cpp  # Добавьте ваш файл
-    ${CMAKE_SOURCE_DIR}/Oscillator.cpp  
+    ${CMAKE_SOURCE_DIR}/Oscillator.cpp
+    ${CMAKE_SOURCE_DIR}/Oscilloscope.cpp  
     ${CMAKE_SOURCE_DIR}/AudioModule.cpp
     ${CMAKE_SOURCE_DIR}/Adder.cpp
     ${CMAKE_SOURCE_DIR}/Distortion.cpp

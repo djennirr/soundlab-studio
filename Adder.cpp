@@ -1,5 +1,6 @@
 #include "Adder.h"
 #include "Oscillator.h"
+#include "Distortion.h"
 #include <SDL2/SDL.h>
 #include <vector>
 

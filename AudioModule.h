@@ -9,6 +9,7 @@ namespace ed = ax::NodeEditor;
 
 enum class NodeType {
     Oscillator,
+    Oscilloscope,
     AudioOutput,
     Adder,
     Distortion,
