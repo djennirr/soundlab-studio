@@ -1,6 +1,6 @@
 #include <imgui.h>
 #include <imgui_node_editor.h>
-#include "application.h"
+#include <application.h>
 #include <cmath>
 #include "AudioOutput.h"
 #include "Oscillator.h"
