@@ -1,3 +1,6 @@
 [submodule "libs/imgui-node-editor"]
 	path = libs/imgui-node-editor
 	url = https://github.com/thedmd/imgui-node-editor.git
+[submodule "json"]
+	path = json
+	url = https://github.com/nlohmann/json.git
