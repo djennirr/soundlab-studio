@@ -2,7 +2,8 @@
 
 #include <SDL2/SDL.h>
 #include <imgui_node_editor.h>
-#include <application.h>
+#include <algorithm>
+#include "application.h"
 #include <vector>
 
 namespace ed = ax::NodeEditor;
