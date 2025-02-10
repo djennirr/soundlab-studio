@@ -18,7 +18,6 @@ find_package(SDL2 REQUIRED)
 
 add_subdirectory(libs/imgui-node-editor/examples/application)
 
-
 add_executable(basic-interaction-example 
     ${CMAKE_SOURCE_DIR}/basic-example.cpp
     ${CMAKE_SOURCE_DIR}/AudioOutput.cpp
