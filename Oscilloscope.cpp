@@ -1,14 +1,11 @@
 #include "Oscilloscope.h"
-#include <vector>
-#include <SDL2/SDL.h>
-#include <iostream>
 
 Oscilloscope::Oscilloscope() {
     inputModule = nullptr;
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
     outputPinId = nextPinId++;
-    waveformBuffer.resize(bufferSize);
+    waveformBuffer.resize(bufferSize);//задаю размер буффера
     clearBuffer();
 }
 
@@ -18,9 +15,9 @@ void Oscilloscope::process(Uint8* stream, int length) {
     if (inputModule != nullptr) {
         inputModule->process(stream, length);
 
-        updateCounter++;
-        if (updateCounter >= updateInterval) {
-            updateCounter = 0; // Сбрасываем счетчик
+        updateTimer++;
+        if (updateTimer >= updateInterval) {
+            updateTimer = 0; // Сбрасываем счетчик
 
             for (int i = 0; i < length; i++) {
                 float sample = static_cast<float>(stream[i]) / 127.5f - 1.0f;
@@ -65,11 +62,13 @@ int Oscilloscope::chooseIn(ed::PinId id) {
 
 void Oscilloscope::render() {
     ed::BeginNode(nodeId);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 90.f) * 0.5f);
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 90.f) * 0.5f);//для выводы имени модуля по середине(числа выбраны чисто имперически)
     ImGui::Text("Oscilloscope");
+
     ed::BeginPin(inputPinId, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
+
     ImGui::SameLine(255.0F);
     ed::BeginPin(outputPinId, ed::PinKind::Output);
     ImGui::Text("Out ->");

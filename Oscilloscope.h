@@ -3,6 +3,7 @@
 #include "AudioModule.h" 
 #include <vector>
 #include <imgui.h>
+#include <SDL2/SDL.h>
 
 class Oscilloscope : public AudioModule {
 private:
@@ -13,7 +14,7 @@ private:
     int bufferSize = 1024; 
     int bufferIndex = 0;
     //Для четкого выведения волны
-    int updateCounter = 0;  
+    int updateTimer = 0;  
     int updateInterval = 8; 
 
 public:
