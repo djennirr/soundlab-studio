@@ -15,19 +15,26 @@ Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), 
 }
 
 void Oscillator::process(Uint8* stream, int length) {
-    switch (waveType) {
-        case SINE:
-            generateSineWave(stream, length);
-            break;
-        case SQUARE:
-            generateSquareWave(stream, length);
-            break;
-        case SAWTOOTH:
-            generateSawtoothWave(stream, length);
-            break;
-        case TRIANGLE:
-            generateTriangleWave(stream, length);
-            break;
+    if (isSignalActive) {
+        
+        switch (waveType) {
+            case SINE:
+                generateSineWave(stream, length);
+                break;
+            case SQUARE:
+                generateSquareWave(stream, length);
+                break;
+            case SAWTOOTH:
+                generateSawtoothWave(stream, length);
+                break;
+            case TRIANGLE:
+                generateTriangleWave(stream, length);
+                break;
+        }
+    } else {
+        for (int i = 0; i < length; i++) {
+            stream[i] = 128;
+        }
     }
 }
 
@@ -36,6 +43,11 @@ void Oscillator::render() {
 
     ed::BeginNode(nodeId);
         ImGui::Text("Oscillator");
+
+    std::string buttonLabel2 = isSignalActive ? "OFF" : "ON";
+    if (ImGui::Button(buttonLabel2.c_str())) {
+        isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
+    }
         ed::BeginPin(inputPinId, ed::PinKind::Input);
             ImGui::Text("-> In");
         ed::EndPin();
