@@ -159,7 +159,7 @@ void Oscillator::generateTriangleWave(Uint8* stream, int length) {
         if (phase < period / 2) {
             stream[i] = static_cast<Uint8>((255 * phase) / (period / 2) * volume);
         } else {
-            stream[i] = static_cast<Uint8>(255 - (255 * (phase - (period / 2)) / (period / 2)) * volume);
+            stream[i] = static_cast<Uint8>((255 - (255 * (phase - (period / 2)) / (period / 2))) * volume);
         }
 
         phase += 1.0;
