@@ -9,6 +9,8 @@
 #include <vector>
 #include <algorithm>
 #include "libs/json/single_include/nlohmann/json.hpp"
+#include <fstream>
+#include <iostream>
 
 namespace ed = ax::NodeEditor;
 
@@ -19,6 +21,35 @@ struct Example : public Application {
         ed::PinId  OutputId;
     };
 
+    void saveToFile(const std::string& filename) {
+        json project;
+    
+        json modulesJson;
+        for (auto* module : modules) {
+            modulesJson.push_back(module->toJson());
+        }
+        project["modules"] = modulesJson;
+    
+        json linksJson;
+        for (auto& link : m_Links) {
+            json linkJson;
+            linkJson["inputPin"] = static_cast<int>(link.InputId.Get());
+            linkJson["outputPin"] = static_cast<int>(link.OutputId.Get());
+            linksJson.push_back(linkJson);
+        }
+        project["links"] = linksJson;
+        // мб добавить фичу, что при загрузке проекта линк к AudioOutput не появляется (чтобы звука сразу не было)
+    
+        std::ofstream file(filename);
+        if (file.is_open()) {
+            file << project.dump(4);
+            file.close();
+            std::cout << "Project saved to " << filename << std::endl;
+        } else {
+            std::cerr << "Failed to save project!" << std::endl;
+        }
+    }
+    
 
     LinkInfo* findLinkByPin(ed::PinId pinId) {
     for (auto& link : m_Links) {
@@ -131,6 +162,14 @@ void deleteNode(AudioModule* nodeToDelete) {
 
         ed::SetCurrentEditor(m_Context);
         ed::Begin("My Editor", ImVec2(0.0, 0.0f));
+
+        if (ImGui::Button("Save Project")) {
+            saveToFile("project.json");
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Load Project")) {
+            //loadFromFile("project.json");
+        }
 
         for (auto& module : modules) {
             module->render();
