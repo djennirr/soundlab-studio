@@ -26,7 +26,7 @@ struct Example : public Application {
     
         json modulesJson;
         for (auto* module : modules) {
-            modulesJson.push_back(module->toJson());
+            modulesJson.push_back(module->toJson()); // core dumped
         }
         project["modules"] = modulesJson;
     
@@ -48,6 +48,26 @@ struct Example : public Application {
         } else {
             std::cerr << "Failed to save project!" << std::endl;
         }
+    }
+
+    void loadFromFile(const std::string& filename) {
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file: " << filename << std::endl;
+            return;
+        }
+
+        json project;
+        try {
+            file >> project;
+        } catch (const json::exception& e) {
+            std::cerr << "JSON error: " << e.what() << std::endl;
+            return;
+        }
+
+        m_Links.clear();
+        for (auto* module : modules) delete module;
+        modules.clear();
     }
     
 
@@ -163,13 +183,25 @@ void deleteNode(AudioModule* nodeToDelete) {
         ed::SetCurrentEditor(m_Context);
         ed::Begin("My Editor", ImVec2(0.0, 0.0f));
 
+
+        // вариант, что можно вынести эту часть из node-editor`a
+        // пока словил core dumped 
+
+        // ImGui::Begin("Control Panel");
+
+        static char projectName[128] = "my_project"; 
+        ImGui::InputText("Project Name", projectName, sizeof(projectName));
         if (ImGui::Button("Save Project")) {
-            saveToFile("project.json");
+            std::string filename = std::string(projectName) + ".json";
+            saveToFile(filename);
         }
+
         ImGui::SameLine();
         if (ImGui::Button("Load Project")) {
-            //loadFromFile("project.json");
+
         }
+
+        // ImGui::End();
 
         for (auto& module : modules) {
             module->render();

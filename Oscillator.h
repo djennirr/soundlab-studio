@@ -37,4 +37,13 @@ private:
     void generateSquareWave(Uint8* stream, int length);
     void generateSawtoothWave(Uint8* stream, int length);
     void generateTriangleWave(Uint8* stream, int length);
+    json toJson() const override {
+        json data = AudioModule::toJson();
+        data["frequency"] = frequency;
+        data["volume"] = volume;
+        data["waveType"] = waveType;
+        data["inputPin"] = static_cast<int>(inputPinId.Get());
+        data["outputPin"] = static_cast<int>(outputPinId.Get());
+        return data;
+    }
 };

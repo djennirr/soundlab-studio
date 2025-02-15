@@ -53,6 +53,10 @@ class AudioModule {
         return data;
     }
 
+    virtual void fromJson(const json& data) {
+        
+    }
+
     //constructor for audiomodule аргументом передаем айди и присваивается полю
     //либо просто в каждом классе определить поля для пинов айди
 };
