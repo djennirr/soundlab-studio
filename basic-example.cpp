@@ -252,9 +252,8 @@ void deleteNode(AudioModule* nodeToDelete) {
         ImGui::Separator();
 
         ed::SetCurrentEditor(m_Context);
-        ed::Begin("My Editor", ImVec2(0.0, 0.0f));
 
-
+        
         // вариант, что можно вынести эту часть из node-editor`a
         // пока словил core dumped 
 
@@ -273,6 +272,9 @@ void deleteNode(AudioModule* nodeToDelete) {
         }
 
         // ImGui::End();
+
+
+        ed::Begin("My Editor", ImVec2(0.0, 0.0f));
 
         for (auto& module : modules) {
             module->render();
