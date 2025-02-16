@@ -54,7 +54,11 @@ class AudioModule {
     }
 
     virtual void fromJson(const json& data) {
-        
+        nodeId = ed::NodeId(data["nodeId"].get<int>());
+        ed::SetNodePosition(nodeId, {
+            data["position"]["x"], 
+            data["position"]["y"]
+        });
     }
 
     //constructor for audiomodule аргументом передаем айди и присваивается полю

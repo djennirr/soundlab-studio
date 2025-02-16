@@ -6,6 +6,8 @@
 #include "Oscillator.h"
 #include "Adder.h"
 #include "WaveType.h"
+#include "Distortion.h"
+#include "NoiseGenerator.h"
 #include <vector>
 #include <algorithm>
 #include "libs/json/single_include/nlohmann/json.hpp"
@@ -53,21 +55,90 @@ struct Example : public Application {
     void loadFromFile(const std::string& filename) {
         std::ifstream file(filename);
         if (!file.is_open()) {
-            std::cerr << "Failed to open file: " << filename << std::endl;
+            std::cerr << "Error: Could not open file " << filename << std::endl;
             return;
         }
-
+    
         json project;
         try {
             file >> project;
         } catch (const json::exception& e) {
-            std::cerr << "JSON error: " << e.what() << std::endl;
+            std::cerr << "JSON parsing error: " << e.what() << std::endl;
             return;
         }
-
+    
         m_Links.clear();
         for (auto* module : modules) delete module;
         modules.clear();
+    
+        std::unordered_map<int, AudioModule*> idMap;
+        int maxNodeId = 0, maxPinId = 0;
+    
+        for (auto& moduleJson : project["modules"]) {
+            NodeType type = moduleJson["type"];
+            AudioModule* module = nullptr;
+    
+            if (type == NodeType::Adder) {
+                Adder* adder = new Adder();
+                adder->fromJson(moduleJson);
+                module = adder;
+            } 
+            else if (type == NodeType::AudioOutput) {
+                AudioOutput* audioOut = new AudioOutput();
+                audioOut->fromJson(moduleJson);
+                module = audioOut;
+            }
+    
+            if (!module) continue;
+    
+            modules.push_back(module);
+            int nodeId = moduleJson["nodeId"];
+            idMap[nodeId] = module;
+    
+            maxNodeId = std::max(maxNodeId, nodeId);
+            for (auto pin : module->getPins()) {
+                maxPinId = std::max(maxPinId, static_cast<int>(pin.Get()));
+            }
+    
+            ImVec2 pos = {
+                moduleJson["position"]["x"].get<float>(),
+                moduleJson["position"]["y"].get<float>()
+            };
+            ed::SetNodePosition(module->getNodeId(), pos);
+        }
+    
+        AudioModule::nextNodeId = maxNodeId + 1;
+        AudioModule::nextPinId = maxPinId + 1;
+    
+        for (auto& linkJson : project["links"]) {
+            ed::PinId inputPinId = linkJson["inputPin"].get<int>();
+            ed::PinId outputPinId = linkJson["outputPin"].get<int>();
+        
+            std::cout << "[DEBUG] Restoring link: inputPin=" << inputPinId.Get() 
+                      << ", outputPin=" << outputPinId.Get() << std::endl;
+        
+            AudioModule* inputModule = findNodeByPin(inputPinId);
+            AudioModule* outputModule = findNodeByPin(outputPinId);
+        
+            if (!inputModule) {
+                std::cerr << "[ERROR] Input module not found for pin: " << inputPinId.Get() << std::endl;
+                continue;
+            }
+            if (!outputModule) {
+                std::cerr << "[ERROR] Output module not found for pin: " << outputPinId.Get() << std::endl;
+                continue;
+            }
+        
+            std::cout << "[DEBUG] Creating link between: " 
+                      << inputModule->getNodeId().Get() << " (input) and "
+                      << outputModule->getNodeId().Get() << " (output)" << std::endl;
+        
+            m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });
+            createConnection(inputModule, inputPinId, outputModule, outputPinId);
+        }
+    
+        std::cout << "Project loaded successfully. Nodes: " << modules.size() 
+                  << ", Links: " << m_Links.size() << std::endl;
     }
     
 
@@ -198,7 +269,7 @@ void deleteNode(AudioModule* nodeToDelete) {
 
         ImGui::SameLine();
         if (ImGui::Button("Load Project")) {
-
+            loadFromFile("my_project.json"); // найти либу
         }
 
         // ImGui::End();
@@ -388,6 +459,14 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Adder")) {
                 node = new Adder();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Distortion")) {
+                node = new Distortion();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Noise Generator")) {
+                node = new NoiseGenerator();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

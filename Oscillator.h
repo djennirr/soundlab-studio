@@ -19,6 +19,7 @@ private:
 
 
 public:
+    // Oscillator() {}
     Oscillator(float freq, float vol, WaveType type);
     void process(Uint8* stream, int length) override;
     std::vector<ed::PinId> getPins() const override;
