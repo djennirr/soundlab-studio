@@ -12,7 +12,6 @@ Oscilloscope::Oscilloscope()
 
 void Oscilloscope::process(Uint8 *stream, int length)
 {
-    isOutputConnected = true;
     length = std::min(length, bufferSize);
 
     Uint8 stream1[1024] = {0};

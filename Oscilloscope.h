@@ -13,7 +13,6 @@ private:
     std::vector<float> waveformBuffer;
     int bufferSize = 1024; 
     int bufferIndex = 0;
-    bool isOutputConnected = false;
     //Для четкого выведения волны
     int updateTimer = 0;  
     int updateInterval = 8; 
