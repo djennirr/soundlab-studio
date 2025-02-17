@@ -31,7 +31,7 @@ public:
 private:
     NoiseType noiseType;
     float amplitude;
-    ed::NodeId nodeId;
+    // ed::NodeId nodeId;
     ed::PinId outputPinId;
     char popup_text[100] = "White";
     float phase;

@@ -32,9 +32,7 @@ void Oscillator::process(Uint8* stream, int length) {
                 break;
         }
     } else {
-        for (int i = 0; i < length; i++) {
-            stream[i] = 128;
-        }
+        memset(stream, 0, length);
     }
 }
 
@@ -43,11 +41,6 @@ void Oscillator::render() {
 
     ed::BeginNode(nodeId);
         ImGui::Text("Oscillator");
-
-    std::string buttonLabel2 = isSignalActive ? "OFF" : "ON";
-    if (ImGui::Button(buttonLabel2.c_str())) {
-        isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
-    }
         ed::BeginPin(inputPinId, ed::PinKind::Input);
             ImGui::Text("-> In");
         ed::EndPin();
@@ -59,6 +52,11 @@ void Oscillator::render() {
         std::string buttonLabel = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         if (ImGui::Button(buttonLabel.c_str())) {
             do_popup = true;
+        }
+        ImGui::SameLine(180.0F);
+        std::string buttonLabel2 = isSignalActive ? std::string("OFF") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" : std::string("ON") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" ;
+        if (ImGui::Button(buttonLabel2.c_str())) {
+        isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
         }
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->frequency, 7.0F, 0.0F, 1000.0F);

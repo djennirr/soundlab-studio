@@ -10,10 +10,17 @@ class Reverb : public AudioModule {
         AudioModule* module;
         ed::PinId inputPinId;
         ed::PinId outputPinId;
-        int delayIndex;         // Индекс текущей позиции в буфере
-        float reverbAmount;     // Коэффициент реверберации
-        static const int MAX_DELAY_SIZE = 44100; // Буфер задержки на 1 секунду
-        Sint16 delayBuffer[MAX_DELAY_SIZE]; 
+       std::vector<float> delayBuffer;
+        int delayIndex;
+        float decayFactor;
+        float mixFactor;
+        float smoothFactor;
+        float limiterThreshold;
+        static const int bufferSize = 44100; // 1 секунда задержки при 44.1 кГц
+        std::vector<std::vector<float>> delayBuffers; // 4 линии задержки
+        std::vector<int> delayIndices; // Индексы для каждой линии задержки
+        std::vector<float> decayFactors; // Коэффициенты затухания
+        int preDelay;
     
 
     public:
@@ -29,5 +36,7 @@ class Reverb : public AudioModule {
         ed::NodeId getNodeId() override;
         int chooseIn(ed::PinId pin) override;
         void disconnect(AudioModule* module) override;
-        void setReverbAmount(float amount);
+        float softClip(float simple);
+        float lowPassFilter(float input, float previous, float alpha);
+        float applyPhaseShift(float inputSample, float shiftFactor);
 };

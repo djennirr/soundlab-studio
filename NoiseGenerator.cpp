@@ -94,8 +94,7 @@ void NoiseGenerator::render() {
 
     // Регулировка амплитуды
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::DragFloat("Amplitude", &amplitude, 0.01f, 0.0f, 1.0f);
-
+    ImGui::DragFloat(("Volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &amplitude, 0.01f, 0.0f, 1.0f);
     ed::EndNode();
     ed::Suspend();
         std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
