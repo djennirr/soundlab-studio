@@ -10,9 +10,10 @@ class Reverb : public AudioModule {
         AudioModule* module;
         ed::PinId inputPinId;
         ed::PinId outputPinId;
-        int delayBuffer[1024];  // Буфер для хранения задержанных значений
         int delayIndex;         // Индекс текущей позиции в буфере
         float reverbAmount;     // Коэффициент реверберации
+        static const int MAX_DELAY_SIZE = 44100; // Буфер задержки на 1 секунду
+        Sint16 delayBuffer[MAX_DELAY_SIZE]; 
     
 
     public:
@@ -28,4 +29,5 @@ class Reverb : public AudioModule {
         ed::NodeId getNodeId() override;
         int chooseIn(ed::PinId pin) override;
         void disconnect(AudioModule* module) override;
+        void setReverbAmount(float amount);
 };
