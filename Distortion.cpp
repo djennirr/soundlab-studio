@@ -97,3 +97,13 @@ void Distortion::disconnect(AudioModule* module) {
     }
     return;
 }
+
+void Distortion::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    
+    drive = data["drive"];
+    mix = data["mix"];
+
+    inputPinId = ed::PinId(data["pins"][0].get<int>());
+    outputPinId = ed::PinId(data["pins"][1].get<int>());
+}

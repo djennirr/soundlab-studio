@@ -151,3 +151,12 @@ void NoiseGenerator::disconnect(AudioModule* module) {
 int NoiseGenerator::chooseIn(ed::PinId id) {
     return 1;
 }
+
+void NoiseGenerator::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+
+    noiseType = data["noiseType"];
+    amplitude = data["amplitude"];
+
+    outputPinId = ed::PinId(data["pins"][0].get<int>());
+}

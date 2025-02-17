@@ -32,6 +32,7 @@ public:
     void connect(AudioModule* input, int id = 1) override;
     int chooseIn(ed::PinId pin) override;
     void render() override;
+    void fromJson(const json& data) override;
 
 private:
     void generateSineWave(Uint8* stream, int length);
@@ -43,8 +44,6 @@ private:
         data["frequency"] = frequency;
         data["volume"] = volume;
         data["waveType"] = waveType;
-        data["inputPin"] = static_cast<int>(inputPinId.Get());
-        data["outputPin"] = static_cast<int>(outputPinId.Get());
         return data;
     }
 };

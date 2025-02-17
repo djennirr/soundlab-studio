@@ -77,16 +77,27 @@ struct Example : public Application {
         for (auto& moduleJson : project["modules"]) {
             NodeType type = moduleJson["type"];
             AudioModule* module = nullptr;
-    
-            if (type == NodeType::Adder) {
+            
+            if (type == NodeType::Oscillator) {
+                Oscillator* osc = new Oscillator(440, 0.5, SINE);
+                osc->fromJson(moduleJson);
+                module = osc;
+            } else if (type == NodeType::Adder) {
                 Adder* adder = new Adder();
                 adder->fromJson(moduleJson);
                 module = adder;
-            } 
-            else if (type == NodeType::AudioOutput) {
+            } else if (type == NodeType::AudioOutput) {
                 AudioOutput* audioOut = new AudioOutput();
                 audioOut->fromJson(moduleJson);
                 module = audioOut;
+            } else if (type == NodeType::NoiseGenerator) {
+                NoiseGenerator* noiseGen = new NoiseGenerator(NoiseType::WHITE, 0.5);
+                noiseGen->fromJson(moduleJson);
+                module = noiseGen;
+            } else if (type == NodeType::Distortion) {
+                Distortion* dist = new Distortion(0.5, 0.5);
+                dist->fromJson(moduleJson);
+                module = dist;
             }
     
             if (!module) continue;
