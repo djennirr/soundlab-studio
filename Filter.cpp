@@ -10,15 +10,18 @@ Filter::Filter(float cut) : cutoff(cut) {
     outputPinId = nextPinId++;
 }
 
-void Filter::DFT(Uint8 *inStream, double *real, double *imag, int length) {
-    for (int k = 0; k < length; k++) { // Для каждой частоты k
-        real[k] = 0.0; // Инициализация действительной части
-        imag[k] = 0.0; // Инициализация мнимой части
 
-        for (int n = 0; n < length; n++) { // Для каждого отсчета сигнала
-            double angle = -2.0 * 3.14 * k * n / length; // Угол в радианах
-            real[k] += inStream[n] * cos(angle);    // Суммируем действительную часть
-            imag[k] += inStream[n] * sin(angle);    // Суммируем мнимую часть
+//Здесь надо будет фиксить
+
+void Filter::DFT(Uint8 *inStream, double *real, double *imag, int length) {
+    for (int k = 0; k < length; k++) { 
+        real[k] = 0.0; 
+        imag[k] = 0.0; 
+
+        for (int n = 0; n < length; n++) { 
+            double angle = -2.0 * 3.14 * k * n / length; 
+            real[k] += inStream[n] * cos(angle);    
+            imag[k] += inStream[n] * sin(angle);    
         }
 
         real[k] /= length;
@@ -27,19 +30,19 @@ void Filter::DFT(Uint8 *inStream, double *real, double *imag, int length) {
 }
 
 void Filter::IDFT(double *real, double *imag, Uint8 *outStream, int length) {
-    for (int n = 0; n < length; n++) { // Для каждого временного отсчета
-        outStream[n] = 0; // Инициализация восстановленного сигнала
+    double tmp[length];
+    for (int n = 0; n < length; n++) { 
+        tmp[n] = 0; 
 
-        for (int k = 0; k < length; k++) { // Для каждой частоты k
-            double angle = 2.0 * 3.14 * k * n / length; // Угол в радианах (обратный знак)
-            outStream[n] += real[k] * cos(angle) - imag[k] * sin(angle);
+        for (int k = 0; k < length; k++) { 
+            double angle = 2.0 * 3.14 * k * n / length; 
+            tmp[n] += real[k] * cos(angle) - imag[k] * sin(angle);
         }
 
-        outStream[n] /= length; // Нормируем результат, деля на размер буфера
+        outStream[n] = static_cast<Uint8>(tmp[n]);
     }
 }
 
-// Hazard zone внимание не трогать, оно тебя сожрёт
 void Filter::process(Uint8* stream, int length) {
     // Ограничиваем длину буфера
     length = std::min(length, 1024); // Максимальная длина
@@ -57,8 +60,8 @@ void Filter::process(Uint8* stream, int length) {
     DFT(stream1, real, imag, length);
 
     for (int i = 0; i / 256 * 1000 < cutoff; i++) {
-        // Потом переписать нормально
-        real[i] /= 2;
+        // Потом переписать нормально, пока просто делим
+        real[i] /= 5;
         imag[i] /= 5;
     }
 
