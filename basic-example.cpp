@@ -13,6 +13,10 @@
 #include "libs/json/single_include/nlohmann/json.hpp"
 #include <fstream>
 #include <iostream>
+#include <filesystem>
+namespace fs = std::filesystem;
+static std::vector<std::string> jsonFiles;
+static int selectedFileIndex = -1;
 
 namespace ed = ax::NodeEditor;
 
@@ -264,26 +268,82 @@ void deleteNode(AudioModule* nodeToDelete) {
 
         ed::SetCurrentEditor(m_Context);
 
-        
-        // вариант, что можно вынести эту часть из node-editor`a
-        // пока словил core dumped 
-
         // ImGui::Begin("Control Panel");
 
-        static char projectName[128] = "my_project"; 
-        ImGui::InputText("Project Name", projectName, sizeof(projectName));
+        static char projectName[128] = "my_project";
+
         if (ImGui::Button("Save Project")) {
-            std::string filename = std::string(projectName) + ".json";
-            saveToFile(filename);
+            ImGui::OpenPopup("Save Project");
         }
 
         ImGui::SameLine();
+
         if (ImGui::Button("Load Project")) {
-            loadFromFile("my_project.json"); // найти либу
+            jsonFiles.clear();
+            selectedFileIndex = -1;
+
+            try {
+                for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+                    if (entry.path().extension() == ".json" && entry.path().filename() != "BasicInteraction.json") {
+                        jsonFiles.push_back(entry.path().filename().string());
+                    }
+                }
+            } catch (const fs::filesystem_error& e) {
+                std::cerr << "Error reading directory: " << e.what() << std::endl;
+            }
+            
+            if (jsonFiles.empty()) {
+                ImGui::Text("No projects found!");
+            } else {
+                ImGui::OpenPopup("Select Project");
+            }
+        }
+
+        if (ImGui::BeginPopupModal("Save Project", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Enter Project Name:");
+            ImGui::InputText("##ProjectName", projectName, sizeof(projectName));
+
+            if (ImGui::Button("Save", ImVec2(120, 0))) {
+                std::string filename = std::string(projectName) + ".json";
+                saveToFile(filename);
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        if (ImGui::BeginPopupModal("Select Project", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Available Projects:");
+
+            if (ImGui::BeginListBox("##Projects", ImVec2(-FLT_MIN, 0))) {
+                for (int i = 0; i < jsonFiles.size(); i++) {
+                    if (ImGui::Selectable(jsonFiles[i].c_str(), selectedFileIndex == i)) {
+                        selectedFileIndex = i;
+                    }
+                }
+                ImGui::EndListBox();
+            }
+            
+            if (ImGui::Button("Load", ImVec2(120, 0)) && selectedFileIndex != -1) {
+                loadFromFile(jsonFiles[selectedFileIndex]);
+                ImGui::CloseCurrentPopup();
+            }
+            
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
         }
 
         // ImGui::End();
-
 
         ed::Begin("My Editor", ImVec2(0.0, 0.0f));
 
