@@ -70,19 +70,6 @@ struct Example : public Application {
         } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
             inputId->disconnect(outputID);
         }
-        // if (inputId->getNodeType() == NodeType::AudioOutput) {
-        //     AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
-        //     audioOutput->disconnect(outputID);
-        // } else if (outputID->getNodeType() == NodeType::AudioOutput){
-        //     AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
-        //     audioOutput->disconnect(inputId);
-        // } else if (inputId->getNodeType() == NodeType::Adder) {
-        //     Adder* adder = static_cast<Adder*>(inputId);
-        //     adder->disconnect(outputID);
-        // } else if (outputID->getNodeType() == NodeType::Adder){
-        //     Adder* adder = static_cast<Adder*>(outputID);
-        //     adder->disconnect(inputId);
-        // }
     }
 
 void deleteNode(AudioModule* nodeToDelete) {
@@ -328,6 +315,8 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Oscilloscope")) {
                 node = new Oscilloscope();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Noise Generator")) {
                 node = new NoiseGenerator();
                 modules.push_back(node);
