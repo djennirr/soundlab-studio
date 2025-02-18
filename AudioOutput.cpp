@@ -6,21 +6,23 @@
 static int m_FirstFrame = 1;
 //надо передавать ссылку на аудио аутпут который выполняется
 AudioOutput::AudioOutput() {
-    SDL_AudioSpec wavSpec;
-    wavSpec.freq = 44100;
-    wavSpec.format = AUDIO_U8;
-    wavSpec.channels = 2;
-    wavSpec.samples = 512; // ?
-    wavSpec.size = 512;   // ?
-    wavSpec.callback = audioCallback;
-    wavSpec.userdata = this;
+    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+        SDL_AudioSpec wavSpec;
+        wavSpec.freq = 44100;
+        wavSpec.format = AUDIO_U8;
+        wavSpec.channels = 2;
+        wavSpec.samples = 512;
+        wavSpec.size = 512;
+        wavSpec.callback = audioCallback;
+        wavSpec.userdata = this;
+
+        if (SDL_OpenAudio(&wavSpec, nullptr) < 0) {
+            std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
+        }
+    }
+
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
-    // outputPinId = nextPinId++;
-
-    if (SDL_OpenAudio(&wavSpec, nullptr) < 0) {
-        std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
-    }
 }
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
@@ -97,4 +99,10 @@ void AudioOutput::start() {
 
 void AudioOutput::stop() {
     SDL_PauseAudio(1);
+}
+
+void AudioOutput::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+
+    inputPinId = ed::PinId(data["pins"][0].get<int>());
 }

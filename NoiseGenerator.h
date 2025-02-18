@@ -27,11 +27,11 @@ public:
     void connect(AudioModule* module, int id) override;
     void disconnect(AudioModule* module) override;
     int chooseIn(ed::PinId id) override;
+    void fromJson(const json& data) override;
 
 private:
     NoiseType noiseType;
     float amplitude;
-    ed::NodeId nodeId;
     ed::PinId outputPinId;
     char popup_text[100] = "White";
     float phase;
@@ -41,4 +41,11 @@ private:
     void generateWhiteNoise(Uint8* stream, int length);
     void generatePinkNoise(Uint8* stream, int length);
     void generateBrownNoise(Uint8* stream, int length);
+
+    json toJson() const override {
+        json data = AudioModule::toJson();
+        data["noiseType"] = noiseType;
+        data["amplitude"] = amplitude;
+        return data;
+    }
 };

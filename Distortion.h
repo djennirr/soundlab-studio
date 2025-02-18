@@ -15,6 +15,12 @@ class Distortion : public AudioModule {
         ed::PinId outputPinId;
         NodeType type;
         AudioModule* module;
+        json toJson() const override {
+            json data = AudioModule::toJson();
+            data["drive"] = drive;
+            data["mix"] = mix;
+            return data;
+        }        
         
     public:
         Distortion(float drive = 1.0f, float mix = 0.5f);
@@ -29,5 +35,6 @@ class Distortion : public AudioModule {
         ed::NodeId getNodeId() override;
         int chooseIn(ed::PinId pin) override;
         void disconnect(AudioModule* module) override;
+        void fromJson(const json& data) override;
 };
 

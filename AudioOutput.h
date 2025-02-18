@@ -22,7 +22,8 @@ public:
     virtual int chooseIn(ed::PinId pin) override;
     void start();
     void stop();
-    
+    void fromJson(const json& data) override;
+
 private:
     static void audioCallback(void* userdata, Uint8* stream, int len);
     SDL_AudioSpec wavSpec;
