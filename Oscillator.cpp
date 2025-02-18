@@ -31,7 +31,6 @@ void Oscillator::process(Uint8* stream, int length) {
     }
 }
 
-    bool do_popup = false;
     
 void Oscillator::render() {
 
@@ -157,7 +156,7 @@ void Oscillator::generateTriangleWave(Uint8* stream, int length) {
 
     for (int i = 0; i < length; i++) {
         if (phase < period / 2) {
-            stream[i] = static_cast<Uint8>((255 * phase) / (period / 2) * volume);
+            stream[i] = static_cast<Uint8>(((255 * phase) / (period / 2)) * volume);
         } else {
             stream[i] = static_cast<Uint8>((255 - (255 * (phase - (period / 2)) / (period / 2))) * volume);
         }

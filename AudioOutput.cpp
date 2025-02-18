@@ -25,7 +25,7 @@ AudioOutput::AudioOutput() {
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
     AudioOutput* audioOutput = static_cast<AudioOutput*>(userdata);
-    if (audioOutput && audioOutput->inputModule) {
+    if (audioOutput && audioOutput->inputModule && audioOutput->isPlaying) {
         // Если есть ссылка на inputModule и флаг воспроизведения включен
         audioOutput->inputModule->process(stream, len);
     } else {
@@ -49,6 +49,13 @@ void AudioOutput::render() {
             // ed::BeginPin(outputPinId, ed::PinKind::Output);
             //     ImGui::Text("Signal Out");
             // ed::EndPin();
+            std::string buttonName = "Play";
+            if (isPlaying){
+                buttonName = "Stop";
+            }
+            if (ImGui::Button(buttonName.c_str())){
+                isPlaying = not(isPlaying);
+            }
         ed::EndNode();
         m_FirstFrame = 0;
 }

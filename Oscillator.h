@@ -13,7 +13,7 @@ private:
     ed::PinId inputPinId;
     ed::PinId outputPinId; //задефайнить внутри констуктора
     NodeType type;
-    char popup_text[100] = "SIN";
+    char popup_text[20] = "SIN";
     //звать также суперкласс конструктор
     //добавить айдишники ноды и пинов в конструктор аргументами
 
