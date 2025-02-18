@@ -14,32 +14,29 @@ Filter::Filter(float cut) : cutoff(cut) {
 //Здесь надо будет фиксить
 
 void Filter::DFT(Uint8 *inStream, double *real, double *imag, int length) {
+    //Число значений равно числу переданных измерений
     for (int k = 0; k < length; k++) { 
+        //Храним отдельно мнимую и вещественную часть этой истории
         real[k] = 0.0; 
         imag[k] = 0.0; 
 
         for (int n = 0; n < length; n++) { 
-            double angle = -2.0 * 3.14 * k * n / length; 
+            double angle = 2.0 * 3.14 * k * n / length; 
             real[k] += inStream[n] * cos(angle);    
             imag[k] += inStream[n] * sin(angle);    
         }
-
-        real[k] /= length;
-        imag[k] /= length;
     }
 }
 
-void Filter::IDFT(double *real, double *imag, Uint8 *outStream, int length) {
-    double tmp[length];
+void Filter::IDFT(double *real, double *imag, Uint8 *outStream, Uint8 *inStream, int length) {
+    double tmp;
     for (int n = 0; n < length; n++) { 
-        tmp[n] = 0; 
 
-        for (int k = 0; k < length; k++) { 
-            double angle = 2.0 * 3.14 * k * n / length; 
-            tmp[n] += real[k] * cos(angle) - imag[k] * sin(angle);
-        }
+        tmp = real[n] * real[n] + imag[n] * imag[n];
+        tmp /= inStream[n];
+        tmp /= length;
 
-        outStream[n] = static_cast<Uint8>(tmp[n]);
+        outStream[n] = static_cast<Uint8>(tmp);
     }
 }
 
@@ -61,31 +58,31 @@ void Filter::process(Uint8* stream, int length) {
 
     for (int i = 0; i / 256 * 1000 < cutoff; i++) {
         // Потом переписать нормально, пока просто делим
-        real[i] /= 5;
-        imag[i] /= 5;
+        real[i] /= 2;
+        imag[i] /= 2;
     }
 
-    IDFT(real, imag, stream, length);
+    IDFT(real, imag, stream, stream1, length);
 }
 
 
 void Filter::render() {
     ed::BeginNode(nodeId);
+    ImGui::Text("Filter");
 
-        ImGui::Text("Filter");
-        ed::BeginPin(input1PinId, ed::PinKind::Input);
-            ImGui::Text("-> In");
-        ed::EndPin();
+    ed::BeginPin(input1PinId, ed::PinKind::Input);
+    ImGui::Text("-> In");
+    ed::EndPin();
 
-        ImGui::SameLine();
+    ImGui::SameLine(170.0F);
 
-        ed::BeginPin(outputPinId, ed::PinKind::Output);
-            ImGui::Text("Out ->");
-        ed::EndPin();
+    ed::BeginPin(outputPinId, ed::PinKind::Output);
+    ImGui::Text("Out ->");
+    ed::EndPin();
 
-        ImGui::DragFloat(("cutoff##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->cutoff, 7.0F, 0.0F, 1000.0F);
-
-        ed::EndNode();
+    ImGui::SetNextItemWidth(150.0f);
+    ImGui::DragFloat(("cutoff##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->cutoff, 7.0F, 0.0F, 1000.0F);
+    ed::EndNode();
 }
 
 
