@@ -27,6 +27,8 @@ AudioOutput::AudioOutput() {
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
     AudioOutput* audioOutput = static_cast<AudioOutput*>(userdata);
+
+    std::cout << "isplay" << audioOutput->isPlaying << std::endl;
     if (audioOutput && audioOutput->inputModule && audioOutput->isPlaying) {
         // Если есть ссылка на inputModule и флаг воспроизведения включен
         audioOutput->inputModule->process(stream, len);
@@ -103,6 +105,7 @@ void AudioOutput::stop() {
 
 void AudioOutput::fromJson(const json& data) {
     AudioModule::fromJson(data);
-
+    isPlaying = data["isPlaying"];
+    
     inputPinId = ed::PinId(data["pins"][0].get<int>());
 }

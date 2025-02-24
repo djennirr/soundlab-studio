@@ -32,4 +32,9 @@ private:
     ed::PinId inputPinId;
     ed::PinId outputPinId;
     NodeType type;
+    json toJson() const override {
+        json data = AudioModule::toJson();
+        data["isPlaying"] = isPlaying;
+        return data;
+    }
 };

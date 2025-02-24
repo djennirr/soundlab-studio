@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+// короче баг с отсутсвием звука. и еще бы состояние play/stop на аутпуте восстанавливать
 namespace fs = std::filesystem;
 static std::vector<std::string> jsonFiles;
 static int selectedFileIndex = -1;
