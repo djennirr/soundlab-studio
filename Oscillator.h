@@ -15,9 +15,6 @@ private:
     NodeType type;
     char popup_text[20] = "SIN";
     bool isSignalActive = true;
-    //звать также суперкласс конструктор
-    //добавить айдишники ноды и пинов в конструктор аргументами
-
 
 public:
     Oscillator(float freq, float vol, WaveType type);
