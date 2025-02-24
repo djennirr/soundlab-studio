@@ -21,6 +21,8 @@ static int selectedFileIndex = -1;
 
 namespace ed = ax::NodeEditor;
 
+AudioOutput* audiooutput = new AudioOutput();
+
 struct Example : public Application {
     struct LinkInfo {
         ed::LinkId Id;
@@ -73,7 +75,13 @@ struct Example : public Application {
         }
     
         m_Links.clear();
-        for (auto* module : modules) delete module;
+        for (auto* module : modules){
+            if (module->getNodeType() == NodeType::AudioOutput) {
+                continue;
+            } else {
+                delete module;
+            }
+        }
         modules.clear();
     
         std::unordered_map<int, AudioModule*> idMap;
@@ -92,7 +100,7 @@ struct Example : public Application {
                 adder->fromJson(moduleJson);
                 module = adder;
             } else if (type == NodeType::AudioOutput) {
-                AudioOutput* audioOut = new AudioOutput();
+                AudioOutput* audioOut = audiooutput;
                 audioOut->fromJson(moduleJson);
                 module = audioOut;
             } else if (type == NodeType::NoiseGenerator) {
@@ -241,7 +249,7 @@ void deleteNode(AudioModule* nodeToDelete) {
     using Application::Application;
 
 
-    AudioOutput* audiooutput = new AudioOutput();
+
 
     void OnStart() override {
         

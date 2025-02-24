@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <SDL2/SDL.h>
 #include <imgui_node_editor.h>
 #include <algorithm>
@@ -38,9 +39,10 @@ class AudioModule {
 
     virtual json toJson() const {
         json data;
-        data["nodeId"] = static_cast<int>(nodeId.Get());
+        data["nodeId"] = static_cast<int>(this->nodeId.Get());
+        std::cout << "to" << this->nodeId.Get();
         data["type"] = getNodeType();
-        auto pos = ed::GetNodePosition(nodeId);
+        auto pos = ed::GetNodePosition(this->nodeId);
         data["position"]["x"] = pos.x;
         data["position"]["y"] = pos.y;
         
@@ -55,6 +57,7 @@ class AudioModule {
 
     virtual void fromJson(const json& data) {
         nodeId = ed::NodeId(data["nodeId"].get<int>());
+        // std::cout << "from" << nodeId.Get();
         ed::SetNodePosition(nodeId, {
             data["position"]["x"], 
             data["position"]["y"]

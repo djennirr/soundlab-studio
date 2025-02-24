@@ -9,6 +9,7 @@
 class AudioOutput : public AudioModule {
 public:
     AudioOutput();
+    AudioOutput(int a);
     void process(Uint8* stream, int length) override;
     void render() override;
     std::vector<ed::PinId> getPins() const override;
