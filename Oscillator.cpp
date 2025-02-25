@@ -107,6 +107,7 @@ ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
 ed::NodeId Oscillator::getNodeId() {
     return nodeId;
 }
+
 void Oscillator::generateSineWave(Uint8* stream, int length) {
     for (int i = 0; i < length; i += 2) {
         stream[i] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * volume);
@@ -176,4 +177,15 @@ void Oscillator::disconnect(AudioModule* module) {
 }
 int Oscillator::chooseIn(ed::PinId id) {
     return 1;
+}
+
+void Oscillator::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    
+    frequency = data["frequency"];
+    volume = data["volume"];
+    waveType = data["waveType"];
+
+    inputPinId = ed::PinId(data["pins"][0].get<int>());
+    outputPinId = ed::PinId(data["pins"][1].get<int>());
 }

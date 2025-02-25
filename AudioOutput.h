@@ -9,6 +9,7 @@
 class AudioOutput : public AudioModule {
 public:
     AudioOutput();
+    AudioOutput(int a);
     void process(Uint8* stream, int length) override;
     void render() override;
     std::vector<ed::PinId> getPins() const override;
@@ -22,7 +23,8 @@ public:
     virtual int chooseIn(ed::PinId pin) override;
     void start();
     void stop();
-    
+    void fromJson(const json& data) override;
+
 private:
     static void audioCallback(void* userdata, Uint8* stream, int len);
     SDL_AudioSpec wavSpec;
@@ -31,4 +33,9 @@ private:
     ed::PinId inputPinId;
     ed::PinId outputPinId;
     NodeType type;
+    json toJson() const override {
+        json data = AudioModule::toJson();
+        data["isPlaying"] = isPlaying;
+        return data;
+    }
 };

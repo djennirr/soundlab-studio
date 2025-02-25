@@ -11,9 +11,18 @@
 #include "NoiseGenerator.h"
 #include <vector>
 #include <algorithm>
-
+#include "libs/json/single_include/nlohmann/json.hpp"
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+// короче баг с отсутсвием звука. и еще бы состояние play/stop на аутпуте восстанавливать
+namespace fs = std::filesystem;
+static std::vector<std::string> jsonFiles;
+static int selectedFileIndex = -1;
 
 namespace ed = ax::NodeEditor;
+
+AudioOutput* audiooutput = new AudioOutput();
 
 struct Example : public Application {
     struct LinkInfo {
@@ -22,6 +31,141 @@ struct Example : public Application {
         ed::PinId  OutputId;
     };
 
+    void saveToFile(const std::string& filename) {
+        json project;
+    
+        json modulesJson;
+        for (auto* module : modules) {
+            modulesJson.push_back(module->toJson()); // core dumped
+        }
+        project["modules"] = modulesJson;
+    
+        json linksJson;
+        for (auto& link : m_Links) {
+            json linkJson;
+            linkJson["inputPin"] = static_cast<int>(link.InputId.Get());
+            linkJson["outputPin"] = static_cast<int>(link.OutputId.Get());
+            linksJson.push_back(linkJson);
+        }
+        project["links"] = linksJson;
+        // мб добавить фичу, что при загрузке проекта линк к AudioOutput не появляется (чтобы звука сразу не было)
+    
+        std::ofstream file(filename);
+        if (file.is_open()) {
+            file << project.dump(4);
+            file.close();
+            std::cout << "Project saved to " << filename << std::endl;
+        } else {
+            std::cerr << "Failed to save project!" << std::endl;
+        }
+    }
+
+    void loadFromFile(const std::string& filename) {
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            std::cerr << "Error: Could not open file " << filename << std::endl;
+            return;
+        }
+    
+        json project;
+        try {
+            file >> project;
+        } catch (const json::exception& e) {
+            std::cerr << "JSON parsing error: " << e.what() << std::endl;
+            return;
+        }
+    
+        m_Links.clear();
+        for (auto* module : modules){
+            if (module->getNodeType() == NodeType::AudioOutput) {
+                continue;
+            } else {
+                delete module;
+            }
+        }
+        modules.clear();
+    
+        std::unordered_map<int, AudioModule*> idMap;
+        int maxNodeId = 0, maxPinId = 0;
+    
+        for (auto& moduleJson : project["modules"]) {
+            NodeType type = moduleJson["type"];
+            AudioModule* module = nullptr;
+            
+            if (type == NodeType::Oscillator) {
+                Oscillator* osc = new Oscillator(440, 0.5, SINE);
+                osc->fromJson(moduleJson);
+                module = osc;
+            } else if (type == NodeType::Adder) {
+                Adder* adder = new Adder();
+                adder->fromJson(moduleJson);
+                module = adder;
+            } else if (type == NodeType::AudioOutput) {
+                AudioOutput* audioOut = audiooutput;
+                audioOut->fromJson(moduleJson);
+                module = audioOut;
+            } else if (type == NodeType::NoiseGenerator) {
+                NoiseGenerator* noiseGen = new NoiseGenerator(NoiseType::WHITE, 0.5);
+                noiseGen->fromJson(moduleJson);
+                module = noiseGen;
+            } else if (type == NodeType::Distortion) {
+                Distortion* dist = new Distortion(0.5, 0.5);
+                dist->fromJson(moduleJson);
+                module = dist;
+            }
+    
+            if (!module) continue;
+    
+            modules.push_back(module);
+            int nodeId = moduleJson["nodeId"];
+            idMap[nodeId] = module;
+    
+            maxNodeId = std::max(maxNodeId, nodeId);
+            for (auto pin : module->getPins()) {
+                maxPinId = std::max(maxPinId, static_cast<int>(pin.Get()));
+            }
+    
+            ImVec2 pos = {
+                moduleJson["position"]["x"].get<float>(),
+                moduleJson["position"]["y"].get<float>()
+            };
+            ed::SetNodePosition(module->getNodeId(), pos);
+        }
+    
+        AudioModule::nextNodeId = maxNodeId + 1;
+        AudioModule::nextPinId = maxPinId + 1;
+    
+        for (auto& linkJson : project["links"]) {
+            ed::PinId inputPinId = linkJson["inputPin"].get<int>();
+            ed::PinId outputPinId = linkJson["outputPin"].get<int>();
+        
+            std::cout << "[DEBUG] Restoring link: inputPin=" << inputPinId.Get() 
+                      << ", outputPin=" << outputPinId.Get() << std::endl;
+        
+            AudioModule* inputModule = findNodeByPin(inputPinId);
+            AudioModule* outputModule = findNodeByPin(outputPinId);
+        
+            if (!inputModule) {
+                std::cerr << "[ERROR] Input module not found for pin: " << inputPinId.Get() << std::endl;
+                continue;
+            }
+            if (!outputModule) {
+                std::cerr << "[ERROR] Output module not found for pin: " << outputPinId.Get() << std::endl;
+                continue;
+            }
+        
+            std::cout << "[DEBUG] Creating link between: " 
+                      << inputModule->getNodeId().Get() << " (input) and "
+                      << outputModule->getNodeId().Get() << " (output)" << std::endl;
+        
+            m_Links.push_back({ ed::LinkId(m_NextLinkId++), inputPinId, outputPinId });
+            createConnection(inputModule, inputPinId, outputModule, outputPinId);
+        }
+    
+        std::cout << "Project loaded successfully. Nodes: " << modules.size() 
+                  << ", Links: " << m_Links.size() << std::endl;
+    }
+    
 
     LinkInfo* findLinkByPin(ed::PinId pinId) {
     for (auto& link : m_Links) {
@@ -93,7 +237,7 @@ void deleteNode(AudioModule* nodeToDelete) {
     using Application::Application;
 
 
-    AudioOutput* audiooutput = new AudioOutput();
+
 
     void OnStart() override {
         
@@ -120,6 +264,84 @@ void deleteNode(AudioModule* nodeToDelete) {
         ImGui::Separator();
 
         ed::SetCurrentEditor(m_Context);
+
+        // ImGui::Begin("Control Panel");
+
+        static char projectName[128] = "my_project";
+
+        if (ImGui::Button("Save Project")) {
+            ImGui::OpenPopup("Save Project");
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Load Project")) {
+            jsonFiles.clear();
+            selectedFileIndex = -1;
+
+            try {
+                for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+                    if (entry.path().extension() == ".json" && entry.path().filename() != "BasicInteraction.json") {
+                        jsonFiles.push_back(entry.path().filename().string());
+                    }
+                }
+            } catch (const fs::filesystem_error& e) {
+                std::cerr << "Error reading directory: " << e.what() << std::endl;
+            }
+            
+            if (jsonFiles.empty()) {
+                ImGui::Text("No projects found!");
+            } else {
+                ImGui::OpenPopup("Select Project");
+            }
+        }
+
+        if (ImGui::BeginPopupModal("Save Project", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Enter Project Name:");
+            ImGui::InputText("##ProjectName", projectName, sizeof(projectName));
+
+            if (ImGui::Button("Save", ImVec2(120, 0))) {
+                std::string filename = std::string(projectName) + ".json";
+                saveToFile(filename);
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        if (ImGui::BeginPopupModal("Select Project", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Available Projects:");
+
+            if (ImGui::BeginListBox("##Projects", ImVec2(-FLT_MIN, 0))) {
+                for (int i = 0; i < jsonFiles.size(); i++) {
+                    if (ImGui::Selectable(jsonFiles[i].c_str(), selectedFileIndex == i)) {
+                        selectedFileIndex = i;
+                    }
+                }
+                ImGui::EndListBox();
+            }
+            
+            if (ImGui::Button("Load", ImVec2(120, 0)) && selectedFileIndex != -1) {
+                loadFromFile(jsonFiles[selectedFileIndex]);
+                ImGui::CloseCurrentPopup();
+            }
+            
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        // ImGui::End();
+
         ed::Begin("My Editor", ImVec2(0.0, 0.0f));
 
         for (auto& module : modules) {
