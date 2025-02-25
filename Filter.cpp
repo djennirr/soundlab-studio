@@ -11,59 +11,74 @@ Filter::Filter(float cut) : cutoff(cut) {
 }
 
 
-//Здесь надо будет фиксить
-
-void Filter::DFT(Uint8 *inStream, double *real, double *imag, int length) {
-    //Число значений равно числу переданных измерений
+void Filter::DFT(double *inStream, double *real, double *imag, int length) {
     for (int k = 0; k < length; k++) { 
-        //Храним отдельно мнимую и вещественную часть этой истории
         real[k] = 0.0; 
         imag[k] = 0.0; 
 
         for (int n = 0; n < length; n++) { 
-            double angle = 2.0 * 3.14 * k * n / length; 
+            double angle = 2.0 * M_PI * k * n / length; 
             real[k] += inStream[n] * cos(angle);    
-            imag[k] += inStream[n] * sin(angle);    
+            imag[k] -= inStream[n] * sin(angle); // Важно: минус!
         }
     }
 }
 
-void Filter::IDFT(double *real, double *imag, Uint8 *outStream, Uint8 *inStream, int length) {
-    double tmp;
+void Filter::IDFT(double *real, double *imag, double *outStream, int length) {
     for (int n = 0; n < length; n++) { 
+        double result = 0.0;
+        for (int k = 0; k < length; k++) {
+            double angle = 2.0 * M_PI * k * n / length;
+            result += real[k] * cos(angle) - imag[k] * sin(angle);
+        }
+        outStream[n] = result / length; // Нормализация
+    }
+}
 
-        tmp = real[n] * real[n] + imag[n] * imag[n];
-        tmp /= inStream[n];
-        tmp /= length;
-
-        outStream[n] = static_cast<Uint8>(tmp);
+void Filter::computeAmplitude(const double* real, const double* imag, double* amplitude, int length) {
+    for (int k = 0; k < length; k++) {
+        amplitude[k] = sqrt(real[k] * real[k] + imag[k] * imag[k]);
     }
 }
 
 void Filter::process(Uint8* stream, int length) {
-    // Ограничиваем длину буфера
-    length = std::min(length, 1024); // Максимальная длина
+    // Ограничиваем длину входных данных
+    length = std::min(length, maxLength);
 
-    // Временные буферы для входных сигналов
-    Uint8 stream1[1024] = {0};
-    double real[1024] = {0.0};
-    double imag[1024] = {0.0};
+    double input[maxLength] = {0.0};
+    double real[maxLength] = {0.0};
+    double imag[maxLength] = {0.0};
+    double output[maxLength] = {0.0};
 
-    // Получаем данные от подключённых модулей
-    if (module1 != nullptr) {
-        module1->process(stream1, length);
+    // Преобразуем Uint8 в double
+    for (int i = 0; i < length; i++) {
+        input[i] = static_cast<double>(stream[i]);
     }
 
-    DFT(stream1, real, imag, length);
+    // Выполняем DFT
+    DFT(input, real, imag, length);
 
-    for (int i = 0; i / 256 * 1000 < cutoff; i++) {
-        // Потом переписать нормально, пока просто делим
-        real[i] /= 2;
-        imag[i] /= 2;
+    // Вычисляем амплитуду спектра
+    computeAmplitude(real, imag, amplitude, length / 2);
+    spectrumLength = length / 2; // Сохраняем длину спектра для визуализации
+
+    // Применяем фильтр (например, низкочастотный фильтр)
+    for (int i = 0; i < length; i++) {
+        if (i > cutoff) { // Низкочастотный фильтр
+            real[i] = 0;
+            imag[i] = 0;
+        }
     }
 
-    IDFT(real, imag, stream, stream1, length);
+    // Выполняем IDFT
+    IDFT(real, imag, output, length);
+
+    // Преобразуем обратно в Uint8
+    for (int i = 0; i < length; i++) {
+        stream[i] = static_cast<Uint8>(std::clamp(output[i], 0.0, 255.0));
+    }
 }
+
 
 
 void Filter::render() {
@@ -82,6 +97,8 @@ void Filter::render() {
 
     ImGui::SetNextItemWidth(150.0f);
     ImGui::DragFloat(("cutoff##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->cutoff, 7.0F, 0.0F, 1000.0F);
+    
+    
     ed::EndNode();
 }
 
