@@ -15,6 +15,7 @@ enum class NodeType {
     Adder,
     Distortion,
     NoiseGenerator,
+    LFO,
 };
 
 class AudioModule {

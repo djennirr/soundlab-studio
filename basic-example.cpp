@@ -9,6 +9,7 @@
 #include "WaveType.h"
 #include "Distortion.h"
 #include "NoiseGenerator.h"
+#include "LFO.hpp"
 #include <vector>
 #include <algorithm>
 
@@ -319,6 +320,10 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Noise Generator")) {
                 node = new NoiseGenerator();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("LFO")) {
+                node = new LFO(10.0);
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
