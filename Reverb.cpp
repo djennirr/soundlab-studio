@@ -15,7 +15,6 @@ Reverb::Reverb() {
     smoothFactor = 0.2f;
     limiterThreshold = 0.9f;
 
-    // // Увеличиваем количество линий задержки для большего количества отражений
     // delayBuffers.resize(8, std::vector<float>(bufferSize, 0.0f)); // 8 линий задержки
     // delayIndices = {0, bufferSize / 3, bufferSize / 5, bufferSize / 7, bufferSize / 11, bufferSize / 13, bufferSize / 17, bufferSize / 19}; // Разные задержки
 
@@ -29,13 +28,10 @@ Reverb::Reverb() {
 
 
 // Фильтр высоких частот
-float Reverb::lowPassFilter(float input, float previous, float alpha) {
-    return previous + alpha * (input - previous);
-}
 
-float Reverb::applyPhaseShift(float inputSample, float shiftFactor) {
-    return inputSample * (1.0f + shiftFactor * sin(inputSample));
-}
+// float Reverb::applyPhaseShift(float inputSample, float shiftFactor) {
+//     return inputSample * (1.0f + shiftFactor * sin(inputSample));
+// }
 
 float Reverb::softClip(float sample) {
     if (sample > limiterThreshold)

@@ -37,6 +37,6 @@ class Reverb : public AudioModule {
         int chooseIn(ed::PinId pin) override;
         void disconnect(AudioModule* module) override;
         float softClip(float simple);
-        float lowPassFilter(float input, float previous, float alpha);
-        float applyPhaseShift(float inputSample, float shiftFactor);
+        // float lowPassFilter(float input, float previous, float alpha);
+        // float applyPhaseShift(float inputSample, float shiftFactor);
 };
