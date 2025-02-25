@@ -4,6 +4,7 @@
 #include <cmath>
 #include "AudioOutput.h"
 #include "Oscillator.h"
+#include "Oscilloscope.h"
 #include "Adder.h"
 #include "WaveType.h"
 #include "Distortion.h"
@@ -326,6 +327,8 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 node = new Distortion();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Oscilloscope")) {
+                node = new Oscilloscope();
             } else if (ImGui::MenuItem("Noise Generator")) {
                 node = new NoiseGenerator();
                 modules.push_back(node);
