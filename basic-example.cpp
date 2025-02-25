@@ -9,11 +9,13 @@
 #include "WaveType.h"
 #include "Distortion.h"
 #include "NoiseGenerator.h"
+#include "Sampler.h"
 #include <vector>
 #include <algorithm>
 
 
 namespace ed = ax::NodeEditor;
+
 
 struct Example : public Application {
     struct LinkInfo {
@@ -271,20 +273,6 @@ while (ed::QueryDeletedNode(&nodeId)) {
         }
         ed::EndDelete(); // Wrap up deletion action
 
-        // // Обработка удаления соединений
-        // if (ed::BeginDelete()) {
-        //     ed::LinkId deletedLinkId;
-        //     while (ed::QueryDeletedLink(&deletedLinkId)) {
-        //         if (ed::AcceptDeletedItem()) {
-        //             auto it = std::remove_if(m_Links.begin(), m_Links.end(), [&](LinkInfo& link) {
-        //                 return link.Id == deletedLinkId;
-        //             });
-        //             m_Links.erase(it, m_Links.end());
-        //         }
-        //     }
-        // }
-        // ed::EndDelete();
-
     #if 1
         auto openPopupPosition = ImGui::GetMousePos();
         ed::Suspend();
@@ -322,6 +310,14 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
+            else if (ImGui::MenuItem("Sampler")) {
+                //на small_sata работает, а на big_data нет
+                const std::string& small_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/sample-12s.wav";
+                const std::string& big_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/Soft Piano Music_16000_mono.wav";
+                node = new Sampler(small_data);
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            }
             ImGui::EndPopup();
         } 
         ImGui::PopStyleVar();
@@ -332,11 +328,6 @@ while (ed::QueryDeletedNode(&nodeId)) {
 
     ed::End();
 
-
-        // if (m_FirstFrame) {
-        //     ed::NavigateToContent(0.0f);
-        //     m_FirstFrame = false;
-        // }
 
         ed::SetCurrentEditor(nullptr);
     }

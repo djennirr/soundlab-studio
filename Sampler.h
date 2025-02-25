@@ -1,37 +1,43 @@
 #pragma once
 
-#include "AudioModule.h" 
-#include <vector>
-#include <imgui.h>
+#include "AudioModule.h"
 #include <SDL2/SDL.h>
+#include <vector>
+#include <string>
+#include <iostream>
 
-class Oscilloscope : public AudioModule {
-private:
-    AudioModule* inputModule;
-    ed::PinId inputPinId;
-    ed::PinId outputPinId;
-    std::vector<float> waveformBuffer;
-    int bufferSize = 1024; 
-    int bufferIndex = 0;
-    //Для четкого выведения волны
-    int updateTimer = 0;  
-    int updateInterval = 8; 
-    float width = 300.0f;
-    float height = 150.0f;
+class Sampler : public AudioModule {
 
 public:
-    Oscilloscope();
+    Sampler(const std::string& filename, float volume = 1.0f);
+
+    void process(Uint8* stream, int length) override;
+    void render() override;
+    
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
-    NodeType getNodeType() const override { return NodeType::Oscilloscope; }
     ed::NodeId getNodeId() override;
-    void process(Uint8* stream, int length) override;
+    NodeType getNodeType() const override {
+        return NodeType::Sampler;
+    }
+    
+    void connect(AudioModule* module, int id) override;
     void disconnect(AudioModule* module) override;
-    void connect(AudioModule* input, int id) override;
-    void render() override;
-    int chooseIn(ed::PinId pin) override;
+    int chooseIn(ed::PinId id) override;
+    
 
-    void addSample(float sample);
-    void clearBuffer();
+private:
+    void loadWAV(const std::string& filename);
+
+    std::vector<Uint8> audioData;
+    size_t position = 0;
+    float volume;
+    bool isPlaying = true;
+    // const std::string& small_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/sample-12s.wav";
+    // const std::string& big_sample = "~/Soft Piano Music_16000_mono.wav";
+
+    SDL_AudioSpec audioSpec;
+    ed::NodeId nodeId;
+    ed::PinId inputPinId, outputPinId;
 
 };

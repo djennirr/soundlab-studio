@@ -76,6 +76,7 @@ void AudioOutput::connect(AudioModule* input, int id) {
     this->start();
 }
 
+//так как скорее всего мне придется переписать логику передачи данных в нашем синтезаторе, то мне надо 
 void AudioOutput::disconnect(AudioModule* module) {
     if (inputModule == module) {
         inputModule = nullptr;

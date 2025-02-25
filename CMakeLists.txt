@@ -18,6 +18,7 @@ find_package(imgui_node_editor REQUIRED)
 find_package(SDL2 REQUIRED)
 
 add_subdirectory(libs/imgui-node-editor/examples/application)
+add_subdirectory(libs/AudioFile)
 
 add_executable(basic-interaction-example 
     ${CMAKE_SOURCE_DIR}/basic-example.cpp
@@ -28,6 +29,7 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/Adder.cpp
     ${CMAKE_SOURCE_DIR}/Distortion.cpp
     ${CMAKE_SOURCE_DIR}/NoiseGenerator.cpp
+    ${CMAKE_SOURCE_DIR}/Sampler.cpp
 )
 
 target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application)

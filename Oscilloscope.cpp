@@ -31,7 +31,7 @@ void Oscilloscope::process(Uint8 *stream, int length)
 
         for (int i = 0; i < length; i++)
         {
-            float sample = static_cast<float>(stream[i] - 128.0f) / 128.0f; // 8-битные данные(от -127 до 128)
+            float sample = static_cast<float>(stream[i] - 128.0f) / 128.0f;
             waveformBuffer[bufferIndex] = sample;
             bufferIndex = (bufferIndex + 1) % bufferSize;
         }

@@ -7,16 +7,6 @@
 
 # define portable_strcpy    strcpy
 
-// template <typename T>
-// T clamp(T value, T minValue, T maxValue) {
-//     if (value < minValue) {
-//         return minValue;
-//     }
-//     if (value > maxValue) {
-//         return maxValue;
-//     }
-//     return value;
-// }
 
 NoiseGenerator::NoiseGenerator(NoiseType type, float amplitude)
     : noiseType(type), amplitude(amplitude), phase(0.0f), whiteNoise(-1.0f, 1.0f) {
