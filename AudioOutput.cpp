@@ -6,8 +6,6 @@
 static int m_FirstFrame = 1;
 //надо передавать ссылку на аудио аутпут который выполняется
 AudioOutput::AudioOutput() {
-
-        
     if (!SDL_WasInit(SDL_INIT_AUDIO)) {
         SDL_AudioSpec wavSpec;
         wavSpec.freq = 44100;
@@ -18,18 +16,15 @@ AudioOutput::AudioOutput() {
         wavSpec.userdata = this;
         wavSpec.callback = audioCallback;
         
-
         if (SDL_OpenAudio(&wavSpec, nullptr) < 0) {
             std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
         }
     }
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
-
 }
 
 AudioOutput::AudioOutput(int a) {
-
     this->nodeId = 1000;
     inputPinId = nextPinId++;
         
@@ -42,20 +37,16 @@ AudioOutput::AudioOutput(int a) {
         wavSpec.size = 512;
         wavSpec.userdata = this;
         wavSpec.callback = audioCallback;
-        
 
         if (SDL_OpenAudio(&wavSpec, nullptr) < 0) {
             std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
         }
     }
-    
-
 }
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
     AudioOutput* audioOutput = static_cast<AudioOutput*>(userdata);
 
-    std::cout << "id: " << audioOutput->nodeId.Get() << std::endl;
     if (audioOutput && audioOutput->inputModule && audioOutput->isPlaying) {
         // Если есть ссылка на inputModule и флаг воспроизведения включен
         audioOutput->inputModule->process(stream, len);
@@ -105,7 +96,7 @@ ed::PinKind AudioOutput::getPinKind(ed::PinId pin) const {
 }
 
 void AudioOutput::connect(AudioModule* input, int id) {
-    this->inputModule = input; // Подключаем входной модуль
+    this->inputModule = input;
     this->isPlaying = true;
     this->start();
 }
