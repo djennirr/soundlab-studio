@@ -33,5 +33,5 @@ public:
 
     void addSample(float sample);
     void clearBuffer();
-
+    void fromJson(const json& data) override;
 };

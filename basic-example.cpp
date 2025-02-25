@@ -112,6 +112,10 @@ struct Example : public Application {
                 Distortion* dist = new Distortion(0.5, 0.5);
                 dist->fromJson(moduleJson);
                 module = dist;
+            } else if (type == NodeType::Oscilloscope) {
+                Oscilloscope* oscilloscope = new Oscilloscope();
+                oscilloscope->fromJson(moduleJson);
+                module = oscilloscope;
             }
     
             if (!module) continue;
