@@ -63,32 +63,32 @@ void Oscillator::render() {
             do_popup = false; // disable bool so that if we click off the popup, it doesn't open the next frame.
         }
         if (ImGui::BeginPopup(button1Label.c_str())) {
-                    // Note: if it weren't for the child window, we would have to PushItemWidth() here to avoid a crash!
-                    ImGui::TextDisabled("Waves:");
-                    ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-                    if (ImGui::Button((std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                        portable_strcpy(popup_text, (std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
-                        waveType = WaveType::SINE;
-                        ImGui::CloseCurrentPopup();  // These calls revoke the popup open state, which was set by OpenPopup above.
-                    }
-                    if (ImGui::Button((std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                        portable_strcpy(popup_text, (std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
-                        waveType = WaveType::SAWTOOTH;
-                        ImGui::CloseCurrentPopup();
-                    }
-                    if (ImGui::Button((std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                        portable_strcpy(popup_text, (std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
-                        waveType = WaveType::SQUARE;
-                        ImGui::CloseCurrentPopup();
-                    }
-                    if (ImGui::Button((std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                        portable_strcpy(popup_text, (std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
-                        waveType = WaveType::TRIANGLE;
-                        ImGui::CloseCurrentPopup();
-                    }
-                    ImGui::EndChild();
-                    ImGui::EndPopup(); // Note this does not do anything to the popup open/close state. It just terminates the content declaration.
-                }
+            // Note: if it weren't for the child window, we would have to PushItemWidth() here to avoid a crash!
+            ImGui::TextDisabled("Waves:");
+            ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+            if (ImGui::Button((std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+                waveType = WaveType::SINE;
+                ImGui::CloseCurrentPopup();  // These calls revoke the popup open state, which was set by OpenPopup above.
+            }
+            if (ImGui::Button((std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+                waveType = WaveType::SAWTOOTH;
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button((std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+                waveType = WaveType::SQUARE;
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button((std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+                waveType = WaveType::TRIANGLE;
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndChild();
+            ImGui::EndPopup(); // Note this does not do anything to the popup open/close state. It just terminates the content declaration.
+        }
         ed::Resume();
     }
 
@@ -184,8 +184,23 @@ void Oscillator::fromJson(const json& data) {
     
     frequency = data["frequency"];
     volume = data["volume"];
-    waveType = data["waveType"];
+    waveType = static_cast<WaveType>(data["waveType"].get<int>());
 
     inputPinId = ed::PinId(data["pins"][0].get<int>());
     outputPinId = ed::PinId(data["pins"][1].get<int>());
+
+    switch (waveType) {
+        case WaveType::SINE:
+            portable_strcpy(popup_text, "SIN");
+            break;
+        case WaveType::SQUARE:
+            portable_strcpy(popup_text, "SQUARE");
+            break;
+        case WaveType::SAWTOOTH:
+            portable_strcpy(popup_text, "SAWTOOTH");
+            break;
+        case WaveType::TRIANGLE:
+            portable_strcpy(popup_text, "TRIANGLE");
+            break;
+    }
 }

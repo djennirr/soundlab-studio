@@ -19,7 +19,7 @@ private:
 
 
 public:
-    // Oscillator() {}
+    Oscillator() {}
     Oscillator(float freq, float vol, WaveType type);
     void process(Uint8* stream, int length) override;
     std::vector<ed::PinId> getPins() const override;
@@ -43,7 +43,7 @@ private:
         json data = AudioModule::toJson();
         data["frequency"] = frequency;
         data["volume"] = volume;
-        data["waveType"] = waveType;
+        data["waveType"] = static_cast<int>(waveType);
         return data;
     }
 };

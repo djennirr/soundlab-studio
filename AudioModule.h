@@ -21,8 +21,7 @@ enum class NodeType {
 };
 
 class AudioModule {
-
-    public:
+public:
     ed::NodeId nodeId;
 
     virtual void process(Uint8* stream, int length) = 0;
@@ -41,7 +40,7 @@ class AudioModule {
     virtual json toJson() const {
         json data;
         data["nodeId"] = static_cast<int>(this->nodeId.Get());
-        std::cout << "to" << this->nodeId.Get();
+        // std::cout << "to" << this->nodeId.Get();
         data["type"] = getNodeType();
         auto pos = ed::GetNodePosition(this->nodeId);
         data["position"]["x"] = pos.x;

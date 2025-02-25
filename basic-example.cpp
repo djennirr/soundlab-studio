@@ -16,6 +16,7 @@
 #include <iostream>
 #include <filesystem>
 // короче баг с отсутсвием звука. и еще бы состояние play/stop на аутпуте восстанавливать
+// состояние кнопки аутпута + тип волны осциллятора
 namespace fs = std::filesystem;
 static std::vector<std::string> jsonFiles;
 static int selectedFileIndex = -1;
@@ -93,7 +94,7 @@ struct Example : public Application {
             AudioModule* module = nullptr;
             
             if (type == NodeType::Oscillator) {
-                Oscillator* osc = new Oscillator(440, 0.5, SINE);
+                Oscillator* osc = new Oscillator(); //
                 osc->fromJson(moduleJson);
                 module = osc;
             } else if (type == NodeType::Adder) {
@@ -239,9 +240,6 @@ void deleteNode(AudioModule* nodeToDelete) {
 }
 
     using Application::Application;
-
-
-
 
     void OnStart() override {
         
@@ -443,29 +441,27 @@ void deleteNode(AudioModule* nodeToDelete) {
          // Handle deletion action
         if (ed::BeginDelete())
         {
+            ed::NodeId nodeId = 0;
+            while (ed::QueryDeletedNode(&nodeId)) {
+                // Найти узел по ID
+                auto it = std::find_if(modules.begin(), modules.end(), [nodeId](AudioModule* node) {
+                    return node->getNodeId() == nodeId;
+                });
 
-       ed::NodeId nodeId = 0;
-while (ed::QueryDeletedNode(&nodeId)) {
-    // Найти узел по ID
-    auto it = std::find_if(modules.begin(), modules.end(), [nodeId](AudioModule* node) {
-        return node->getNodeId() == nodeId;
-    });
+                // Проверка: если узел найден
+                if (it != modules.end()) {
+                    // Если узел является AudioOutput, отклонить удаление
+                    if ((*it)->getNodeType() == NodeType::AudioOutput) {
+                        ed::RejectDeletedItem();
+                        continue; // Переходим к следующему удаляемому узлу
+                    }
 
-    // Проверка: если узел найден
-    if (it != modules.end()) {
-        // Если узел является AudioOutput, отклонить удаление
-        if ((*it)->getNodeType() == NodeType::AudioOutput) {
-            ed::RejectDeletedItem();
-            continue; // Переходим к следующему удаляемому узлу
-        }
-
-        // Если это не AudioOutput и удаление подтверждено
-        if (ed::AcceptDeletedItem()) {
-            deleteNode(*it);
-        }
-    }
-}
-
+                    // Если это не AudioOutput и удаление подтверждено
+                    if (ed::AcceptDeletedItem()) {
+                        deleteNode(*it);
+                    }
+                }
+            }
             // There may be many links marked for deletion, let's loop over them.
             ed::LinkId deletedLinkId;
             while (ed::QueryDeletedLink(&deletedLinkId))
@@ -528,7 +524,7 @@ while (ed::QueryDeletedNode(&nodeId)) {
             AudioModule* node = nullptr;
             
             if (ImGui::MenuItem("Oscillator")){
-                node = new Oscillator(440.0, 0.5, WaveType::SINE);
+                node = new Oscillator(440.0, 0.5, WaveType::SINE); //
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Adder")) {
@@ -553,8 +549,6 @@ while (ed::QueryDeletedNode(&nodeId)) {
         ImGui::PopStyleVar();
         ed::Resume();
     # endif
-
-
 
     ed::End();
 

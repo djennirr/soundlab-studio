@@ -4,8 +4,6 @@
 #include "WaveType.h"
 #include <SDL2/SDL.h>
 
-
-
 class AudioOutput : public AudioModule {
 public:
     AudioOutput();

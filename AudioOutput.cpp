@@ -2,7 +2,6 @@
 #include "AudioOutput.h"
 #include <iostream>
 
-
 static int m_FirstFrame = 1;
 //надо передавать ссылку на аудио аутпут который выполняется
 AudioOutput::AudioOutput() {
