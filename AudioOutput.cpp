@@ -8,7 +8,7 @@ static int m_FirstFrame = 1;
 AudioOutput::AudioOutput() {
     SDL_AudioSpec wavSpec;
     wavSpec.freq = 44100;
-    wavSpec.format = AUDIO_U8;
+    wavSpec.format = AUDIO_U16;
     wavSpec.channels = 2;
     wavSpec.samples = 512;
     wavSpec.size = 512;   
@@ -25,16 +25,18 @@ AudioOutput::AudioOutput() {
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
     AudioOutput* audioOutput = static_cast<AudioOutput*>(userdata);
+    Uint16* stream16 = (Uint16*)stream;
+    int len16 = len/(sizeof(Uint16));
     if (audioOutput && audioOutput->inputModule && audioOutput->isPlaying) {
         // Если есть ссылка на inputModule и флаг воспроизведения включен
-        audioOutput->inputModule->process(stream, len);
+        audioOutput->inputModule->process(stream16, len16);
     } else {
         // Если нет ссылки или воспроизведение выключено, заполняем тишиной
-        memset(stream, 0, len);
+        memset(stream16, 0, len16 * sizeof(Uint16));
     }
 }
 
-void AudioOutput::process(Uint8* stream, int length) {
+void AudioOutput::process(Uint16* stream, int length) {
     inputModule->process(stream, length);
 }
 

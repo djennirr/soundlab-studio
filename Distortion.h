@@ -18,7 +18,7 @@ class Distortion : public AudioModule {
         
     public:
         Distortion(float drive = 1.0f, float mix = 0.5f);
-        void process(Uint8* stream, int length) override;
+        void process(Uint16* stream, int length) override;
         void render() override;
         ed::PinKind getPinKind(ed::PinId pin) const override;
         std::vector<ed::PinId> getPins() const override;

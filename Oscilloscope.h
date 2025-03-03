@@ -25,7 +25,7 @@ public:
     ed::PinKind getPinKind(ed::PinId pin) const override;
     NodeType getNodeType() const override { return NodeType::Oscilloscope; }
     ed::NodeId getNodeId() override;
-    void process(Uint8* stream, int length) override;
+    void process(Uint16* stream, int length) override;
     void disconnect(AudioModule* module) override;
     void connect(AudioModule* input, int id) override;
     void render() override;

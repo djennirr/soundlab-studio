@@ -13,16 +13,12 @@ Adder::Adder()  {
     outputPinId = nextPinId++;
 }
 
-// Hazard zone внимание не трогать, оно тебя сожрёт
-void Adder::process(Uint8* stream, int length) {
-    // Ограничиваем длину буфера
+void Adder::process(Uint16* stream, int length) {
     length = std::min(length, 1024); // Максимальная длина
 
-    // Временные буферы для входных сигналов
-    Uint8 stream1[1024] = {0};
-    Uint8 stream2[1024] = {0};
+    Uint16 stream1[1024] = {0};
+    Uint16 stream2[1024] = {0};
 
-    // Получаем данные от подключённых модулей
     if (module1 != nullptr) {
         module1->process(stream1, length);
     }
@@ -30,15 +26,12 @@ void Adder::process(Uint8* stream, int length) {
         module2->process(stream2, length);
     }
 
-    // Суммируем и ограничиваем результаты для каждого канала
     for (int i = 0; i < length; i += 2) {  // Шаг на 2 для стерео
-        // Суммируем левый канал (stream1[i] + stream2[i])
         int left = stream1[i] + stream2[i];
-        stream[i] = static_cast<Uint8>(std::min(left, 255)); // Ограничиваем в пределах [0, 255]
+        stream[i] = static_cast<Uint16>(std::min(left, 65535)); // Ограничиваем в пределах [0, 65535]
 
-        // Суммируем правый канал (stream1[i+1] + stream2[i+1])
         int right = stream1[i + 1] + stream2[i + 1];
-        stream[i + 1] = static_cast<Uint8>(std::min(right, 255)); // Ограничиваем в пределах [0, 255]
+        stream[i + 1] = static_cast<Uint16>(std::min(right, 65535)); // Ограничиваем в пределах [0, 65535]
     }
 }
 

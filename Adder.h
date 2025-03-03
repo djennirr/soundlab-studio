@@ -17,7 +17,7 @@ class Adder : public AudioModule{
 
     public:
         Adder();
-        void process(Uint8* stream, int length) override;
+        void process(Uint16* stream, int length) override;
         void render() override;
         std::vector<ed::PinId> getPins() const override;
         ed::PinKind getPinKind(ed::PinId pin) const override;

@@ -25,7 +25,7 @@ class Reverb : public AudioModule {
 
     public:
         Reverb();
-        void process(Uint8* stream, int length) override;
+        void process(Uint16* stream, int length) override;
         void render() override;
         std::vector<ed::PinId> getPins() const override;
         ed::PinKind getPinKind(ed::PinId pin) const override;
@@ -37,6 +37,10 @@ class Reverb : public AudioModule {
         int chooseIn(ed::PinId pin) override;
         void disconnect(AudioModule* module) override;
         float softClip(float simple);
+        float applyPhaseShift(float inputSample, float shiftFactor);
+        float lowPassFilter(float currentSample, float previousSample, float cutoffFrequency, float sampleRate);
+        float convertToFloat(int sample);
+        int convertToInt(float sample);
         // float lowPassFilter(float input, float previous, float alpha);
-        // float applyPhaseShift(float inputSample, float shiftFactor);
+
 };

@@ -12,19 +12,19 @@ Distortion::Distortion(float drive, float mix) : drive(drive), mix(mix) {
     outputPinId = nextPinId++;
 }
 
-void Distortion::process(Uint8* stream, int length) {
+void Distortion::process(Uint16* stream, int length) {
     // Если предыдущий модуль есть, обработать его данные
     if (module != nullptr) {
         module->process(stream, length);
     } else {
         // Если нет входного сигнала, заполняем тишиной
-        memset(stream, 0, length);
+        memset(stream, 0, length * sizeof(Uint16));
         return;
     }
 
     for (int i = 0; i < length; i++) {
         // Нормализуем входной сигнал (-1.0 to 1.0)
-        float input = (stream[i] - 128) / 128.0f;
+        float input = (stream[i] - 32768) / 32768.0f;
 
         // Применяем жесткое обрезание (hard clipping)
         float clipped = input * drive;
@@ -40,8 +40,7 @@ void Distortion::process(Uint8* stream, int length) {
         // Смешиваем оригинальный и искажённый сигнал
         float output = mix * softClipped + (1.0f - mix) * input;
 
-        // Преобразуем обратно в диапазон 0-255
-        stream[i] = static_cast<Uint8>((output * 128.0f) + 128.0f);
+        stream[i] = static_cast<Uint16>((output * 32768.0f) + 32768.0f);
     }
 }
 

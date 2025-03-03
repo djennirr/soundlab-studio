@@ -18,7 +18,7 @@ private:
 
 public:
     Oscillator(float freq, float vol, WaveType type);
-    void process(Uint8* stream, int length) override;
+    void process(Uint16* stream, int length) override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
     NodeType getNodeType() const override {
@@ -31,8 +31,8 @@ public:
     void render() override;
 
 private:
-    void generateSineWave(Uint8* stream, int length);
-    void generateSquareWave(Uint8* stream, int length);
-    void generateSawtoothWave(Uint8* stream, int length);
-    void generateTriangleWave(Uint8* stream, int length);
+    void generateSineWave(Uint16* stream, int length);
+    void generateSquareWave(Uint16* stream, int length);
+    void generateSawtoothWave(Uint16* stream, int length);
+    void generateTriangleWave(Uint16* stream, int length);
 };

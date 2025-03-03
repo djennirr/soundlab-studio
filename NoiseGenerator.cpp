@@ -24,7 +24,7 @@ NoiseGenerator::NoiseGenerator(NoiseType type, float amplitude)
     outputPinId = nextPinId++;
 }
 
-void NoiseGenerator::process(Uint8* stream, int length) {
+void NoiseGenerator::process(Uint16* stream, int length) {
     switch (noiseType) {
         case NoiseType::WHITE:
             generateWhiteNoise(stream, length);
@@ -38,14 +38,14 @@ void NoiseGenerator::process(Uint8* stream, int length) {
     }
 }
 
-void NoiseGenerator::generateWhiteNoise(Uint8* stream, int length) {
+void NoiseGenerator::generateWhiteNoise(Uint16* stream, int length) {
     for (int i = 0; i < length; ++i) {
         float sample = whiteNoise(generator) * amplitude;
-        stream[i] = static_cast<Uint8>(std::clamp((sample * 128.0f) + 128.0f, 0.0f, 255.0f));
+        stream[i] = static_cast<Uint16>(std::clamp((sample * 32767.0f) + 32767.0f, 0.0f, 65535.0f));
     }
 }
 
-void NoiseGenerator::generatePinkNoise(Uint8* stream, int length) {
+void NoiseGenerator::generatePinkNoise(Uint16* stream, int length) {
     float b0 = 0.0f, b1 = 0.0f, b2 = 0.0f, b3 = 0.0f, b4 = 0.0f, b5 = 0.0f, b6 = 0.0f;
     for (int i = 0; i < length; ++i) {
         float white = whiteNoise(generator);
@@ -59,11 +59,11 @@ void NoiseGenerator::generatePinkNoise(Uint8* stream, int length) {
         b6 = white * 0.115926f;
 
         float sample = pink * amplitude;
-        stream[i] = static_cast<Uint8>(std::clamp((sample * 128.0f) + 128.0f, 0.0f, 255.0f));
+        stream[i] = static_cast<Uint16>(std::clamp((sample * 32767.0f) + 32767.0f, 0.0f, 65535.0f));
     }
 }
 
-void NoiseGenerator::generateBrownNoise(Uint8* stream, int length) {
+void NoiseGenerator::generateBrownNoise(Uint16* stream, int length) {
     float brown = 0.0f;
     for (int i = 0; i < length; ++i) {
         float white = whiteNoise(generator);
@@ -71,7 +71,7 @@ void NoiseGenerator::generateBrownNoise(Uint8* stream, int length) {
         brown = std::clamp(brown, -1.0f, 1.0f);  // Ограничиваем значение
 
         float sample = brown * amplitude;
-        stream[i] = static_cast<Uint8>(std::clamp((sample * 128.0f) + 128.0f, 0.0f, 255.0f));
+        stream[i] = static_cast<Uint16>(std::clamp((sample * 32767.0f) + 32767.0f, 0.0f, 65535.0f));
     }
 }
 

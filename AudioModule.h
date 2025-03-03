@@ -21,7 +21,7 @@ class AudioModule {
 
     public:
     ed::NodeId nodeId;
-    virtual void process(Uint8* stream, int length) = 0;
+    virtual void process(Uint16* stream, int length) = 0;
     virtual void render() = 0;
     virtual std::vector<ed::PinId> getPins() const = 0;
     virtual ed::PinKind getPinKind(ed::PinId pin) const = 0;

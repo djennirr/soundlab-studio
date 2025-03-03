@@ -10,18 +10,20 @@ Oscilloscope::Oscilloscope()
     clearBuffer();
 }
 
-void Oscilloscope::process(Uint8 *stream, int length)
+void Oscilloscope::process(Uint16 *stream, int length) 
 {
     length = std::min(length, bufferSize);
 
-    Uint8 stream1[1024] = {0};
+    Uint16 stream1[1024] = {0}; // 16-битный буфер
 
     if (inputModule != nullptr)
     {
         inputModule->process(stream, length);
-    } else {
+    } 
+    else 
+    {
         clearBuffer();
-        memset(stream, 0, length);
+        memset(stream, 0, length * sizeof(Uint16)); // Очистка 16-битного буфера
     }
 
     updateTimer++;
@@ -31,7 +33,8 @@ void Oscilloscope::process(Uint8 *stream, int length)
 
         for (int i = 0; i < length; i++)
         {
-            float sample = static_cast<float>(stream[i] - 128.0f) / 128.0f; // 8-битные данные(от -127 до 128)
+            // Приведение к диапазону [-1, 1] для 16-битного сигнала (0 - 65535)
+            float sample = (static_cast<float>(stream[i]) - 32768.0f) / 32768.0f;
             waveformBuffer[bufferIndex] = sample;
             bufferIndex = (bufferIndex + 1) % bufferSize;
         }

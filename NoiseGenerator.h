@@ -15,7 +15,7 @@ class NoiseGenerator : public AudioModule {
 public:
     NoiseGenerator(NoiseType type = NoiseType::WHITE, float amplitude = 1.0f);
 
-    void process(Uint8* stream, int length) override;
+    void process(Uint16* stream, int length) override;
     void render() override;
 
     std::vector<ed::PinId> getPins() const override;
@@ -38,7 +38,7 @@ private:
     std::default_random_engine generator;
     std::uniform_real_distribution<float> whiteNoise;
 
-    void generateWhiteNoise(Uint8* stream, int length);
-    void generatePinkNoise(Uint8* stream, int length);
-    void generateBrownNoise(Uint8* stream, int length);
+    void generateWhiteNoise(Uint16* stream, int length);
+    void generatePinkNoise(Uint16* stream, int length);
+    void generateBrownNoise(Uint16* stream, int length);
 };
