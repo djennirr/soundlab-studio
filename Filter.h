@@ -14,15 +14,11 @@ class Filter : public AudioModule{
         // float mixFactor1;
         // float mixFactor2;
         int maxLength = 1024; // Максимальная длина буфера
-        double amplitude[512] = {0.0}; // Амплитуды спектра для визуализации
-        int spectrumLength = 0; // Длина спектра для отображения
-
-        void computeAmplitude(const double* real, const double* imag, double* amplitude, int length);
 
     public:
         Filter(float cut);
-        void DFT(double *inStream, double *real, double *imag, int length);
-        void IDFT(double *real, double *imag, double *outStream, int length);
+        void FFT(double *inStream, double *real, double *imag, int length);
+        void IFFT(double *real, double *imag, double *outStream, int length);
         //void DFT(Uint8 *inStream, double *real, double *imag, int length);
         //void IDFT(double *real, double *imag, Uint8 *outStream, int length);
         void process(Uint8 *stream, int length) override;
