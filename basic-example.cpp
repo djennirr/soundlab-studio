@@ -314,7 +314,7 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 //на small_sata работает, а на big_data нет
                 const std::string& small_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/sample-12s.wav";
                 const std::string& big_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/Soft Piano Music_16000_mono.wav";
-                node = new Sampler(small_data);
+                node = new Sampler(small_sample);
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
