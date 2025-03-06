@@ -8,6 +8,10 @@
 
 class Sampler : public AudioModule {
 
+const int AMPLITUDE = 32768;
+const int MAX_VALUE = 65535;
+const int STEREO_CHANNELS = 2;
+
 public:
     Sampler(const std::string& filename, float volume = 1.0f);
 
@@ -30,6 +34,8 @@ private:
     void loadWAV(const std::string& filename);
 
     std::vector<Uint16> audioData;
+    std::vector<Uint16> audioDataLeft;
+    std::vector<Uint16> audioDataRight;
     size_t position = 0;
     float volume;
     bool isPlaying = true;

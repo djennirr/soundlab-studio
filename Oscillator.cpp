@@ -119,8 +119,8 @@ ed::NodeId Oscillator::getNodeId() {
 }
 void Oscillator::generateSineWave(Uint16* stream, int length) {
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint16>(((AMPLITUDE * sin(phase)) + 32768) * volume);
-        stream[i + 1] = static_cast<Uint16>(((AMPLITUDE * sin(phase)) + 32768) * volume);
+        stream[i] = static_cast<Uint16>(((AMPLITUDE * sin(phase)) + AMPLITUDE) * volume);
+        stream[i + 1] = static_cast<Uint16>(((AMPLITUDE * sin(phase)) + AMPLITUDE) * volume);
         phase += (frequency * 2.0 * M_PI) / SAMPLE_RATE;
     }
 }

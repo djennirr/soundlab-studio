@@ -347,8 +347,8 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 const std::string& small_sample12 = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/sample-12s.wav";
                 const std::string& small_sample15 = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/sample-15s.wav";
 
-                const std::string& big_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/Soft Piano Music_16000_mono.wav";
-                node = new Sampler(small_sample12);
+                //const std::string& big_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/Soft Piano Music_16000_mono.wav";
+                node = new Sampler(small_sample6);
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
