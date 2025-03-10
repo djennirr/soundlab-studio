@@ -100,3 +100,11 @@ int Adder::chooseIn(ed::PinId pin) {
     }
     return 0;
 }
+
+void Adder::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+
+    input1PinId = ed::PinId(data["pins"][0].get<int>());
+    input2PinId = ed::PinId(data["pins"][1].get<int>());
+    outputPinId = ed::PinId(data["pins"][2].get<int>());
+}

@@ -26,4 +26,5 @@ class Adder : public AudioModule{
         void connect(AudioModule* input, int id) override;
         void disconnect(AudioModule* module) override;
         int chooseIn(ed::PinId pin) override;
+        void fromJson(const json& data) override;
 };

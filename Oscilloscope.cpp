@@ -130,3 +130,10 @@ void Oscilloscope::clearBuffer()
     std::fill(waveformBuffer.begin(), waveformBuffer.end(), 0.0f);
     bufferIndex = 0;
 }
+
+void Oscilloscope::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+
+    inputPinId = ed::PinId(data["pins"][0].get<int>());
+    outputPinId = ed::PinId(data["pins"][1].get<int>());
+}

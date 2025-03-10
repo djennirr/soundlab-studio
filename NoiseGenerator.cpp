@@ -103,6 +103,7 @@ int NoiseGenerator::chooseIn(ed::PinId id) {
     return 1;
 }
 
+
 void NoiseGenerator::generateWhiteNoise(AudioSample* stream, int length) {
     for (int i = 0; i < length; ++i) {
         float sample = whiteNoise(generator) * amplitude;
@@ -137,5 +138,26 @@ void NoiseGenerator::generateBrownNoise(AudioSample* stream, int length) {
 
         float sample = brown * amplitude;
         stream[i] = static_cast<AudioSample>(std::clamp((sample * (AMPLITUDE_F - 1)) + (AMPLITUDE_F - 1), 0.0f, (AMPLITUDE_F*2 - 1)));
+    }
+}
+
+void NoiseGenerator::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+
+    noiseType = static_cast<NoiseType>(data["noiseType"].get<int>());
+    amplitude = data["amplitude"];
+
+    outputPinId = ed::PinId(data["pins"][0].get<int>());
+
+    switch (noiseType) {
+        case NoiseType::WHITE:
+            portable_strcpy(popup_text, "White");
+            break;
+        case NoiseType::PINK:
+            portable_strcpy(popup_text, "Pink");
+            break;
+        case NoiseType::BROWN:
+            portable_strcpy(popup_text, "Brown");
+            break;
     }
 }

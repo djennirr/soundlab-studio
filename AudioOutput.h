@@ -4,8 +4,6 @@
 #include "WaveType.h"
 #include <SDL2/SDL.h>
 
-
-
 class AudioOutput : public AudioModule {
 private:
     static void audioCallback(void* userdata, Uint8* stream, int len);
@@ -19,6 +17,8 @@ private:
 public:
     AudioOutput();
     void process(AudioSample* stream, int length) override;
+    AudioOutput(int a);
+    void process(AudioSample* stream, int length) override;
     void render() override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
@@ -31,4 +31,19 @@ public:
     virtual int chooseIn(ed::PinId pin) override;
     void start();
     void stop();
+    void fromJson(const json& data) override;
+
+private:
+    static void audioCallback(void* userdata, Uint8* stream, int len);
+    SDL_AudioSpec wavSpec;
+    AudioModule* inputModule = nullptr;
+    bool isPlaying = false;
+    ed::PinId inputPinId;
+    ed::PinId outputPinId;
+    NodeType type;
+    json toJson() const override {
+        json data = AudioModule::toJson();
+        data["isPlaying"] = isPlaying;
+        return data;
+    }
 };
