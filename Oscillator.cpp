@@ -14,7 +14,7 @@ Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), 
     outputPinId = nextPinId++;
 }
 
-void Oscillator::process(Uint16* stream, int length) {
+void Oscillator::process(AudioSample* stream, int length) {
     if (isSignalActive) {
         
         switch (waveType) {
@@ -32,7 +32,7 @@ void Oscillator::process(Uint16* stream, int length) {
                 break;
         }
     } else {
-        memset(stream, 0, length * sizeof(Uint16));
+        memset(stream, 0, length * sizeof(AudioSample));
     }
 }
 
@@ -73,32 +73,32 @@ void Oscillator::render() {
             do_popup = false; // disable bool so that if we click off the popup, it doesn't open the next frame.
         }
         if (ImGui::BeginPopup(button1Label.c_str())) {
-                    // Note: if it weren't for the child window, we would have to PushItemWidth() here to avoid a crash!
-                    ImGui::TextDisabled("Waves:");
-                    ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-                    if (ImGui::Button((std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                        portable_strcpy(popup_text, (std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
-                        waveType = WaveType::SINE;
-                        ImGui::CloseCurrentPopup();  // These calls revoke the popup open state, which was set by OpenPopup above.
-                    }
-                    if (ImGui::Button((std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                        portable_strcpy(popup_text, (std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
-                        waveType = WaveType::SAWTOOTH;
-                        ImGui::CloseCurrentPopup();
-                    }
-                    if (ImGui::Button((std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                        portable_strcpy(popup_text, (std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
-                        waveType = WaveType::SQUARE;
-                        ImGui::CloseCurrentPopup();
-                    }
-                    if (ImGui::Button((std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                        portable_strcpy(popup_text, (std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
-                        waveType = WaveType::TRIANGLE;
-                        ImGui::CloseCurrentPopup();
-                    }
-                    ImGui::EndChild();
-                    ImGui::EndPopup(); // Note this does not do anything to the popup open/close state. It just terminates the content declaration.
-                }
+            // Note: if it weren't for the child window, we would have to PushItemWidth() here to avoid a crash!
+            ImGui::TextDisabled("Waves:");
+            ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+            if (ImGui::Button((std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+                waveType = WaveType::SINE;
+                ImGui::CloseCurrentPopup();  // These calls revoke the popup open state, which was set by OpenPopup above.
+            }
+            if (ImGui::Button((std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+                waveType = WaveType::SAWTOOTH;
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button((std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+                waveType = WaveType::SQUARE;
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button((std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+                waveType = WaveType::TRIANGLE;
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndChild();
+            ImGui::EndPopup(); // Note this does not do anything to the popup open/close state. It just terminates the content declaration.
+        }
         ed::Resume();
     }
 
@@ -117,26 +117,26 @@ ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
 ed::NodeId Oscillator::getNodeId() {
     return nodeId;
 }
-void Oscillator::generateSineWave(Uint16* stream, int length) {
+void Oscillator::generateSineWave(AudioSample* stream, int length) {
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint16>(((AMPLITUDE * sin(phase)) + 32768) * volume);
-        stream[i + 1] = static_cast<Uint16>(((AMPLITUDE * sin(phase)) + 32768) * volume);
+        stream[i] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
+        stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
         phase += (frequency * 2.0 * M_PI) / SAMPLE_RATE;
     }
 }
 
-void Oscillator::generateSquareWave(Uint16* stream, int length) {
+void Oscillator::generateSquareWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
-    const Uint16 highValue = 65535;
-    const Uint16 lowValue = 0;
+    const AudioSample highValue = (AMPLITUDE_I*2 - 1);
+    const AudioSample lowValue = 0;
 
     for (int i = 0; i < length; i += 2) {
         if (phase < period / 2) {
-            stream[i] = static_cast<Uint16>(highValue * volume);
-            stream[i + 1] = static_cast<Uint16>(highValue * volume);
+            stream[i] = static_cast<AudioSample>(highValue * volume);
+            stream[i + 1] = static_cast<AudioSample>(highValue * volume);
         } else {
-            stream[i] = static_cast<Uint16>(lowValue * volume);
-            stream[i + 1] = static_cast<Uint16>(lowValue * volume);
+            stream[i] = static_cast<AudioSample>(lowValue * volume);
+            stream[i + 1] = static_cast<AudioSample>(lowValue * volume);
         }
         
         phase += 1.0;
@@ -146,12 +146,12 @@ void Oscillator::generateSquareWave(Uint16* stream, int length) {
     }
 }
 
-void Oscillator::generateSawtoothWave(Uint16* stream, int length) {
+void Oscillator::generateSawtoothWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint16>((65535 * phase) / period * volume);
-        stream[i + 1] = static_cast<Uint16>((65535 * phase) / period * volume);
+        stream[i] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
+        stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
 
         phase += 1.0;
         if (phase >= period) {
@@ -160,15 +160,15 @@ void Oscillator::generateSawtoothWave(Uint16* stream, int length) {
     }
 }
 
-void Oscillator::generateTriangleWave(Uint16* stream, int length) {
+void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
     
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i++) {
         if (phase < period / 2) {
-            stream[i] = static_cast<Uint16>(((65535 * phase) / (period / 2)) * volume);
+            stream[i] = static_cast<AudioSample>((((AMPLITUDE_I*2 - 1) * phase) / (period / 2)) * volume);
         } else {
-            stream[i] = static_cast<Uint16>((65535 - (65535 * (phase - (period / 2)) / (period / 2))) * volume);
+            stream[i] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) - ((AMPLITUDE_I*2 - 1) * (phase - (period / 2)) / (period / 2))) * volume);
         }
 
         phase += 1.0;
