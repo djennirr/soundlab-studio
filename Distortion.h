@@ -16,11 +16,11 @@ class Distortion : public AudioModule {
         NodeType type;
         AudioModule* module;
         json toJson() const override {
-        json data = AudioModule::toJson();
-        data["drive"] = drive;
-        data["mix"] = mix;
-        return data;
-    }  
+            json data = AudioModule::toJson();
+            data["drive"] = drive;
+            data["mix"] = mix;
+            return data;
+        }  
         
     public:
         Distortion(float drive = 1.0f, float mix = 0.5f);

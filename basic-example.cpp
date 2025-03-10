@@ -524,47 +524,7 @@ struct Example : public Application {
     # endif
 
     ed::End();
-
-            ed::Suspend();
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
-            if (ImGui::BeginPopup("Create New Node"))
-            {
-                auto newNodePostion = openPopupPosition;
-                AudioModule* node = nullptr;
-                
-                if (ImGui::MenuItem("Oscillator")){
-                    node = new Oscillator(440.0, 0.5, WaveType::SINE);
-                    modules.push_back(node);
-                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
-                } else if (ImGui::MenuItem("Adder")) {
-                    node = new Adder();
-                    modules.push_back(node);
-                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
-                } else if (ImGui::MenuItem("Distortion")) {
-                    node = new Distortion();
-                    modules.push_back(node);
-                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
-                } else if (ImGui::MenuItem("Oscilloscope")) {
-                    node = new Oscilloscope();
-                    modules.push_back(node);
-                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
-                } else if (ImGui::MenuItem("Noise Generator")) {
-                    node = new NoiseGenerator();
-                    modules.push_back(node);
-                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
-                } else if (ImGui::MenuItem("Reverb")) {
-                    node = new Reverb();
-                    modules.push_back(node);
-                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
-                }
-                ImGui::EndPopup();
-            } 
-            ImGui::PopStyleVar();
-            ed::Resume();
-        # endif
-
-        ed::End();
-        ed::SetCurrentEditor(nullptr);
+    ed::SetCurrentEditor(nullptr);
     }
 
     ed::EditorContext* m_Context = nullptr;
