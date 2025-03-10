@@ -8,17 +8,17 @@
 class Oscilloscope : public AudioModule {
 public:
     Oscilloscope();
+    void process(Uint16* stream, int length) override;
+    void render() override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
-    NodeType getNodeType() const override { return NodeType::Oscilloscope; }
+    NodeType getNodeType() const override {
+        return NodeType::Oscilloscope; 
+    }
     ed::NodeId getNodeId() override;
-    void process(Uint8* stream, int length) override;
-    void disconnect(AudioModule* module) override;
     void connect(AudioModule* input, int id) override;
-    void render() override;
+    void disconnect(AudioModule* module) override;
     int chooseIn(ed::PinId pin) override;
-
-    void addSample(float sample);
     void clearBuffer();
     void fromJson(const json& data) override;
     

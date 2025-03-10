@@ -5,7 +5,7 @@
 
 # define portable_strcpy    strcpy
 
-const int AMPLITUDE = 128;
+const int AMPLITUDE = 32768;
 const int SAMPLE_RATE = 44100;
 
 Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), volume(vol), waveType(type)  {
@@ -14,20 +14,25 @@ Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), 
     outputPinId = nextPinId++;
 }
 
-void Oscillator::process(Uint8* stream, int length) {
-    switch (waveType) {
-        case SINE:
-            generateSineWave(stream, length);
-            break;
-        case SQUARE:
-            generateSquareWave(stream, length);
-            break;
-        case SAWTOOTH:
-            generateSawtoothWave(stream, length);
-            break;
-        case TRIANGLE:
-            generateTriangleWave(stream, length);
-            break;
+void Oscillator::process(AudioSample* stream, int length) {
+    if (isSignalActive) {
+        
+        switch (waveType) {
+            case SINE:
+                generateSineWave(stream, length);
+                break;
+            case SQUARE:
+                generateSquareWave(stream, length);
+                break;
+            case SAWTOOTH:
+                generateSawtoothWave(stream, length);
+                break;
+            case TRIANGLE:
+                generateTriangleWave(stream, length);
+                break;
+        }
+    } else {
+        memset(stream, 0, length * sizeof(AudioSample));
     }
 }
 
@@ -48,6 +53,11 @@ void Oscillator::render() {
         std::string buttonLabel = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         if (ImGui::Button(buttonLabel.c_str())) {
             do_popup = true;
+        }
+        ImGui::SameLine(180.0F);
+        std::string buttonLabel2 = isSignalActive ? std::string("OFF") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" : std::string("ON") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" ;
+        if (ImGui::Button(buttonLabel2.c_str())) {
+        isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
         }
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->frequency, 7.0F, 0.0F, 1000.0F);
@@ -108,26 +118,26 @@ ed::NodeId Oscillator::getNodeId() {
     return nodeId;
 }
 
-void Oscillator::generateSineWave(Uint8* stream, int length) {
+void Oscillator::generateSineWave(AudioSample* stream, int length) {
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * volume);
-        stream[i + 1] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * volume);
+        stream[i] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
+        stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
         phase += (frequency * 2.0 * M_PI) / SAMPLE_RATE;
     }
 }
 
-void Oscillator::generateSquareWave(Uint8* stream, int length) {
+void Oscillator::generateSquareWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
-    const Uint8 highValue = 255;
-    const Uint8 lowValue = 0;
+    const AudioSample highValue = (AMPLITUDE_I*2 - 1);
+    const AudioSample lowValue = 0;
 
     for (int i = 0; i < length; i += 2) {
         if (phase < period / 2) {
-            stream[i] = static_cast<Uint8>(highValue * volume);
-            stream[i + 1] = static_cast<Uint8>(highValue * volume);
+            stream[i] = static_cast<AudioSample>(highValue * volume);
+            stream[i + 1] = static_cast<AudioSample>(highValue * volume);
         } else {
-            stream[i] = static_cast<Uint8>(lowValue * volume);
-            stream[i + 1] = static_cast<Uint8>(lowValue * volume);
+            stream[i] = static_cast<AudioSample>(lowValue * volume);
+            stream[i + 1] = static_cast<AudioSample>(lowValue * volume);
         }
         
         phase += 1.0;
@@ -137,12 +147,12 @@ void Oscillator::generateSquareWave(Uint8* stream, int length) {
     }
 }
 
-void Oscillator::generateSawtoothWave(Uint8* stream, int length) {
+void Oscillator::generateSawtoothWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint8>((255 * phase) / period * volume);
-        stream[i + 1] = static_cast<Uint8>((255 * phase) / period * volume);
+        stream[i] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
+        stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
 
         phase += 1.0;
         if (phase >= period) {
@@ -151,15 +161,15 @@ void Oscillator::generateSawtoothWave(Uint8* stream, int length) {
     }
 }
 
-void Oscillator::generateTriangleWave(Uint8* stream, int length) {
+void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
     
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i++) {
         if (phase < period / 2) {
-            stream[i] = static_cast<Uint8>(((255 * phase) / (period / 2)) * volume);
+            stream[i] = static_cast<AudioSample>((((AMPLITUDE_I*2 - 1) * phase) / (period / 2)) * volume);
         } else {
-            stream[i] = static_cast<Uint8>((255 - (255 * (phase - (period / 2)) / (period / 2))) * volume);
+            stream[i] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) - ((AMPLITUDE_I*2 - 1) * (phase - (period / 2)) / (period / 2))) * volume);
         }
 
         phase += 1.0;

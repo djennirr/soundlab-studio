@@ -12,18 +12,29 @@ enum class NoiseType {
 };
 
 class NoiseGenerator : public AudioModule {
+private:
+    NoiseType noiseType;
+    float amplitude;
+    ed::PinId outputPinId;
+    char popup_text[100] = "White";
+    float phase;
+    std::default_random_engine generator;
+    std::uniform_real_distribution<float> whiteNoise;
+
+    void generateWhiteNoise(AudioSample* stream, int length);
+    void generatePinkNoise(AudioSample* stream, int length);
+    void generateBrownNoise(AudioSample* stream, int length);
+
 public:
     NoiseGenerator(NoiseType type = NoiseType::WHITE, float amplitude = 1.0f);
-
-    void process(Uint8* stream, int length) override;
+    void process(AudioSample* stream, int length) override;
     void render() override;
-
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
-    ed::NodeId getNodeId() override;
     NodeType getNodeType() const override {
         return NodeType::NoiseGenerator;
     }
+    ed::NodeId getNodeId() override;
     void connect(AudioModule* module, int id) override;
     void disconnect(AudioModule* module) override;
     int chooseIn(ed::PinId id) override;

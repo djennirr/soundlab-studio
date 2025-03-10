@@ -3,12 +3,13 @@
 #include <iostream>
 
 static int m_FirstFrame = 1;
-//надо передавать ссылку на аудио аутпут который выполняется
+
 AudioOutput::AudioOutput() {
+  
     if (!SDL_WasInit(SDL_INIT_AUDIO)) {
         SDL_AudioSpec wavSpec;
         wavSpec.freq = 44100;
-        wavSpec.format = AUDIO_U8;
+        wavSpec.format = AUDIOFORMAT;
         wavSpec.channels = 2;
         wavSpec.samples = 512;
         wavSpec.size = 512;
@@ -45,43 +46,40 @@ AudioOutput::AudioOutput(int a) {
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
     AudioOutput* audioOutput = static_cast<AudioOutput*>(userdata);
+    AudioSample* stream16 = (AudioSample*)stream;
+    int len16 = len/(sizeof(AudioSample));
 
     if (audioOutput && audioOutput->inputModule && audioOutput->isPlaying) {
         // Если есть ссылка на inputModule и флаг воспроизведения включен
-        audioOutput->inputModule->process(stream, len);
+        audioOutput->inputModule->process(stream16, len16);
     } else {
         // Если нет ссылки или воспроизведение выключено, заполняем тишиной
-        memset(stream, 0, len);
+        memset(stream16, 0, len16 * sizeof(AudioSample));
     }
 }
 
-void AudioOutput::process(Uint8* stream, int length) {
+void AudioOutput::process(AudioSample* stream, int length) {
     inputModule->process(stream, length);
     // std::cout << this->nodeId.Get();
 }
 
 void AudioOutput::render() {
-            if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(210, 60));
-        ed::BeginNode(nodeId);
-            ImGui::Text("Audio Output");
-            ed::BeginPin(inputPinId, ed::PinKind::Input);
-                ImGui::Text("=> Signal In");
-            ed::EndPin();
-            // ImGui::SameLine();
-            // ed::BeginPin(outputPinId, ed::PinKind::Output);
-            //     ImGui::Text("Signal Out");
-            // ed::EndPin();
-            std::string buttonName = "Play";
-            if (isPlaying){
-                buttonName = "Stop";
-            }
-            if (ImGui::Button(buttonName.c_str())){
-                isPlaying = not(isPlaying);
-            }
-        ed::EndNode();
-        m_FirstFrame = 0;
-        // std::cout << "id: " << this->nodeId.Get() << std::endl;
 
+    if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(210, 60));
+    ed::BeginNode(nodeId);
+        ImGui::Text("Audio Output");
+        ed::BeginPin(inputPinId, ed::PinKind::Input);
+        ImGui::Text("=> Signal In");
+        ed::EndPin();
+        std::string buttonName = "Play";
+        if (isPlaying){
+            buttonName = "Stop";
+        }
+        if (ImGui::Button(buttonName.c_str())){
+            isPlaying = not(isPlaying);
+        }
+    ed::EndNode();
+    m_FirstFrame = 0;
 }
 
 std::vector<ed::PinId> AudioOutput::getPins() const {
@@ -92,6 +90,10 @@ ed::PinKind AudioOutput::getPinKind(ed::PinId pin) const {
     if (inputPinId == pin) {
         return ed::PinKind::Input;
     }
+}
+
+ed::NodeId AudioOutput::getNodeId() {
+    return nodeId;
 }
 
 void AudioOutput::connect(AudioModule* input, int id) {
@@ -109,10 +111,6 @@ void AudioOutput::disconnect(AudioModule* module) {
 
 int AudioOutput::chooseIn(ed::PinId id) {
     return 1;
-}
-
-ed::NodeId AudioOutput::getNodeId() {
-    return nodeId;
 }
 
 void AudioOutput::start() {

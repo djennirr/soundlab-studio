@@ -5,18 +5,28 @@
 #include <SDL2/SDL.h>
 
 class AudioOutput : public AudioModule {
+private:
+    static void audioCallback(void* userdata, Uint8* stream, int len);
+    SDL_AudioSpec wavSpec;
+    AudioModule* inputModule = nullptr;
+    bool isPlaying = false;
+    ed::PinId inputPinId;
+    ed::PinId outputPinId;
+    NodeType type;
+
 public:
     AudioOutput();
+    void process(AudioSample* stream, int length) override;
     AudioOutput(int a);
-    void process(Uint8* stream, int length) override;
+    void process(AudioSample* stream, int length) override;
     void render() override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
     NodeType getNodeType() const override {
         return NodeType::AudioOutput;
     }
-    void connect(AudioModule* input, int id = 1) override;
     ed::NodeId getNodeId() override;
+    void connect(AudioModule* input, int id = 1) override;
     virtual void disconnect(AudioModule* module) override;
     virtual int chooseIn(ed::PinId pin) override;
     void start();

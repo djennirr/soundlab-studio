@@ -9,6 +9,7 @@
 #include "WaveType.h"
 #include "Distortion.h"
 #include "NoiseGenerator.h"
+#include "Reverb.h"
 #include <vector>
 #include <algorithm>
 #include "libs/json/single_include/nlohmann/json.hpp"
@@ -173,22 +174,22 @@ struct Example : public Application {
     
 
     LinkInfo* findLinkByPin(ed::PinId pinId) {
-    for (auto& link : m_Links) {
-        if (link.InputId == pinId || link.OutputId == pinId) {
-            return &link;
+        for (auto& link : m_Links) {
+            if (link.InputId == pinId || link.OutputId == pinId) {
+                return &link;
+            }
         }
-    }
-    return nullptr;
+        return nullptr;
     }
 
     AudioModule* findNodeByPin(ed::PinId pin) {
         for (AudioModule* module : modules) {
-        const auto& pins = module->getPins();
-        if (std::find(pins.begin(), pins.end(), pin) != pins.end()) {
-            return module;
+            const auto& pins = module->getPins();
+            if (std::find(pins.begin(), pins.end(), pin) != pins.end()) {
+                return module;
+            }
         }
-    }
-    return nullptr;
+        return nullptr;
     }
 
     void createConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
@@ -197,20 +198,6 @@ struct Example : public Application {
         } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
             inputId->connect(outputID, inputId->chooseIn(inputPin));
         }
-        // if (inputId->getNodeType() == NodeType::AudioOutput) {
-        //     AudioOutput* audioOutput = static_cast<AudioOutput*>(inputId);
-        //     audioOutput->connect(outputID);
-        // } else if (outputID->getNodeType() == NodeType::AudioOutput){
-        //     AudioOutput* audioOutput = static_cast<AudioOutput*>(outputID);
-        //     audioOutput->connect(inputId);
-        // } else if (inputId->getNodeType() == NodeType::Adder) {
-        //     Adder* adder = static_cast<Adder*>(inputId);
-        //     adder->connect(outputID, adder->chooseIn(outputPin));
-        // } else if (outputID->getNodeType() == NodeType::Adder){
-        //     Adder* adder = static_cast<Adder*>(outputID);
-        //     adder->connect(inputId, adder->chooseIn(outputPin));
-    // }
-        
     }
 
     void deleteConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
@@ -221,25 +208,27 @@ struct Example : public Application {
         }
     }
 
-void deleteNode(AudioModule* nodeToDelete) {
-    if (!nodeToDelete) return;
+    void deleteNode(AudioModule* nodeToDelete) {
+        if (!nodeToDelete) return;
 
-    // Убираем ссылки на удаляемую ноду
-    for (auto& module : modules) {
-        if (module != nodeToDelete) {
-            module->disconnect(nodeToDelete);
+        // Убираем ссылки на удаляемую ноду
+        for (auto& module : modules) {
+            if (module != nodeToDelete) {
+                module->disconnect(nodeToDelete);
+            }
+        }
+
+        // Удаляем саму ноду
+        auto it = std::find(modules.begin(), modules.end(), nodeToDelete);
+        if (it != modules.end()) {
+            delete *it;          // Освобождаем память
+            modules.erase(it);   // Удаляем из списка
         }
     }
 
-    // Удаляем саму ноду
-    auto it = std::find(modules.begin(), modules.end(), nodeToDelete);
-    if (it != modules.end()) {
-        delete *it;          // Освобождаем память
-        modules.erase(it);   // Удаляем из списка
-    }
-}
-
     using Application::Application;
+
+    AudioOutput* audiooutput = new AudioOutput();
 
     void OnStart() override {
         
@@ -257,6 +246,7 @@ void deleteNode(AudioModule* nodeToDelete) {
         for (auto& module : modules) {
             delete module;
         }
+
         ed::DestroyEditor(m_Context);
     }
 
@@ -355,7 +345,7 @@ void deleteNode(AudioModule* nodeToDelete) {
 
          // Handle creation action, returns true if editor want to create new object (node or link)
         if (ed::BeginCreate())
-        {
+        {   
             ed::PinId inputPinId, outputPinId;
             if (ed::QueryNewLink(&inputPinId, &outputPinId))
             {
@@ -418,8 +408,6 @@ void deleteNode(AudioModule* nodeToDelete) {
                             m_Links.erase(existingLinkInput);
                         }
 
-
-
                         createConnection(inputNode, inputPinId, outputNode, outputPinId);
                         
                         // Since we accepted new link, lets add one to our list of links.
@@ -428,7 +416,6 @@ void deleteNode(AudioModule* nodeToDelete) {
                         // Draw new link.
                         ed::Link(m_Links.back().Id, m_Links.back().InputId, m_Links.back().OutputId);
                     }
-
                     // You may choose to reject connection between these nodes
                     // by calling ed::RejectNewItem(). This will allow editor to give
                     // visual feedback by changing link thickness and color.
@@ -436,7 +423,6 @@ void deleteNode(AudioModule* nodeToDelete) {
             }
         }
         ed::EndCreate(); // Wraps up object creation action handling.
-
 
          // Handle deletion action
         if (ed::BeginDelete())
@@ -493,19 +479,6 @@ void deleteNode(AudioModule* nodeToDelete) {
         }
         ed::EndDelete(); // Wrap up deletion action
 
-        // // Обработка удаления соединений
-        // if (ed::BeginDelete()) {
-        //     ed::LinkId deletedLinkId;
-        //     while (ed::QueryDeletedLink(&deletedLinkId)) {
-        //         if (ed::AcceptDeletedItem()) {
-        //             auto it = std::remove_if(m_Links.begin(), m_Links.end(), [&](LinkInfo& link) {
-        //                 return link.Id == deletedLinkId;
-        //             });
-        //             m_Links.erase(it, m_Links.end());
-        //         }
-        //     }
-        // }
-        // ed::EndDelete();
 
     #if 1
         auto openPopupPosition = ImGui::GetMousePos();
@@ -552,12 +525,45 @@ void deleteNode(AudioModule* nodeToDelete) {
 
     ed::End();
 
+            ed::Suspend();
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+            if (ImGui::BeginPopup("Create New Node"))
+            {
+                auto newNodePostion = openPopupPosition;
+                AudioModule* node = nullptr;
+                
+                if (ImGui::MenuItem("Oscillator")){
+                    node = new Oscillator(440.0, 0.5, WaveType::SINE);
+                    modules.push_back(node);
+                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
+                } else if (ImGui::MenuItem("Adder")) {
+                    node = new Adder();
+                    modules.push_back(node);
+                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
+                } else if (ImGui::MenuItem("Distortion")) {
+                    node = new Distortion();
+                    modules.push_back(node);
+                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
+                } else if (ImGui::MenuItem("Oscilloscope")) {
+                    node = new Oscilloscope();
+                    modules.push_back(node);
+                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
+                } else if (ImGui::MenuItem("Noise Generator")) {
+                    node = new NoiseGenerator();
+                    modules.push_back(node);
+                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
+                } else if (ImGui::MenuItem("Reverb")) {
+                    node = new Reverb();
+                    modules.push_back(node);
+                    ed::SetNodePosition(node->getNodeId(), newNodePostion);
+                }
+                ImGui::EndPopup();
+            } 
+            ImGui::PopStyleVar();
+            ed::Resume();
+        # endif
 
-        // if (m_FirstFrame) {
-        //     ed::NavigateToContent(0.0f);
-        //     m_FirstFrame = false;
-        // }
-
+        ed::End();
         ed::SetCurrentEditor(nullptr);
     }
 
@@ -570,7 +576,9 @@ void deleteNode(AudioModule* nodeToDelete) {
 
 int Main(int argc, char** argv) {
     Example example("Basic Interaction", argc, argv);
-    if (example.Create())
+    if (example.Create()) {
         return example.Run();
+    }
+
     return 0;
 }
