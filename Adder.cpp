@@ -13,11 +13,11 @@ Adder::Adder()  {
     outputPinId = nextPinId++;
 }
 
-void Adder::process(Uint16* stream, int length) {
+void Adder::process(AudioSample* stream, int length) {
     length = std::min(length, 1024); // Максимальная длина
 
-    Uint16 stream1[1024] = {0};
-    Uint16 stream2[1024] = {0};
+    AudioSample stream1[1024] = {0};
+    AudioSample stream2[1024] = {0};
 
     if (module1 != nullptr) {
         module1->process(stream1, length);
@@ -28,10 +28,10 @@ void Adder::process(Uint16* stream, int length) {
 
     for (int i = 0; i < length; i += 2) {  // Шаг на 2 для стерео
         int left = stream1[i] + stream2[i];
-        stream[i] = static_cast<Uint16>(std::min(left, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
+        stream[i] = static_cast<AudioSample>(std::min(left, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
 
         int right = stream1[i + 1] + stream2[i + 1];
-        stream[i + 1] = static_cast<Uint16>(std::min(right, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
+        stream[i + 1] = static_cast<AudioSample>(std::min(right, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
     }
 }
 

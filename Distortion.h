@@ -36,5 +36,4 @@ class Distortion : public AudioModule {
         void disconnect(AudioModule* module) override;
         int chooseIn(ed::PinId pin) override;
         void fromJson(const json& data) override;
-
 };

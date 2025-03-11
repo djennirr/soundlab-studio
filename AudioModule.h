@@ -70,14 +70,13 @@ class AudioModule {
           data["pins"] = pinsJson;
 
           return data;
-    }
-         virtual void fromJson(const json& data) {
-        nodeId = ed::NodeId(data["nodeId"].get<int>());
-        // std::cout << "from" << nodeId.Get();
-        ed::SetNodePosition(nodeId, {
-            data["position"]["x"], 
-            data["position"]["y"]
+        }
+        virtual void fromJson(const json& data) {
+            nodeId = ed::NodeId(data["nodeId"].get<int>());
+            // std::cout << "from" << nodeId.Get();
+            ed::SetNodePosition(nodeId, {
+                data["position"]["x"], 
+                data["position"]["y"]
         });
     }
-
 };

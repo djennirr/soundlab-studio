@@ -228,8 +228,6 @@ struct Example : public Application {
 
     using Application::Application;
 
-    AudioOutput* audiooutput = new AudioOutput();
-
     void OnStart() override {
         
         modules.push_back(audiooutput);
