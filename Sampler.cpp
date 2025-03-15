@@ -72,23 +72,52 @@ void Sampler::process(Uint16 *stream, int len)
 void Sampler::render()
 {
     ed::BeginNode(nodeId);
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
     ImGui::Text("Sampler");
     ed::BeginPin(inputPinId, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
-    ImGui::SameLine(150);
+    ImGui::SameLine(180);
     ed::BeginPin(outputPinId, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
 
-    ImGui::SetNextItemWidth(100);
+    ImGui::AlignTextToFramePadding();
+    std::string buttonLabelOpenPopup = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+    if (ImGui::Button(buttonLabelOpenPopup.c_str())) {
+        do_popup = true;
+    }
+    
+    ImGui::SetNextItemWidth(150);
     ImGui::DragFloat("Volume", &volume, 0.01f, 0.0f, 1.0f);
     ed::EndNode();
+
+    
+
+    ed::Suspend();//приостанавливает работу редакторов узла
+    std::string buttonLabel = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">"; 
+    if(do_popup) {
+        ImGui::OpenPopup(buttonLabel.c_str());
+        do_popup = false;
+    }
+
+    if(ImGui::BeginPopup(buttonLabel.c_str())) {
+        ImGui::TextDisabled("Samples:");
+        ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        if (ImGui::Button((std::string("DRUMS") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+            strcpy(popup_text, (std::string("DRUMS") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+            sampleType = SampleType::DRUMS;
+            ImGui::CloseCurrentPopup();
+    }
+    ImGui::EndChild();
+    ImGui::EndPopup();
+    }
+    ed::Resume();
 }
 
 std::vector<ed::PinId> Sampler::getPins() const { return {inputPinId, outputPinId}; }
 ed::PinKind Sampler::getPinKind(ed::PinId pin) const { return pin == outputPinId ? ed::PinKind::Output : ed::PinKind::Input; }
 ed::NodeId Sampler::getNodeId() { return nodeId; }
-void Sampler::connect(AudioModule *module, int id) { /* Логика подключения */ }
-void Sampler::disconnect(AudioModule *module) { /* Логика отключения */ }
+void Sampler::connect(AudioModule *module, int id) { return; }
+void Sampler::disconnect(AudioModule *module) { return; }
 int Sampler::chooseIn(ed::PinId id) { return 1; }

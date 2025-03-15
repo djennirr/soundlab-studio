@@ -14,7 +14,7 @@ void Oscilloscope::process(Uint16 *stream, int length)
 {
     length = std::min(length, bufferSize);
 
-    Uint16 stream1[1024] = {0}; // 16-битный буфер
+    Uint16 stream1[bufferSize] = {0}; // 16-битный буфер
 
     if (inputModule != nullptr)
     {
@@ -34,7 +34,7 @@ void Oscilloscope::process(Uint16 *stream, int length)
         for (int i = 0; i < length; i++)
         {
             // Приведение к диапазону [-1, 1] для 16-битного сигнала (0 - 65535)
-            float sample = (static_cast<float>(stream[i]) - 32768.0f) / 32768.0f;
+            float sample = (static_cast<float>(stream[i]) - amplitude) / amplitude;
             waveformBuffer[bufferIndex] = sample;
             bufferIndex = (bufferIndex + 1) % bufferSize;
         }
@@ -105,8 +105,8 @@ void Oscilloscope::render()
             bufferSize,            // amount_of_values
             bufferIndex,           // first_index (сдвиг)
             nullptr,               // overlay_text
-            3.402823466e+38F,      // min_scale
-            3.402823466e+38F,      // max_scale
+            scale,      // min_scale
+            scale,      // max_scale
             ImVec2(width, height)); // graph_size
 
     } else if (inputModule == nullptr) {
@@ -116,8 +116,8 @@ void Oscilloscope::render()
             bufferSize,            // amount_of_values
             bufferIndex,           // first_index (сдвиг)
             nullptr,               // overlay_text
-            3.402823466e+38F,      // min_scale
-            3.402823466e+38F,      // max_scale
+            scale,      // min_scale
+            scale,      // max_scale
             ImVec2(width, height)); // graph_size
 
     }
