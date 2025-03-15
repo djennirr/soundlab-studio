@@ -5,7 +5,7 @@
 
 # define portable_strcpy    strcpy
 
-Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), volume(vol), waveType(type)  {
+Oscillator::Oscillator(float freq, float vol) : frequency(freq), volume(vol)  {
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
     outputPinId = nextPinId++;
