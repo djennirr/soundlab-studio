@@ -11,7 +11,6 @@ enum SampleType {
     SNARE,
     KICK,
     KICK2,
-    KLAVINET,
     ALIEN,
     ELECTRO,
     COOL_DRUMS,
@@ -28,7 +27,6 @@ inline std::string SampleTypeToString(SampleType type) {
         case SNARE:       return "SNARE";
         case KICK:        return "KICK";
         case KICK2:       return "KICK2";
-        case KLAVINET:    return "KLAVINET";
         case ALIEN:       return "ALIEN";
         case ELECTRO:     return "ELECTRO";
         case COOL_DRUMS:  return "COOL_DRUMS";

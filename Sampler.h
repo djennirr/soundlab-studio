@@ -17,17 +17,17 @@ class Sampler : public AudioModule
     const std::string DRUMS_sample = "samples/sample-12s.wav";
     const std::string CHILD_sample = "samples/sample-15s.wav";
     const std::string ADULT_sample = "samples/adult.wav";
+
     const std::string VIBE_sample = "samples/vibe.wav";
-    const std::string SNARE_sample = "samples/kick.wav";
+    const std::string SNARE_sample = "samples/snare.wav";
     const std::string KICK_sample = "samples/kick.wav";
     const std::string KICK2_sample = "samples/kick2.wav";
-    const std::string KLAVINET_sample = "samples/wah-clavinet-funky.wav";
     const std::string ALIEN_sample = "samples/alien.wav";
     const std::string ELECTRO_sample = "samples/electro140bpm.wav";
     const std::string COOL_DRUMS_sample = "samples/drum-loop.wav";
 
 private:
-    char popup_text[20] = "DRUMS";
+    std::string popup_text = "DRUMS"; // Было: char popup_text[20]
     float volume;
     bool isChanged; // флаг для отслеживания изменил ли пользователь сэмпл
     void loadWAV(const std::string &filename);
@@ -43,13 +43,20 @@ private:
     ed::PinId inputPinId, outputPinId;
 
     const std::vector<SampleType> sampleTypes = {
-        DRUMS, CEREMONIAL, CHILD, ADULT, VIBE,
-        SNARE, KICK, KICK2, KLAVINET, ALIEN,
-        ELECTRO, COOL_DRUMS};
+        DRUMS,
+        ADULT,
+        ALIEN,
+        CEREMONIAL,
+        CHILD,
+        ELECTRO,
+        KICK,
+        KICK2,
+        SNARE,
+        VIBE
+    };
 
-    void setSample(const std::string sampleName, SampleType type)
-    {
-        strcpy(popup_text, (sampleName + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+    inline void setSample(const std::string& sampleName, SampleType type) {
+        popup_text = sampleName + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         sampleType = type;
         isChanged = true;
     }

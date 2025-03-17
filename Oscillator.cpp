@@ -61,8 +61,8 @@ void Oscillator::render() {
         
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
-        
         ed::EndNode();
+        
         ed::Suspend();
         std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         if (do_popup) {

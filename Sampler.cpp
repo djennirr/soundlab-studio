@@ -1,11 +1,13 @@
 #include "Sampler.h"
 
-Sampler::Sampler(float vol) : volume(vol)
+Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
 {
     nodeId = ed::NodeId(nextNodeId++);
     inputPinId = ed::PinId(nextPinId++);
     outputPinId = ed::PinId(nextPinId++);
-    isChanged = true;
+
+    loadWAV(DRUMS_sample);
+    isChanged = false;
 }
 
 void Sampler::loadWAV(const std::string &filename)
@@ -17,6 +19,7 @@ void Sampler::loadWAV(const std::string &filename)
     if (!SDL_LoadWAV(filename.c_str(), &wavSpec, &buffer, &length))
     {
         std::cerr << "Failed to load WAV: " << SDL_GetError() << std::endl;
+        audioData.clear(); // Очищаем данные
         return;
     }
 
@@ -28,7 +31,7 @@ void Sampler::loadWAV(const std::string &filename)
     }
 
     // sample - в секунду 44100 семплов
-    int sampleCount = length / 2; // В нашем WAV файле 16 бит == 2 байта(на 1 семпл 2 байта)
+    int sampleCount = length / 2; // в нашем WAV файле 16 бит == 2 байта(на 1 семпл 2 байта)
     int channels = wavSpec.channels;
 
     if (channels != STEREO_CHANNELS)
@@ -41,7 +44,6 @@ void Sampler::loadWAV(const std::string &filename)
     Sint16 *src = reinterpret_cast<Sint16 *>(buffer);
     audioData.resize(sampleCount / channels); // изменяем длину, так как потом будем из стерео делать моно
 
-    // Конвертация signed → unsigned
     for (size_t i = 0; i < audioData.size(); ++i)
     {
         audioData[i] = ((int)src[2 * i] + (int)src[2 * i + 1]) / 2; // Смешиваем стерео → моно
@@ -85,9 +87,6 @@ void Sampler::process(Uint16 *stream, int len)
         case SampleType::KICK2:
             loadWAV(KICK2_sample);
             break;
-        case SampleType::KLAVINET:
-            loadWAV(KLAVINET_sample);
-            break;
         case SampleType::ALIEN:
             loadWAV(ALIEN_sample);
             break;
@@ -96,6 +95,9 @@ void Sampler::process(Uint16 *stream, int len)
             break;
         case SampleType::COOL_DRUMS:
             loadWAV(COOL_DRUMS_sample);
+            break;
+        default:
+            std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
             break;
         }
         isChanged = false;
@@ -109,14 +111,13 @@ void Sampler::process(Uint16 *stream, int len)
         float scaled = audioData[position] * volume;
         Uint16 sample = static_cast<Uint16>(scaled);
 
-        stream[i] = sample;     // Левый канал
-        stream[i + 1] = sample; // Правый канал
+        stream[i] = sample;     // левый канал
+        stream[i + 1] = sample; // правый канал
 
         position++;
     }
 }
 
-// закинуть выбор по кнопкам в отдельную функцию
 void Sampler::render()
 {
     ed::BeginNode(nodeId);
@@ -138,7 +139,7 @@ void Sampler::render()
     }
 
     ImGui::SetNextItemWidth(150);
-    ImGui::DragFloat("volume##<", &volume, 0.01f, 0.0f, 1.0f);
+    ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
     ed::EndNode();
 
     ed::Suspend(); // приостанавливает работу редакторов узла
@@ -152,27 +153,19 @@ void Sampler::render()
     if (ImGui::BeginPopup(buttonLabel.c_str()))
     {
         ImGui::TextDisabled("Samples:");
-        ImGui::BeginChild((std::string("popup_scroller") + "####<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-        if (ImGui::Button((SampleTypeToString(SampleType::DRUMS) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str()))
+        ImGui::BeginChild("popup_scroller", ImVec2(200, 200), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
+
+        for (SampleType type : sampleTypes)
         {
-            setSample(SampleTypeToString(SampleType::DRUMS), SampleType::DRUMS);
-            ImGui::CloseCurrentPopup();
+            std::string label = SampleTypeToString(type) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+            if (ImGui::Button(label.c_str()))
+            {
+                setSample(SampleTypeToString(type), type);
+                ImGui::CloseCurrentPopup();
+            }
         }
-        if (ImGui::Button((std::string("CEREMONIAL") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str()))
-        {
-            setSample("CEREMONIAL", SampleType::CEREMONIAL);
-            ImGui::CloseCurrentPopup();
-        }
-        if (ImGui::Button((std::string("CHILD") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str()))
-        {
-            setSample("CHILD", SampleType::CHILD);
-            ImGui::CloseCurrentPopup();
-        }
-        if (ImGui::Button((std::string("ADULT") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str()))
-        {
-            setSample("ADULT", SampleType::ADULT);
-            ImGui::CloseCurrentPopup();
-        }
+
         ImGui::EndChild();
         ImGui::EndPopup();
     }

@@ -28,10 +28,10 @@ void Adder::process(Uint16* stream, int length) {
 
     for (int i = 0; i < length; i += 2) {  // Шаг на 2 для стерео
         int left = stream1[i] + stream2[i];
-        stream[i] = static_cast<Uint16>(std::min(left, 65535)); // Ограничиваем в пределах [0, 65535]
+        stream[i] = static_cast<Uint16>(left % 65535); // Ограничиваем в пределах [0, 65535]
 
         int right = stream1[i + 1] + stream2[i + 1];
-        stream[i + 1] = static_cast<Uint16>(std::min(right, 65535)); // Ограничиваем в пределах [0, 65535]
+        stream[i + 1] = static_cast<Uint16>(right % 65535); // Ограничиваем в пределах [0, 65535]
     }
 }
 
