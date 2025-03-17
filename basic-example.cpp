@@ -14,7 +14,6 @@
 #include <vector>
 #include <algorithm>
 
-
 namespace ed = ax::NodeEditor;
 
 struct Example : public Application {
@@ -342,13 +341,9 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Sampler")) {
                 //на small_sata работает, а на big_data нет
-                const std::string& small_sample3 = "samples/sample-3s.wav";
-                const std::string& small_sample6 = "samples/sample-6s.wav";
-                const std::string& small_sample12 = "samples/sample-12s.wav";
-                const std::string& small_sample15 = "samples/sample-15s.wav";
-
+            
                 //const std::string& big_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/Soft Piano Music_16000_mono.wav";
-                node = new Sampler(small_sample6);
+                node = new Sampler();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
