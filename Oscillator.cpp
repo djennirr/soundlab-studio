@@ -68,14 +68,70 @@ void Oscillator::render() {
         ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
         ed::EndNode();
 
+        /*
+            WARNING!!!! проблемки с вводом кнопок почему то они у меня считываются как -3 от алфавита (если ввожу A вводится D)
+            upd: короче старая версия имгуи у нас возможно из за этого
+
+        */
+        // std::cout << "ImGui version: " << IMGUI_VERSION << std::endl;
+        // std::cout << "ImGui version (numeric): " << IMGUI_VERSION_NUM << std::endl;
         if (ed::IsNodeSelected(nodeId)) {
             auto& io = ImGui::GetIO();
             // printf("selected\n");
+
             if(ImGui::IsKeyPressed(ImGuiKey_A - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                std::cout << "W\n";
+                std::cout << "\n";
                 isSignalActive = !isSignalActive;
             }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_Q - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 220;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_W - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 330;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_E - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 440;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_R - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 550;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_T - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 660;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_Y - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 770;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_U - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 880;
             
+
+            if(ImGui::IsKeyPressed(ImGuiKey_I - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 990;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_O - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 1100;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_P - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 1200;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_LeftBracket - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 1300;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_RightBracket - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                this->frequency = 1400;
+            }
+
             // for (int i = 0; i < ImGuiKey_COUNT; ++i) {
             //     if (io.KeysDown[i]) {
             //         const char* keyName = ImGui::GetKeyName((ImGuiKey)i + 3); // Получаем название клавиши по индексу
@@ -119,6 +175,7 @@ void Oscillator::render() {
         }
         ed::Resume();
     }
+}
 
 std::vector<ed::PinId> Oscillator::getPins() const {
     return { inputPinId ,outputPinId };
