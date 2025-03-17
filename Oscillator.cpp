@@ -4,6 +4,7 @@
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <vector>
+#include <map>
 
 # define portable_strcpy    strcpy
 
@@ -78,59 +79,80 @@ void Oscillator::render() {
         if (ed::IsNodeSelected(nodeId)) {
             auto& io = ImGui::GetIO();
             // printf("selected\n");
-
-            if(ImGui::IsKeyPressed(ImGuiKey_A - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                std::cout << "\n";
-                isSignalActive = !isSignalActive;
-            }
-
-            if(ImGui::IsKeyPressed(ImGuiKey_Q - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 220;
-            }
-
-            if(ImGui::IsKeyPressed(ImGuiKey_W - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 330;
-            }
-
-            if(ImGui::IsKeyPressed(ImGuiKey_E - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 440;
-            }
-
-            if(ImGui::IsKeyPressed(ImGuiKey_R - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 550;
-            }
-
-            if(ImGui::IsKeyPressed(ImGuiKey_T - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 660;
-            }
-
-            if(ImGui::IsKeyPressed(ImGuiKey_Y - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 770;
-            }
-
-            if(ImGui::IsKeyPressed(ImGuiKey_U - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 880;
             
+            std::map<ImGuiKey, int> key_frequency = {
+                {ImGuiKey_Q, 261},
+                {ImGuiKey_W, 277},
+                {ImGuiKey_E, 293},
+                {ImGuiKey_R, 311},
+                {ImGuiKey_T, 329},
+                {ImGuiKey_Y, 349},
+                {ImGuiKey_U, 370},
+                {ImGuiKey_I, 392},
+                {ImGuiKey_O, 415},
+                {ImGuiKey_P, 440},
+                {ImGuiKey_F1, 466},
+                {ImGuiKey_F3, 493}
+            };
 
-            if(ImGui::IsKeyPressed(ImGuiKey_I - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 990;
+            for (const auto& [key, frequency] : key_frequency) {
+                if (ImGui::IsKeyPressed(key - 3)) {
+                    this->frequency = frequency;
+                }
             }
 
-            if(ImGui::IsKeyPressed(ImGuiKey_O - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 1100;
-            }
+            // if(ImGui::IsKeyPressed(ImGuiKey_A - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     std::cout << "\n";
+            //     isSignalActive = !isSignalActive;
+            // }
 
-            if(ImGui::IsKeyPressed(ImGuiKey_P - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 1200;
-            }
+            // if(ImGui::IsKeyPressed(ImGuiKey_Q - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 220;
+            // }
 
-            if(ImGui::IsKeyPressed(ImGuiKey_LeftBracket - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 1300;
-            }
+            // if(ImGui::IsKeyPressed(ImGuiKey_W - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 330;
+            // }
 
-            if(ImGui::IsKeyPressed(ImGuiKey_RightBracket - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-                this->frequency = 1400;
-            }
+            // if(ImGui::IsKeyPressed(ImGuiKey_E - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 440;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_R - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 550;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_T - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 660;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_Y - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 770;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_U - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 880;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_I - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 990;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_O - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 1100;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_P - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 1200;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_F1 - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 1300;
+            // }
+
+            // if(ImGui::IsKeyPressed(ImGuiKey_F3 - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+            //     this->frequency = 1400;
+            // }
 
             // for (int i = 0; i < ImGuiKey_COUNT; ++i) {
             //     if (io.KeysDown[i]) {
@@ -174,7 +196,6 @@ void Oscillator::render() {
             ImGui::EndPopup(); // Note this does not do anything to the popup open/close state. It just terminates the content declaration.
         }
         ed::Resume();
-    }
 }
 
 std::vector<ed::PinId> Oscillator::getPins() const {
