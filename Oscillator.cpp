@@ -1,4 +1,6 @@
 #include "Oscillator.h"
+#include "imgui.h"
+#include "imgui_node_editor.h"
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <vector>
@@ -57,15 +59,31 @@ void Oscillator::render() {
         ImGui::SameLine(180.0F);
         std::string buttonLabel2 = isSignalActive ? std::string("OFF") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" : std::string("ON") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" ;
         if (ImGui::Button(buttonLabel2.c_str())) {
-        isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
+            isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
         }
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->frequency, 7.0F, 0.0F, 1000.0F);
         
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
-        
         ed::EndNode();
+
+        if (ed::IsNodeSelected(nodeId)) {
+            auto& io = ImGui::GetIO();
+            // printf("selected\n");
+            if(ImGui::IsKeyPressed(ImGuiKey_A - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
+                std::cout << "W\n";
+                isSignalActive = !isSignalActive;
+            }
+            
+            // for (int i = 0; i < ImGuiKey_COUNT; ++i) {
+            //     if (io.KeysDown[i]) {
+            //         const char* keyName = ImGui::GetKeyName((ImGuiKey)i + 3); // Получаем название клавиши по индексу
+            //         std::cout << "Key " << keyName << " is pressed!" << std::endl;
+            //     }
+            // }
+        }
+
         ed::Suspend();
         std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         if (do_popup) {
