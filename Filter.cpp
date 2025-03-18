@@ -29,7 +29,7 @@ void FFT_recursive(std::vector<std::complex<double>>& a, int n, int step) {
 }
 
 void Filter::FFT(double *inStream, double *real, double *imag, int length) {
-    /*for (int k = 0; k < length; k++) { 
+    for (int k = 0; k < length; k++) { 
         real[k] = 0.0; 
         imag[k] = 0.0; 
 
@@ -38,9 +38,9 @@ void Filter::FFT(double *inStream, double *real, double *imag, int length) {
             real[k] += inStream[n] * cos(angle);    
             imag[k] -= inStream[n] * sin(angle); // здесь минус, а внизу плюс
         }
-    }*/
+    }
 
-    std::vector<std::complex<double>> a(length);
+    /*std::vector<std::complex<double>> a(length);
     for (int i = 0; i < length; ++i) {
         a[i] = std::complex<double>(inStream[i], 0.0);
     }
@@ -50,7 +50,7 @@ void Filter::FFT(double *inStream, double *real, double *imag, int length) {
     for (int i = 0; i < length; ++i) {
         real[i] = a[i].real();
         imag[i] = a[i].imag();
-    }
+    }*/
 }
 
 void IFFT_recursive(std::vector<std::complex<double>>& a, int n, int step) {
@@ -67,16 +67,16 @@ void IFFT_recursive(std::vector<std::complex<double>>& a, int n, int step) {
 }
 
 void Filter::IFFT(double *real, double *imag, double *outStream, int length) {
-    /*for (int n = 0; n < length; n++) { 
+    for (int n = 0; n < length; n++) { 
         double result = 0.0;
         for (int k = 0; k < length; k++) {
             double angle = 2.0 * M_PI * k * n / length;
             result += real[k] * cos(angle) + imag[k] * sin(angle);
         }
         outStream[n] = result / length; // Нормализация
-    }*/
+    }
 
-    std::vector<std::complex<double>> a(length);
+    /*std::vector<std::complex<double>> a(length);
     for (int i = 0; i < length; ++i) {
         a[i] = std::complex<double>(real[i], imag[i]);
     }
@@ -85,7 +85,7 @@ void Filter::IFFT(double *real, double *imag, double *outStream, int length) {
 
     for (int i = 0; i < length; ++i) {
         outStream[i] = a[i].real() / length;
-    }
+    }*/
 }
 
 
