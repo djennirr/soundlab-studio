@@ -10,11 +10,11 @@ const int SAMPLE_RATE = 44100;
 
 LFO::LFO(float freq) : frequency(freq){
     nodeId = nextNodeId++;
-    inputPinId = nextPinId++;
     outputPinId = nextPinId++;
 }
 
 void LFO::process(Uint8* stream, int length) {
+    
     generateSineWave(stream, length);
 }
 
@@ -36,14 +36,12 @@ void LFO::render() {
     }
 
 std::vector<ed::PinId> LFO::getPins() const {
-    return { inputPinId ,outputPinId };
+    return { outputPinId };
 }
 
 ed::PinKind LFO::getPinKind(ed::PinId pin) const {
     if (outputPinId == pin) {
         return ed::PinKind::Output;
-    } else if (inputPinId == pin) {
-        return ed::PinKind::Input;
     }
 }
 

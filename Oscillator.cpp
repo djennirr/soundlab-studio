@@ -10,23 +10,41 @@ const int SAMPLE_RATE = 44100;
 
 Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), volume(vol), waveType(type)  {
     nodeId = nextNodeId++;
-    inputPinId = nextPinId++;
+    input1PinId = nextPinId++;
+    input2PinId = nextPinId++;
     outputPinId = nextPinId++;
+    moduleFreq = nullptr;
+    moduleVol = nullptr;
 }
 
 void Oscillator::process(Uint8* stream, int length) {
+    Uint8 streamFreq[1024] = {0};
+    Uint8 streamVol[1024] = {0};
+
+    for (int i = 0; i < 1024; i++) {
+        streamFreq[i] = 255;
+        streamVol[i] = 255;
+    }
+
+    if (moduleFreq != nullptr) {
+        moduleFreq->process(streamFreq, length);
+    }
+    if (moduleVol != nullptr) {
+        moduleVol->process(streamVol, length);
+    }
+
     switch (waveType) {
         case SINE:
-            generateSineWave(stream, length);
+            generateSineWave(stream, length, streamFreq, streamVol);
             break;
         case SQUARE:
-            generateSquareWave(stream, length);
+            generateSquareWave(stream, length, streamFreq, streamVol);
             break;
         case SAWTOOTH:
-            generateSawtoothWave(stream, length);
+            generateSawtoothWave(stream, length, streamFreq, streamVol);
             break;
         case TRIANGLE:
-            generateTriangleWave(stream, length);
+            generateTriangleWave(stream, length, streamFreq, streamVol);
             break;
     }
 }
@@ -37,8 +55,11 @@ void Oscillator::render() {
     ed::BeginNode(nodeId);
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
         ImGui::Text("Oscillator");
-        ed::BeginPin(inputPinId, ed::PinKind::Input);
-            ImGui::Text("-> In");
+        ed::BeginPin(input1PinId, ed::PinKind::Input);
+            ImGui::Text("-> In Freq");
+        ed::EndPin();
+        ed::BeginPin(input2PinId, ed::PinKind::Input);
+            ImGui::Text("-> In Vol");
         ed::EndPin();
         ImGui::SameLine(180.0F);
         ed::BeginPin(outputPinId, ed::PinKind::Output);
@@ -93,13 +114,13 @@ void Oscillator::render() {
     }
 
 std::vector<ed::PinId> Oscillator::getPins() const {
-    return { inputPinId ,outputPinId };
+    return { input1PinId, input2PinId ,outputPinId };
 }
 
 ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
     if (outputPinId == pin) {
         return ed::PinKind::Output;
-    } else if (inputPinId == pin) {
+    } else {
         return ed::PinKind::Input;
     }
 }
@@ -107,26 +128,26 @@ ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
 ed::NodeId Oscillator::getNodeId() {
     return nodeId;
 }
-void Oscillator::generateSineWave(Uint8* stream, int length) {
+void Oscillator::generateSineWave(Uint8* stream, int length, Uint8* streamFreq, Uint8* streamVol) {
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * volume);
-        stream[i + 1] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * volume);
+        stream[i] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * volume * (streamVol[i] / 255));
+        stream[i + 1] = static_cast<Uint8>(((AMPLITUDE * sin(phase)) + 128) * volume) * (streamVol[i] / 255);
         phase += (frequency * 2.0 * M_PI) / SAMPLE_RATE;
     }
 }
 
-void Oscillator::generateSquareWave(Uint8* stream, int length) {
+void Oscillator::generateSquareWave(Uint8* stream, int length, Uint8* streamFreq, Uint8* streamVol) {
     const double period = SAMPLE_RATE / frequency;
     const Uint8 highValue = 255;
     const Uint8 lowValue = 0;
 
     for (int i = 0; i < length; i += 2) {
         if (phase < period / 2) {
-            stream[i] = static_cast<Uint8>(highValue * volume);
-            stream[i + 1] = static_cast<Uint8>(highValue * volume);
+            stream[i] = static_cast<Uint8>(highValue * volume * (streamVol[i] / 255));
+            stream[i + 1] = static_cast<Uint8>(highValue * volume * (streamVol[i] / 255));
         } else {
-            stream[i] = static_cast<Uint8>(lowValue * volume);
-            stream[i + 1] = static_cast<Uint8>(lowValue * volume);
+            stream[i] = static_cast<Uint8>(lowValue * volume * (streamVol[i] / 255));
+            stream[i + 1] = static_cast<Uint8>(lowValue * volume * (streamVol[i] / 255));
         }
         
         phase += 1.0;
@@ -136,12 +157,12 @@ void Oscillator::generateSquareWave(Uint8* stream, int length) {
     }
 }
 
-void Oscillator::generateSawtoothWave(Uint8* stream, int length) {
+void Oscillator::generateSawtoothWave(Uint8* stream, int length, Uint8* streamFreq, Uint8* streamVol) {
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<Uint8>((255 * phase) / period * volume);
-        stream[i + 1] = static_cast<Uint8>((255 * phase) / period * volume);
+        stream[i] = static_cast<Uint8>((255 * phase) / period * volume * (streamVol[i] / 255));
+        stream[i + 1] = static_cast<Uint8>((255 * phase) / period * volume * (streamVol[i] / 255));
 
         phase += 1.0;
         if (phase >= period) {
@@ -150,15 +171,15 @@ void Oscillator::generateSawtoothWave(Uint8* stream, int length) {
     }
 }
 
-void Oscillator::generateTriangleWave(Uint8* stream, int length) {
+void Oscillator::generateTriangleWave(Uint8* stream, int length, Uint8* streamFreq, Uint8* streamVol) {
     
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i++) {
         if (phase < period / 2) {
-            stream[i] = static_cast<Uint8>(((255 * phase) / (period / 2)) * volume);
+            stream[i] = static_cast<Uint8>(((255 * phase) / (period / 2)) * volume * (streamVol[i] / 255));
         } else {
-            stream[i] = static_cast<Uint8>((255 - (255 * (phase - (period / 2)) / (period / 2))) * volume);
+            stream[i] = static_cast<Uint8>((255 - (255 * (phase - (period / 2)) / (period / 2))) * volume * (streamVol[i] / 255));
         }
 
         phase += 1.0;
@@ -169,11 +190,25 @@ void Oscillator::generateTriangleWave(Uint8* stream, int length) {
 }
 
 void Oscillator::connect(AudioModule* module, int id) {
+    if (id == 1) {
+        this->moduleFreq = module;
+    } else if (id == 2) {
+        this->moduleVol = module;
+    }
     return;
 }
 void Oscillator::disconnect(AudioModule* module) {
+    if (moduleFreq == module) {
+        moduleFreq = nullptr;
+    } else if (moduleVol == module) {
+        moduleVol = nullptr;
+    }
     return;
 }
-int Oscillator::chooseIn(ed::PinId id) {
-    return 1;
+int Oscillator::chooseIn(ed::PinId pin) {
+    if (pin == input1PinId) {
+        return 1;
+    } else if(pin == input2PinId) {
+        return 2;
+    }
 }

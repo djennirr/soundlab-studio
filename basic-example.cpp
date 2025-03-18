@@ -9,7 +9,7 @@
 #include "WaveType.h"
 #include "Distortion.h"
 #include "NoiseGenerator.h"
-#include "LFO.hpp"
+#include "LFO.h"
 #include <vector>
 #include <algorithm>
 

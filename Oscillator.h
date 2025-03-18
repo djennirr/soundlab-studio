@@ -10,10 +10,13 @@ private:
     float frequency;
     float volume;
     WaveType waveType;
-    ed::PinId inputPinId;
+    ed::PinId input1PinId;
+    ed::PinId input2PinId;
     ed::PinId outputPinId; //задефайнить внутри констуктора
     NodeType type;
     char popup_text[20] = "SIN";
+    AudioModule* moduleFreq;
+    AudioModule* moduleVol;
     //звать также суперкласс конструктор
     //добавить айдишники ноды и пинов в конструктор аргументами
 
@@ -33,8 +36,8 @@ public:
     void render() override;
 
 private:
-    void generateSineWave(Uint8* stream, int length);
-    void generateSquareWave(Uint8* stream, int length);
-    void generateSawtoothWave(Uint8* stream, int length);
-    void generateTriangleWave(Uint8* stream, int length);
+    void generateSineWave(Uint8* stream, int length, Uint8* streamFreq, Uint8* streamVol);
+    void generateSquareWave(Uint8* stream, int length, Uint8* streamFreq, Uint8* streamVol);
+    void generateSawtoothWave(Uint8* stream, int length, Uint8* streamFreq, Uint8* streamVol);
+    void generateTriangleWave(Uint8* stream, int length, Uint8* streamFreq, Uint8* streamVol);
 };

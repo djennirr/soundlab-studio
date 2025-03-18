@@ -8,7 +8,6 @@ class LFO : public AudioModule {
 private:
     double phase = 0.0;
     float frequency;
-    ed::PinId inputPinId;
     ed::PinId outputPinId; //задефайнить внутри констуктора
     NodeType type;
     //звать также суперкласс конструктор
