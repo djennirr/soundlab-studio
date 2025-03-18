@@ -16,6 +16,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include "Control.h"
 // короче баг с отсутсвием звука. и еще бы состояние play/stop на аутпуте восстанавливать
 // состояние кнопки аутпута + тип волны осциллятора
 namespace fs = std::filesystem;
@@ -31,6 +32,9 @@ struct Example : public Application {
         ed::LinkId Id;
         ed::PinId  InputId;
         ed::PinId  OutputId;
+        /*
+            короче можно сделать еще в линке инфу о том передается по ней че то или нет и будет круто
+        */
     };
 
     void saveToFile(const std::string& filename) {
@@ -194,9 +198,9 @@ struct Example : public Application {
 
     void createConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
         if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
-            outputID->connect(inputId, outputID->chooseIn(outputPin));
+            outputID->connect(inputId, outputPin);
         } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
-            inputId->connect(outputID, inputId->chooseIn(inputPin));
+            inputId->connect(outputID, inputPin);
         }
     }
 
@@ -338,8 +342,10 @@ struct Example : public Application {
             module->render();
         }
 
-        for (auto& linkInfo : m_Links)
+        for (auto& linkInfo : m_Links) {
             ed::Link(linkInfo.Id, linkInfo.InputId, linkInfo.OutputId);
+            // ed::Flow(linkInfo.Id, ax::NodeEditor::FlowDirection::Forward);
+        }
 
          // Handle creation action, returns true if editor want to create new object (node or link)
         if (ed::BeginCreate())
@@ -512,6 +518,10 @@ struct Example : public Application {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Noise Generator")) {
                 node = new NoiseGenerator();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Control")) {
+                node = new Control();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

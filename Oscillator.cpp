@@ -1,4 +1,5 @@
 #include "Oscillator.h"
+#include "AudioModule.h"
 #include "imgui.h"
 #include "imgui_node_editor.h"
 #include <cmath>
@@ -15,6 +16,7 @@ Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), 
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
     outputPinId = nextPinId++;
+    AudioModule* inputModule = NULL;
 }
 
 void Oscillator::process(AudioSample* stream, int length) {
@@ -43,7 +45,7 @@ void Oscillator::process(AudioSample* stream, int length) {
 void Oscillator::render() {
 
     ed::BeginNode(nodeId);
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
+        // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
         ImGui::Text("Oscillator");
         ed::BeginPin(inputPinId, ed::PinKind::Input);
             ImGui::Text("-> In");
@@ -275,14 +277,20 @@ void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
     }
 }
 
-void Oscillator::connect(AudioModule* module, int id) {
-    return;
+void Oscillator::connect(AudioModule* module, ed::PinId pin) {
+    if (module->getNodeType() == NodeType::Control) {
+        this -> inputModule = module;
+        std::cout << "Control";
+    } else {
+        ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+        std::cout << "nice";
+    }
 }
 void Oscillator::disconnect(AudioModule* module) {
+    if (module == this->inputModule) {
+        this->inputModule = nullptr;
+    }
     return;
-}
-int Oscillator::chooseIn(ed::PinId id) {
-    return 1;
 }
 
 void Oscillator::fromJson(const json& data) {

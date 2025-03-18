@@ -22,7 +22,7 @@ add_subdirectory(libs/json)
 
 add_executable(basic-interaction-example 
     ${CMAKE_SOURCE_DIR}/basic-example.cpp
-    ${CMAKE_SOURCE_DIR}/AudioOutput.cpp  # Добавьте ваш файл
+    ${CMAKE_SOURCE_DIR}/AudioOutput.cpp
     ${CMAKE_SOURCE_DIR}/Oscillator.cpp
     ${CMAKE_SOURCE_DIR}/Oscilloscope.cpp  
     ${CMAKE_SOURCE_DIR}/AudioModule.cpp
@@ -30,6 +30,7 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/Reverb.cpp
     ${CMAKE_SOURCE_DIR}/Distortion.cpp
     ${CMAKE_SOURCE_DIR}/NoiseGenerator.cpp
+    ${CMAKE_SOURCE_DIR}/Control.cpp
 )
 
 target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)

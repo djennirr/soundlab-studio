@@ -1,4 +1,5 @@
 #include "Reverb.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
 // беда беда
@@ -171,8 +172,8 @@ ed::PinKind Reverb::getPinKind(ed::PinId pin) const {
     }
 }
 
-void Reverb::connect(AudioModule* input, int id) {
-    if (id == 1) {
+void Reverb::connect(AudioModule* input, ed::PinId pin) {
+    if (pin == inputPinId) {
         this->module = input;
     }
     return;
@@ -182,11 +183,11 @@ ed::NodeId Reverb::getNodeId() {
     return nodeId;
 }
 
-int Reverb::chooseIn(ed::PinId pin) {
-    if (pin == inputPinId) {
-        return 1;
-    }
-}
+// int Reverb::chooseIn(ed::PinId pin) {
+//     if (pin == inputPinId) {
+//         return 1;
+//     }
+// }
 
 void Reverb::disconnect(AudioModule* module) {
     if (this->module == module) {

@@ -3,6 +3,7 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include "AudioModule.h"
+#include "imgui_node_editor.h"
 #include <algorithm>
 
 Distortion::Distortion(float drive, float mix) : drive(drive), mix(mix) {
@@ -76,17 +77,13 @@ ed::PinKind Distortion::getPinKind(ed::PinId pin) const {
     }
 }
 
-void Distortion::connect(AudioModule* input, int id) {
+void Distortion::connect(AudioModule* input, ed::PinId pin) {
     this->module = input;
     return;
 }
 
 ed::NodeId Distortion::getNodeId() {
     return nodeId;
-}
-
-int Distortion::chooseIn(ed::PinId pin) {
-    return 1;
 }
 
 void Distortion::disconnect(AudioModule* module) {

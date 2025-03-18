@@ -2,6 +2,7 @@
 
 #include "AudioModule.h"
 #include "WaveType.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
 class AudioOutput : public AudioModule {
@@ -30,9 +31,9 @@ public:
         return NodeType::AudioOutput;
     }
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, int id = 1) override;
+    void connect(AudioModule* input, ed::PinId pin) override;
     virtual void disconnect(AudioModule* module) override;
-    virtual int chooseIn(ed::PinId pin) override;
+    // virtual int chooseIn(ed::PinId pin) override;
     void start();
     void stop();
     void fromJson(const json& data) override;

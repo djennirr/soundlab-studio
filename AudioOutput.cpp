@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include "AudioOutput.h"
+#include "imgui_node_editor.h"
 #include <iostream>
 
 static int m_FirstFrame = 1;
@@ -96,7 +97,7 @@ ed::NodeId AudioOutput::getNodeId() {
     return nodeId;
 }
 
-void AudioOutput::connect(AudioModule* input, int id) {
+void AudioOutput::connect(AudioModule* input, ed::PinId pin) {
     this->inputModule = input;
     this->isPlaying = true;
     this->start();
@@ -107,10 +108,6 @@ void AudioOutput::disconnect(AudioModule* module) {
         inputModule = nullptr;
         stop();
     }
-}
-
-int AudioOutput::chooseIn(ed::PinId id) {
-    return 1;
 }
 
 void AudioOutput::start() {

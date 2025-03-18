@@ -1,4 +1,5 @@
 #include "Oscilloscope.h"
+#include "imgui_node_editor.h"
 
 Oscilloscope::Oscilloscope()
 {
@@ -104,7 +105,7 @@ ed::NodeId Oscilloscope::getNodeId()
     return nodeId;
 }
 
-void Oscilloscope::connect(AudioModule *input, int id)
+void Oscilloscope::connect(AudioModule *input, ed::PinId pin)
 {
     this->inputModule = input;
     return;
@@ -118,11 +119,6 @@ void Oscilloscope::disconnect(AudioModule *module)
         clearBuffer();
     }
     return;
-}
-
-int Oscilloscope::chooseIn(ed::PinId id)
-{
-        return 1;
 }
 
 void Oscilloscope::clearBuffer()

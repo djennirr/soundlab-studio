@@ -4,6 +4,7 @@
 #include "WaveType.h"
 #include <SDL2/SDL.h>
 #include "Oscillator.h"
+#include "imgui_node_editor.h"
 
 class Adder : public AudioModule{
     private:
@@ -23,8 +24,8 @@ class Adder : public AudioModule{
             return NodeType::Adder;
         }
         ed::NodeId getNodeId() override;
-        void connect(AudioModule* input, int id) override;
+        void connect(AudioModule* input, ed::PinId pin) override;
         void disconnect(AudioModule* module) override;
-        int chooseIn(ed::PinId pin) override;
+        // int chooseIn(ed::PinId pin) override;
         void fromJson(const json& data) override;
 };

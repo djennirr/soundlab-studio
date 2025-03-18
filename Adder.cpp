@@ -1,6 +1,7 @@
 #include "Adder.h"
 #include "Oscillator.h"
 #include "Distortion.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 #include <vector>
 
@@ -74,10 +75,10 @@ ed::NodeId Adder::getNodeId() {
     return nodeId;
 }
 
-void Adder::connect(AudioModule* input, int id) {
-    if (id == 1) {
+void Adder::connect(AudioModule* input, ed::PinId pin) {
+    if (pin == input1PinId) {
         this->module1 = input;
-    } else if (id == 2) {
+    } else if(pin == input2PinId) {
         this->module2 = input;
     }
     return;
@@ -90,16 +91,17 @@ void Adder::disconnect(AudioModule* module) {
         module2 = nullptr;
     }
     return;
+    
 }
 
-int Adder::chooseIn(ed::PinId pin) {
-    if (pin == input1PinId) {
-        return 1;
-    } else if(pin == input2PinId) {
-        return 2;
-    }
-    return 0;
-}
+// int Adder::chooseIn(ed::PinId pin) {
+//     if (pin == input1PinId) {
+//         return 1;
+//     } else if(pin == input2PinId) {
+//         return 2;
+//     }
+//     return 0;
+// }
 
 void Adder::fromJson(const json& data) {
     AudioModule::fromJson(data);

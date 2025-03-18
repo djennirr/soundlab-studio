@@ -2,6 +2,7 @@
 
 #include "AudioModule.h"
 #include "WaveType.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
 
@@ -9,6 +10,7 @@
 
 class Oscillator : public AudioModule {
 private:
+    AudioModule* inputModule;
     double phase = 0.0;
     float frequency;
     float volume;
@@ -43,8 +45,8 @@ public:
         return NodeType::Oscillator;
     }
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, int id = 1) override;
+    void connect(AudioModule* input, ed::PinId pin) override;
     void disconnect(AudioModule* module) override;
-    int chooseIn(ed::PinId pin) override;
+    // int chooseIn(ed::PinId pin) override;
     void fromJson(const json& data) override;
 };

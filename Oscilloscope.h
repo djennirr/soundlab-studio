@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioModule.h" 
+#include "imgui_node_editor.h"
 #include <vector>
 #include <imgui.h>
 #include <SDL2/SDL.h>
@@ -16,9 +17,9 @@ public:
         return NodeType::Oscilloscope; 
     }
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, int id) override;
+    void connect(AudioModule* input, ed::PinId pin) override;
     void disconnect(AudioModule* module) override;
-    int chooseIn(ed::PinId pin) override;
+    // int chooseIn(ed::PinId pin) override;
     void clearBuffer();
     void fromJson(const json& data) override;
     

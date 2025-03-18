@@ -2,6 +2,7 @@
 
 #include "AudioModule.h"
 #include "WaveType.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
 
@@ -32,9 +33,9 @@ public:
         return NodeType::Adder;
     }
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, int id) override;
+    void connect(AudioModule* input, ed::PinId pin) override;
     void disconnect(AudioModule* module) override;
-    int chooseIn(ed::PinId pin) override;
+    // int chooseIn(ed::PinId pin) override;
     float softClip(float simple);
     float applyPhaseShift(float inputSample, float shiftFactor);
     float lowPassFilter(float currentSample, float previousSample, float cutoffFrequency, float sampleRate);

@@ -37,6 +37,13 @@ enum class NodeType {
     Adder,
     Distortion,
     NoiseGenerator,
+    Control
+};
+
+enum class NodeGroup {
+    Control,
+    Managed,
+    Independent
 };
 
 class AudioModule {
@@ -47,10 +54,11 @@ class AudioModule {
         virtual std::vector<ed::PinId> getPins() const = 0;
         virtual ed::PinKind getPinKind(ed::PinId pin) const = 0;
         virtual NodeType getNodeType() const = 0;
+        // virtual NodeGroup getNodeGroup() const = 0;
         virtual ed::NodeId getNodeId() = 0;
-        virtual void connect(AudioModule* input, int id = 1) = 0;
+        virtual void connect(AudioModule* input, ed::PinId pin) = 0;
         virtual void disconnect(AudioModule* module) = 0;
-        virtual int chooseIn(ed::PinId pin) = 0;
+        // virtual int chooseIn(ed::PinId pin) = 0;
         static int nextNodeId;
         static int nextPinId;
         static bool do_popup;

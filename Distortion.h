@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 #include "AudioModule.h"
 #include "WaveType.h"
+#include "imgui_node_editor.h"
 
 class Distortion : public AudioModule {
     private:
@@ -32,8 +33,8 @@ class Distortion : public AudioModule {
             return NodeType::Distortion;
         }
         ed::NodeId getNodeId() override;
-        void connect(AudioModule* input, int id) override;
+        void connect(AudioModule* input, ed::PinId pin) override;
         void disconnect(AudioModule* module) override;
-        int chooseIn(ed::PinId pin) override;
+        // int chooseIn(ed::PinId pin) override;
         void fromJson(const json& data) override;
 };

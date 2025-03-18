@@ -1,4 +1,5 @@
 #include "NoiseGenerator.h"
+#include "imgui_node_editor.h"
 #include <cmath>
 #include <cstring>
 #include <algorithm>
@@ -91,18 +92,13 @@ ed::NodeId NoiseGenerator::getNodeId() {
     return nodeId;
 }
 
-void NoiseGenerator::connect(AudioModule* module, int id) {
+void NoiseGenerator::connect(AudioModule* module, ed::PinId pin) {
     return;
 }
 
 void NoiseGenerator::disconnect(AudioModule* module) {
     return;
 }
-
-int NoiseGenerator::chooseIn(ed::PinId id) {
-    return 1;
-}
-
 
 void NoiseGenerator::generateWhiteNoise(AudioSample* stream, int length) {
     for (int i = 0; i < length; ++i) {
