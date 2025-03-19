@@ -30,6 +30,7 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/Reverb.cpp
     ${CMAKE_SOURCE_DIR}/Distortion.cpp
     ${CMAKE_SOURCE_DIR}/NoiseGenerator.cpp
+    ${CMAKE_SOURCE_DIR}/Sampler.cpp
     ${CMAKE_SOURCE_DIR}/Control.cpp
 )
 
@@ -39,6 +40,13 @@ add_custom_command(TARGET basic-interaction-example POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor/examples/data"
         $<TARGET_FILE_DIR:basic-interaction-example>/data
+)
+
+# Для воспроизведения семплов
+add_custom_command(TARGET basic-interaction-example POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/samples"
+        $<TARGET_FILE_DIR:basic-interaction-example>/samples
 )
 
 set_target_properties(basic-interaction-example PROPERTIES

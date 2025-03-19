@@ -66,8 +66,8 @@ void Oscilloscope::render()
             bufferSize,            // amount_of_values
             bufferIndex,           // first_index (сдвиг)
             nullptr,               // overlay_text
-            3.402823466e+38F,      // min_scale
-            3.402823466e+38F,      // max_scale
+            scale,      // min_scale
+            scale,      // max_scale
             ImVec2(width, height)); // graph_size
 
     } else if (inputModule == nullptr) {
@@ -77,8 +77,8 @@ void Oscilloscope::render()
             bufferSize,            // amount_of_values
             bufferIndex,           // first_index (сдвиг)
             nullptr,               // overlay_text
-            3.402823466e+38F,      // min_scale
-            3.402823466e+38F,      // max_scale
+            scale,      // min_scale
+            scale,      // max_scale
             ImVec2(width, height)); // graph_size
 
     }
