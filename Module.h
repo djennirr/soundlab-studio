@@ -43,14 +43,9 @@ enum class NodeType {
     Adder,
     Distortion,
     NoiseGenerator,
-    Control
+    Control,
+    Sampler
 };
-
-// enum class NodeGroup {
-//     Control,
-//     Managed,
-//     Independent
-// };
 
 enum class PinType {
     AudioSignal,

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "AudioModule.h"
+#include "Module.h"
 #include "SampleType.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 #include <cmath>
 #include <vector>
@@ -40,7 +42,7 @@ private:
     SDL_AudioSpec audioSpec;
     SampleType sampleType;
     ed::NodeId nodeId;
-    ed::PinId inputPinId, outputPinId;
+    Pin inputPin, outputPin;
 
     const std::vector<SampleType> sampleTypes = {
         DRUMS,
@@ -74,10 +76,9 @@ public:
     {
         return NodeType::Sampler;
     }
-
-    void connect(AudioModule *module, int id) override;
-    void disconnect(AudioModule *module) override;
-    int chooseIn(ed::PinId id) override;
+    PinType getPinType(ed::PinId pinId) override;
+    void connect(Module *module, ed::PinId pin) override;
+    void disconnect(Module *module) override;
 
     void addButton();
 };

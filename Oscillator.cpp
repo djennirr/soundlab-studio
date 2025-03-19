@@ -11,6 +11,9 @@
 
 # define portable_strcpy    strcpy
 
+const int AMPLITUDE = 32768;
+const int SAMPLE_RATE = 44100;
+
 Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), volume(vol), waveType(type)  {
     nodeId = nextNodeId++;
     inputPin.Id = nextPinId++;

@@ -1,10 +1,11 @@
 #include "Sampler.h"
+#include "imgui_node_editor.h"
 
 Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
 {
     nodeId = ed::NodeId(nextNodeId++);
-    inputPinId = ed::PinId(nextPinId++);
-    outputPinId = ed::PinId(nextPinId++);
+    inputPin.Id = ed::PinId(nextPinId++);
+    outputPin.Id = ed::PinId(nextPinId++);
 
     loadWAV(DRUMS_sample);
     isChanged = false;
@@ -123,11 +124,11 @@ void Sampler::render()
     ed::BeginNode(nodeId);
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
     ImGui::Text("Sampler");
-    ed::BeginPin(inputPinId, ed::PinKind::Input);
+    ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
     ImGui::SameLine(180);
-    ed::BeginPin(outputPinId, ed::PinKind::Output);
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
 
@@ -172,9 +173,15 @@ void Sampler::render()
     ed::Resume();
 }
 
-std::vector<ed::PinId> Sampler::getPins() const { return {inputPinId, outputPinId}; }
-ed::PinKind Sampler::getPinKind(ed::PinId pin) const { return pin == outputPinId ? ed::PinKind::Output : ed::PinKind::Input; }
+std::vector<ed::PinId> Sampler::getPins() const { return {inputPin.Id, outputPin.Id}; }
+ed::PinKind Sampler::getPinKind(ed::PinId pin) const { return pin == outputPin.Id ? ed::PinKind::Output : ed::PinKind::Input; }
+PinType Sampler::getPinType(ed::PinId pinId) {
+    if (inputPin.Id == pinId) {
+        return inputPin.pinType;
+    } else if (outputPin.Id == pinId) {
+        return outputPin.pinType;
+    }
+}
 ed::NodeId Sampler::getNodeId() { return nodeId; }
-void Sampler::connect(AudioModule *module, int id) { return; }
-void Sampler::disconnect(AudioModule *module) { return; }
-int Sampler::chooseIn(ed::PinId id) { return 1; }
+void Sampler::connect(Module *module, ed::PinId pin) { return; }
+void Sampler::disconnect(Module *module) { return; }
