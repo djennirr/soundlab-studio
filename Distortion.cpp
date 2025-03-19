@@ -3,28 +3,31 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include "AudioModule.h"
+#include "imgui_node_editor.h"
 #include <algorithm>
 
 Distortion::Distortion(float drive, float mix) : drive(drive), mix(mix) {
     nodeId = nextNodeId++;
-    inputPinId = nextPinId++;
+    inputPin.Id = nextPinId++;
+    inputPin.pinType = PinType::AudioSignal;
     module = nullptr;
-    outputPinId = nextPinId++;
+    outputPin.Id = nextPinId++;
+    outputPin.pinType = PinType::AudioSignal;
 }
 
-void Distortion::process(Uint16* stream, int length) {
+void Distortion::process(AudioSample* stream, int length) {
     // Если предыдущий модуль есть, обработать его данные
     if (module != nullptr) {
         module->process(stream, length);
     } else {
         // Если нет входного сигнала, заполняем тишиной
-        memset(stream, 0, length * sizeof(Uint16));
+        memset(stream, 0, length * sizeof(AudioSample));
         return;
     }
 
     for (int i = 0; i < length; i++) {
         // Нормализуем входной сигнал (-1.0 to 1.0)
-        float input = (stream[i] - 32768) / 32768.0f;
+        float input = (stream[i] - AMPLITUDE_I) / AMPLITUDE_F;
 
         // Применяем жесткое обрезание (hard clipping)
         float clipped = input * drive;
@@ -40,19 +43,19 @@ void Distortion::process(Uint16* stream, int length) {
         // Смешиваем оригинальный и искажённый сигнал
         float output = mix * softClipped + (1.0f - mix) * input;
 
-        stream[i] = static_cast<Uint16>((output * 32768.0f) + 32768.0f);
+        stream[i] = static_cast<AudioSample>((output * AMPLITUDE_F) + AMPLITUDE_F);
     }
 }
 
 void Distortion::render() {
     ed::BeginNode(nodeId);
     ImGui::Text("Distortion");
-    ed::BeginPin(inputPinId, ed::PinKind::Input);
+    ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
 
     ImGui::SameLine(180.0F);
-    ed::BeginPin(outputPinId, ed::PinKind::Output);
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
 
@@ -65,34 +68,47 @@ void Distortion::render() {
 }
 
 std::vector<ed::PinId> Distortion::getPins() const {
-        return { inputPinId, outputPinId };
+    return { inputPin.Id, outputPin.Id };
 }
 
 ed::PinKind Distortion::getPinKind(ed::PinId pin) const {
-
-    if (pin == inputPinId) {
+    if (pin == inputPin.Id) {
         return ed::PinKind::Input;
     } else {
         return ed::PinKind::Output;
     }
 }
 
-void Distortion::connect(AudioModule* input, int id) {
-    this->module = input;
+void Distortion::connect(Module* input, ed::PinId pin) {
+    this->module = dynamic_cast<AudioModule*>(input);
     return;
+}
+
+PinType Distortion::getPinType(ed::PinId pinId) {
+    if (inputPin.Id == pinId) {
+        return inputPin.pinType;
+    } else if (outputPin.Id == pinId) {
+        return outputPin.pinType;
+    }
 }
 
 ed::NodeId Distortion::getNodeId() {
     return nodeId;
 }
 
-int Distortion::chooseIn(ed::PinId pin) {
-    return 1;
-}
-
-void Distortion::disconnect(AudioModule* module) {
-    if (module == this->module) {
+void Distortion::disconnect(Module* module) {
+    if (dynamic_cast<AudioModule*>(module) == this->module) {
     this->module = nullptr;
     }
     return;
+}
+
+void Distortion::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    
+    drive = data["drive"];
+    mix = data["mix"];
+
+    inputPin.Id = ed::PinId(data["pins"][0].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][1].get<int>());
 }

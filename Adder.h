@@ -1,19 +1,16 @@
 #pragma once
 
 #include "AudioModule.h"
-#include "WaveType.h"
 #include <SDL2/SDL.h>
-#include "Oscillator.h"
+#include "imgui_node_editor.h"
 
 class Adder : public AudioModule{
     private:
         AudioModule* module1;
         AudioModule* module2;
-        ed::PinId input1PinId;
-        ed::PinId input2PinId;
-        ed::PinId outputPinId;
-        // float mixFactor1;
-        // float mixFactor2;
+        Pin* input1Pin;
+        Pin* input2Pin;
+        Pin* outputPin;
 
     public:
         Adder();
@@ -24,8 +21,10 @@ class Adder : public AudioModule{
         NodeType getNodeType() const override {
             return NodeType::Adder;
         }
-        void connect(AudioModule* input, int id) override;
+        PinType getPinType(ed::PinId pinId) override;
         ed::NodeId getNodeId() override;
-        int chooseIn(ed::PinId pin) override;
-        void disconnect(AudioModule* module) override;
+        void connect(Module* input, ed::PinId pin) override;
+        void disconnect(Module* module) override;
+        // int chooseIn(ed::PinId pin) override;
+        void fromJson(const json& data) override;
 };

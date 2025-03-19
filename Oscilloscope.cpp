@@ -1,20 +1,24 @@
 #include "Oscilloscope.h"
+#include "AudioModule.h"
+#include "imgui_node_editor.h"
 
 Oscilloscope::Oscilloscope()
 {
     inputModule = nullptr;
     nodeId = nextNodeId++;
-    inputPinId = nextPinId++;
-    outputPinId = nextPinId++;
+    inputPin.Id = nextPinId++;
+    inputPin.pinType = PinType::AudioSignal;
+    outputPin.Id = nextPinId++;
+    outputPin.pinType = PinType::AudioSignal;
     waveformBuffer.resize(bufferSize); // задаю размер буффера
     clearBuffer();
 }
 
-void Oscilloscope::process(Uint16 *stream, int length) 
+void Oscilloscope::process(AudioSample *stream, int length) 
 {
     length = std::min(length, bufferSize);
 
-    Uint16 stream1[bufferSize] = {0}; // 16-битный буфер
+    AudioSample stream1[1024] = {0}; // 16-битный буфер
 
     if (inputModule != nullptr)
     {
@@ -23,7 +27,7 @@ void Oscilloscope::process(Uint16 *stream, int length)
     else 
     {
         clearBuffer();
-        memset(stream, 0, length * sizeof(Uint16)); // Очистка 16-битного буфера
+        memset(stream, 0, length * sizeof(AudioSample)); // Очистка 16-битного буфера
     }
 
     updateTimer++;
@@ -34,54 +38,11 @@ void Oscilloscope::process(Uint16 *stream, int length)
         for (int i = 0; i < length; i++)
         {
             // Приведение к диапазону [-1, 1] для 16-битного сигнала (0 - 65535)
-            float sample = (static_cast<float>(stream[i]) - amplitude) / amplitude;
+            float sample = (static_cast<float>(stream[i]) - AMPLITUDE_F) / AMPLITUDE_F;
             waveformBuffer[bufferIndex] = sample;
             bufferIndex = (bufferIndex + 1) % bufferSize;
         }
     }
-}
-
-std::vector<ed::PinId> Oscilloscope::getPins() const
-{
-    return {inputPinId, outputPinId};
-}
-
-ed::PinKind Oscilloscope::getPinKind(ed::PinId pin) const
-{
-    if (inputPinId == pin)
-    {
-        return ed::PinKind::Input;
-    }
-    else
-    {
-        return ed::PinKind::Output;
-    }
-}
-
-ed::NodeId Oscilloscope::getNodeId()
-{
-    return nodeId;
-}
-
-void Oscilloscope::connect(AudioModule *input, int id)
-{
-    this->inputModule = input;
-    return;
-}
-
-void Oscilloscope::disconnect(AudioModule *module)
-{
-    if (inputModule == module)
-    {
-        inputModule = nullptr;
-        clearBuffer();
-    }
-    return;
-}
-
-int Oscilloscope::chooseIn(ed::PinId id)
-{
-        return 1;
 }
 
 void Oscilloscope::render()
@@ -90,12 +51,12 @@ void Oscilloscope::render()
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 90.f) * 0.5f); // для выводы имени модуля по середине(числа выбраны чисто имперически)
     ImGui::Text("Oscilloscope");
 
-    ed::BeginPin(inputPinId, ed::PinKind::Input);
+    ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
 
     ImGui::SameLine(255.0F);
-    ed::BeginPin(outputPinId, ed::PinKind::Output);
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
 
@@ -123,11 +84,63 @@ void Oscilloscope::render()
     }
     
     ed::EndNode();
+}
 
+std::vector<ed::PinId> Oscilloscope::getPins() const
+{
+    return {inputPin.Id, outputPin.Id};
+}
+
+ed::PinKind Oscilloscope::getPinKind(ed::PinId pin) const
+{
+    if (inputPin.Id == pin)
+    {
+        return ed::PinKind::Input;
+    }
+    else
+    {
+        return ed::PinKind::Output;
+    }
+}
+
+PinType Oscilloscope::getPinType(ed::PinId pinId) {
+    if (inputPin.Id == pinId) {
+        return inputPin.pinType;
+    } else if (outputPin.Id == pinId) {
+        return outputPin.pinType;
+    }
+}
+
+ed::NodeId Oscilloscope::getNodeId()
+{
+    return nodeId;
+}
+
+void Oscilloscope::connect(Module *input, ed::PinId pin)
+{
+    this->inputModule = dynamic_cast<AudioModule*>(input);
+    return;
+}
+
+void Oscilloscope::disconnect(Module *module)
+{
+    if (inputModule == dynamic_cast<AudioModule*>(module))
+    {
+        inputModule = nullptr;
+        clearBuffer();
+    }
+    return;
 }
 
 void Oscilloscope::clearBuffer()
 {
     std::fill(waveformBuffer.begin(), waveformBuffer.end(), 0.0f);
     bufferIndex = 0;
+}
+
+void Oscilloscope::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+
+    inputPin.Id = ed::PinId(data["pins"][0].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][1].get<int>());
 }

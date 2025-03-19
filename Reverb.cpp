@@ -1,12 +1,16 @@
 #include "Reverb.h"
+#include "AudioModule.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
 // беда беда
 Reverb::Reverb() {
     module = nullptr;
     nodeId = nextNodeId++;
-    inputPinId = nextNodeId++;
-    outputPinId = nextNodeId++;
+    inputPin.Id = nextNodeId++;
+    inputPin.pinType = PinType::AudioSignal;
+    outputPin.Id = nextNodeId++;
+    outputPin.pinType = PinType::AudioSignal;
 
     delayBuffer.resize(bufferSize, 0.0f);
     delayIndex = 0;
@@ -42,7 +46,7 @@ float Reverb::softClip(float sample) {
 
 
 
-// void Reverb::process(Uint16* stream, int length) {
+// void Reverb::process(AudioSample* stream, int length) {
 //     if (module) {
 //         module->process(stream, length);
 
@@ -64,11 +68,11 @@ float Reverb::softClip(float sample) {
 //             // Увеличиваем индекс
 //             delayIndex = (delayIndex + 1) % bufferSize;
 
-//             // Преобразуем обратно в Uint16
-//             stream[i] = static_cast<Uint16>(std::clamp((outputSample * 32767.5f) + 32767.5f, 0.0f, 65535.0f));
+//             // Преобразуем обратно в AudioSample
+//             stream[i] = static_cast<AudioSample>(std::clamp((outputSample * 32767.5f) + 32767.5f, 0.0f, 65535.0f));
 //         }
 //     } else {
-//         memset(stream, 0, length * sizeof(Uint16));
+//         memset(stream, 0, length * sizeof(AudioSample));
 //     }
 // }
 
@@ -84,9 +88,9 @@ float Reverb::lowPassFilter(float currentSample, float previousSample, float cut
     return (1.0f - alpha) * previousSample + alpha * currentSample;
 }
 
-void Reverb::process(Uint16* stream, int length) {
+void Reverb::process(AudioSample* stream, int length) {
     if (!module) {
-        memset(stream, 0, length * sizeof(Uint16));
+        memset(stream, 0, length * sizeof(AudioSample));
         return;
     }
 
@@ -126,7 +130,7 @@ void Reverb::process(Uint16* stream, int length) {
         outputSample = std::clamp(outputSample, -1.0f, 1.0f);
 
         // Преобразуем обратно в 16-битный диапазон (0 - 65535)
-        stream[i] = static_cast<Uint16>(std::clamp((outputSample + 1.0f) * 32767.5f, 0.0f, 65535.0f));
+        stream[i] = static_cast<AudioSample>(std::clamp((outputSample + 1.0f) * 32767.5f, 0.0f, 65535.0f));
 
         previousSample = outputSample;  // Обновляем предыдущий сэмпл для следующего вызова low-pass
     }
@@ -136,13 +140,13 @@ void Reverb::render() {
     ed::BeginNode(nodeId);
 
     ImGui::Text("Reverb");
-    ed::BeginPin(inputPinId, ed::PinKind::Input);
+    ed::BeginPin(inputPin.Id, ed::PinKind::Input);
         ImGui::Text("-> In");
     ed::EndPin();
 
     ImGui::SameLine();
 
-    ed::BeginPin(outputPinId, ed::PinKind::Output);
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
         ImGui::Text("Out ->");
     ed::EndPin();
     // ImGui::SetNextItemWidth(80.0f);
@@ -158,37 +162,46 @@ void Reverb::render() {
 }
 
 std::vector<ed::PinId> Reverb::getPins() const {
-        return { inputPinId, outputPinId };
+        return { inputPin.Id, outputPin.Id };
 }
 
 
 ed::PinKind Reverb::getPinKind(ed::PinId pin) const {
 
-    if (pin == inputPinId) {
+    if (pin == inputPin.Id) {
         return ed::PinKind::Input;
     } else {
         return ed::PinKind::Output;
     }
 }
-void Reverb::connect(AudioModule* input, int id) {
-    if (id == 1) {
-        this->module = input;
+
+void Reverb::connect(Module* input, ed::PinId pin) {
+    if (pin == inputPin.Id) {
+        this->module = dynamic_cast<AudioModule*>(input);
     }
     return;
+}
+
+PinType Reverb::getPinType(ed::PinId pinId) {
+    if (inputPin.Id == pinId) {
+        return inputPin.pinType;
+    } else if (outputPin.Id == pinId) {
+        return outputPin.pinType;
+    }
 }
 
 ed::NodeId Reverb::getNodeId() {
     return nodeId;
 }
 
-int Reverb::chooseIn(ed::PinId pin) {
-    if (pin == inputPinId) {
-        return 1;
-    }
-}
+// int Reverb::chooseIn(ed::PinId pin) {
+//     if (pin == inputPinId) {
+//         return 1;
+//     }
+// }
 
-void Reverb::disconnect(AudioModule* module) {
-    if (this->module == module) {
+void Reverb::disconnect(Module* module) {
+    if (this->module == dynamic_cast<AudioModule*>(module)) {
         this->module = nullptr;
     }
     return;

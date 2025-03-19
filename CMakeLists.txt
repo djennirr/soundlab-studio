@@ -18,21 +18,23 @@ find_package(imgui_node_editor REQUIRED)
 find_package(SDL2 REQUIRED)
 
 add_subdirectory(libs/imgui-node-editor/examples/application)
+add_subdirectory(libs/json)
 
 add_executable(basic-interaction-example 
     ${CMAKE_SOURCE_DIR}/basic-example.cpp
-    ${CMAKE_SOURCE_DIR}/AudioOutput.cpp  # Добавьте ваш файл
+    ${CMAKE_SOURCE_DIR}/AudioOutput.cpp
     ${CMAKE_SOURCE_DIR}/Oscillator.cpp
     ${CMAKE_SOURCE_DIR}/Oscilloscope.cpp  
-    ${CMAKE_SOURCE_DIR}/AudioModule.cpp
+    ${CMAKE_SOURCE_DIR}/Module.cpp
     ${CMAKE_SOURCE_DIR}/Adder.cpp
     ${CMAKE_SOURCE_DIR}/Reverb.cpp
     ${CMAKE_SOURCE_DIR}/Distortion.cpp
     ${CMAKE_SOURCE_DIR}/NoiseGenerator.cpp
     ${CMAKE_SOURCE_DIR}/Sampler.cpp
+    ${CMAKE_SOURCE_DIR}/Control.cpp
 )
 
-target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application)
+target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
 
 add_custom_command(TARGET basic-interaction-example POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
