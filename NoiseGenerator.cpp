@@ -1,4 +1,6 @@
 #include "NoiseGenerator.h"
+#include "AudioModule.h"
+#include "imgui_node_editor.h"
 #include <cmath>
 #include <cstring>
 #include <algorithm>
@@ -10,7 +12,8 @@
 NoiseGenerator::NoiseGenerator(NoiseType type, float amplitude)
     : noiseType(type), amplitude(amplitude), phase(0.0f), whiteNoise(-1.0f, 1.0f) {
     nodeId = nextNodeId++;
-    outputPinId = nextPinId++;
+    outputPin.Id = nextPinId++;
+    outputPin.pinType = PinType::AudioSignal;
 }
 
 void NoiseGenerator::process(AudioSample* stream, int length) {
@@ -32,7 +35,7 @@ void NoiseGenerator::render() {
     ImGui::Text("Noise Generator");
     ImGui::NewLine();
     ImGui::SameLine(190.0F);
-    ed::BeginPin(outputPinId, ed::PinKind::Output);
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
 
@@ -80,29 +83,30 @@ void NoiseGenerator::render() {
 }
 
 std::vector<ed::PinId> NoiseGenerator::getPins() const {
-    return { outputPinId };
+    return { outputPin.Id };
 }
 
 ed::PinKind NoiseGenerator::getPinKind(ed::PinId pin) const {
     return ed::PinKind::Output;
 }
 
+PinType NoiseGenerator::getPinType(ed::PinId pinId) {
+    if (outputPin.Id == pinId) {
+        return outputPin.pinType;
+    }
+}
+
 ed::NodeId NoiseGenerator::getNodeId() {
     return nodeId;
 }
 
-void NoiseGenerator::connect(AudioModule* module, int id) {
+void NoiseGenerator::connect(Module* module, ed::PinId pin) {
     return;
 }
 
-void NoiseGenerator::disconnect(AudioModule* module) {
+void NoiseGenerator::disconnect(Module* module) {
     return;
 }
-
-int NoiseGenerator::chooseIn(ed::PinId id) {
-    return 1;
-}
-
 
 void NoiseGenerator::generateWhiteNoise(AudioSample* stream, int length) {
     for (int i = 0; i < length; ++i) {
@@ -147,7 +151,7 @@ void NoiseGenerator::fromJson(const json& data) {
     noiseType = static_cast<NoiseType>(data["noiseType"].get<int>());
     amplitude = data["amplitude"];
 
-    outputPinId = ed::PinId(data["pins"][0].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][0].get<int>());
 
     switch (noiseType) {
         case NoiseType::WHITE:

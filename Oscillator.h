@@ -1,7 +1,9 @@
 #pragma once
 
 #include "AudioModule.h"
+#include "ControlModule.h"
 #include "WaveType.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
 
@@ -9,12 +11,13 @@
 
 class Oscillator : public AudioModule {
 private:
+    ControlModule* inputModule;
     double phase = 0.0;
     float frequency;
     float volume;
     WaveType waveType;
-    ed::PinId inputPinId;
-    ed::PinId outputPinId;
+    Pin inputPin;
+    Pin outputPin;
     NodeType type;
     char popup_text[20] = "SIN";
     bool isSignalActive = true;
@@ -42,9 +45,10 @@ public:
     NodeType getNodeType() const override {
         return NodeType::Oscillator;
     }
+    PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, int id = 1) override;
-    void disconnect(AudioModule* module) override;
-    int chooseIn(ed::PinId pin) override;
+    void connect(Module* input, ed::PinId pin) override;
+    void disconnect(Module* module) override;
+    // int chooseIn(ed::PinId pin) override;
     void fromJson(const json& data) override;
 };

@@ -2,14 +2,15 @@
 
 #include "AudioModule.h"
 #include "WaveType.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
 
 class Reverb : public AudioModule {
 private:
     AudioModule* module;
-    ed::PinId inputPinId;
-    ed::PinId outputPinId;
+    Pin inputPin;
+    Pin outputPin;
     std::vector<float> delayBuffer;
     int delayIndex;
     float decayFactor;
@@ -31,10 +32,11 @@ public:
     NodeType getNodeType() const override {
         return NodeType::Adder;
     }
+    PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, int id) override;
-    void disconnect(AudioModule* module) override;
-    int chooseIn(ed::PinId pin) override;
+    void connect(Module* input, ed::PinId pin) override;
+    void disconnect(Module* module) override;
+    // int chooseIn(ed::PinId pin) override;
     float softClip(float simple);
     float applyPhaseShift(float inputSample, float shiftFactor);
     float lowPassFilter(float currentSample, float previousSample, float cutoffFrequency, float sampleRate);

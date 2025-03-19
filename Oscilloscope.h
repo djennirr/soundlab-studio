@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioModule.h" 
+#include "imgui_node_editor.h"
 #include <vector>
 #include <imgui.h>
 #include <SDL2/SDL.h>
@@ -15,17 +16,18 @@ public:
     NodeType getNodeType() const override {
         return NodeType::Oscilloscope; 
     }
+    PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, int id) override;
-    void disconnect(AudioModule* module) override;
-    int chooseIn(ed::PinId pin) override;
+    void connect(Module* input, ed::PinId pin) override;
+    void disconnect(Module* module) override;
+    // int chooseIn(ed::PinId pin) override;
     void clearBuffer();
     void fromJson(const json& data) override;
     
 private:
     AudioModule* inputModule;
-    ed::PinId inputPinId;
-    ed::PinId outputPinId;
+    Pin inputPin;
+    Pin outputPin;
     std::vector<float> waveformBuffer;
     int bufferSize = 1024; 
     int bufferIndex = 0;

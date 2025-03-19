@@ -2,6 +2,7 @@
 #include <imgui_node_editor.h>
 #include <application.h>
 #include <cmath>
+#include "Module.h"
 #include "AudioOutput.h"
 #include "Oscillator.h"
 #include "Oscilloscope.h"
@@ -16,6 +17,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include "Control.h"
 // короче баг с отсутсвием звука. и еще бы состояние play/stop на аутпуте восстанавливать
 // состояние кнопки аутпута + тип волны осциллятора
 namespace fs = std::filesystem;
@@ -31,6 +33,9 @@ struct Example : public Application {
         ed::LinkId Id;
         ed::PinId  InputId;
         ed::PinId  OutputId;
+        /*
+            короче можно сделать еще в линке инфу о том передается по ней че то или нет и будет круто
+        */
     };
 
     void saveToFile(const std::string& filename) {
@@ -87,12 +92,12 @@ struct Example : public Application {
         }
         modules.clear();
     
-        std::unordered_map<int, AudioModule*> idMap;
+        std::unordered_map<int, Module*> idMap;
         int maxNodeId = 0, maxPinId = 0;
     
         for (auto& moduleJson : project["modules"]) {
             NodeType type = moduleJson["type"];
-            AudioModule* module = nullptr;
+            Module* module = nullptr;
             
             if (type == NodeType::Oscillator) {
                 Oscillator* osc = new Oscillator(); //
@@ -138,8 +143,8 @@ struct Example : public Application {
             ed::SetNodePosition(module->getNodeId(), pos);
         }
     
-        AudioModule::nextNodeId = maxNodeId + 1;
-        AudioModule::nextPinId = maxPinId + 1;
+        Module::nextNodeId = maxNodeId + 1;
+        Module::nextPinId = maxPinId + 1;
     
         for (auto& linkJson : project["links"]) {
             ed::PinId inputPinId = linkJson["inputPin"].get<int>();
@@ -148,8 +153,8 @@ struct Example : public Application {
             std::cout << "[DEBUG] Restoring link: inputPin=" << inputPinId.Get() 
                       << ", outputPin=" << outputPinId.Get() << std::endl;
         
-            AudioModule* inputModule = findNodeByPin(inputPinId);
-            AudioModule* outputModule = findNodeByPin(outputPinId);
+            Module* inputModule = findNodeByPin(inputPinId);
+            Module* outputModule = findNodeByPin(outputPinId);
         
             if (!inputModule) {
                 std::cerr << "[ERROR] Input module not found for pin: " << inputPinId.Get() << std::endl;
@@ -182,8 +187,8 @@ struct Example : public Application {
         return nullptr;
     }
 
-    AudioModule* findNodeByPin(ed::PinId pin) {
-        for (AudioModule* module : modules) {
+    Module* findNodeByPin(ed::PinId pin) {
+        for (Module* module : modules) {
             const auto& pins = module->getPins();
             if (std::find(pins.begin(), pins.end(), pin) != pins.end()) {
                 return module;
@@ -192,15 +197,15 @@ struct Example : public Application {
         return nullptr;
     }
 
-    void createConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
+    void createConnection(Module* inputId, ed::PinId inputPin, Module* outputID, ed::PinId outputPin) {
         if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
-            outputID->connect(inputId, outputID->chooseIn(outputPin));
+            outputID->connect(inputId, outputPin);
         } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
-            inputId->connect(outputID, inputId->chooseIn(inputPin));
+            inputId->connect(outputID, inputPin);
         }
     }
 
-    void deleteConnection(AudioModule* inputId, ed::PinId inputPin, AudioModule* outputID, ed::PinId outputPin) {
+    void deleteConnection(Module* inputId, ed::PinId inputPin, Module* outputID, ed::PinId outputPin) {
         if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
             outputID->disconnect(inputId);
         } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
@@ -208,7 +213,7 @@ struct Example : public Application {
         }
     }
 
-    void deleteNode(AudioModule* nodeToDelete) {
+    void deleteNode(Module* nodeToDelete) {
         if (!nodeToDelete) return;
 
         // Убираем ссылки на удаляемую ноду
@@ -338,8 +343,9 @@ struct Example : public Application {
             module->render();
         }
 
-        for (auto& linkInfo : m_Links)
+        for (auto& linkInfo : m_Links) {
             ed::Link(linkInfo.Id, linkInfo.InputId, linkInfo.OutputId);
+        }
 
          // Handle creation action, returns true if editor want to create new object (node or link)
         if (ed::BeginCreate())
@@ -365,8 +371,20 @@ struct Example : public Application {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                     }
 
-                    AudioModule* inputNode = findNodeByPin(inputPinId);
-                    AudioModule* outputNode = findNodeByPin(outputPinId);
+                    Module* inputNode = findNodeByPin(inputPinId);
+                    Module* outputNode = findNodeByPin(outputPinId);
+
+                    ed::PinKind input = inputNode->getPinKind(inputPinId);
+                    ed::PinKind output = inputNode->getPinKind(outputPinId);
+
+                    if(input == ed::PinKind::Input) {
+                        ed::PinId tmp = inputPinId;
+                        inputPinId = outputPinId;
+                        outputPinId = tmp;
+                        Module* temp = inputNode;
+                        inputNode = outputNode;
+                        outputNode = temp;
+                    }
 
                     if (!inputNode || !outputNode) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
@@ -375,6 +393,10 @@ struct Example : public Application {
                     // Проверяем тип пинов.
                     else if (inputNode->getPinKind(inputPinId) == outputNode->getPinKind(outputPinId)) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+                    }
+
+                    else if(inputNode->getPinType(inputPinId) != outputNode->getPinType(outputPinId)) {
+                        ed::RejectNewItem(ImColor(255,0,0), 2.0f);
                     }
 
                     else if (inputNode == outputNode) {
@@ -387,8 +409,8 @@ struct Example : public Application {
                         LinkInfo* existingLinkOutput = findLinkByPin(outputPinId);
 
                         if (existingLinkOutput) {
-                            AudioModule* inputNode = findNodeByPin(existingLinkOutput->InputId);
-                            AudioModule* outputNode = findNodeByPin(existingLinkOutput->OutputId);
+                            Module* inputNode = findNodeByPin(existingLinkOutput->InputId);
+                            Module* outputNode = findNodeByPin(existingLinkOutput->OutputId);
                             if (inputNode && outputNode) {
                                 deleteConnection(inputNode, existingLinkOutput->InputId, outputNode, existingLinkOutput->OutputId);
                             }
@@ -398,8 +420,8 @@ struct Example : public Application {
                         LinkInfo* existingLinkInput = findLinkByPin(inputPinId);
                         
                         if (existingLinkInput) {
-                            AudioModule* inputNode = findNodeByPin(existingLinkInput->InputId);
-                            AudioModule* outputNode = findNodeByPin(existingLinkInput->OutputId);
+                            Module* inputNode = findNodeByPin(existingLinkInput->InputId);
+                            Module* outputNode = findNodeByPin(existingLinkInput->OutputId);
                             if (inputNode && outputNode) {
                                 deleteConnection(inputNode, existingLinkInput->InputId, outputNode, existingLinkInput->OutputId);
                             }
@@ -413,6 +435,7 @@ struct Example : public Application {
 
                         // Draw new link.
                         ed::Link(m_Links.back().Id, m_Links.back().InputId, m_Links.back().OutputId);
+                        ed::Flow(m_Links.back().Id);
                     }
                     // You may choose to reject connection between these nodes
                     // by calling ed::RejectNewItem(). This will allow editor to give
@@ -428,7 +451,7 @@ struct Example : public Application {
             ed::NodeId nodeId = 0;
             while (ed::QueryDeletedNode(&nodeId)) {
                 // Найти узел по ID
-                auto it = std::find_if(modules.begin(), modules.end(), [nodeId](AudioModule* node) {
+                auto it = std::find_if(modules.begin(), modules.end(), [nodeId](Module* node) {
                     return node->getNodeId() == nodeId;
                 });
 
@@ -437,7 +460,7 @@ struct Example : public Application {
                     // Если узел является AudioOutput, отклонить удаление
                     if ((*it)->getNodeType() == NodeType::AudioOutput) {
                         ed::RejectDeletedItem();
-                        continue; // Переходим к следующему удаляемому узлу
+                        continue;
                     }
 
                     // Если это не AudioOutput и удаление подтверждено
@@ -460,8 +483,8 @@ struct Example : public Application {
 
                     if (it != m_Links.end())
                     {
-                        AudioModule* first = findNodeByPin(it->InputId);
-                        AudioModule* second = findNodeByPin(it->OutputId);
+                        Module* first = findNodeByPin(it->InputId);
+                        Module* second = findNodeByPin(it->OutputId);
 
                         if (first && second)
                             deleteConnection(first, it->InputId, second, it->OutputId);
@@ -492,7 +515,7 @@ struct Example : public Application {
         if (ImGui::BeginPopup("Create New Node"))
         {
             auto newNodePostion = openPopupPosition;
-            AudioModule* node = nullptr;
+            Module* node = nullptr;
             
             if (ImGui::MenuItem("Oscillator")){
                 node = new Oscillator(440.0, 0.5, WaveType::SINE); //
@@ -514,6 +537,10 @@ struct Example : public Application {
                 node = new NoiseGenerator();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Control")) {
+                node = new Control();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
             ImGui::EndPopup();
         } 
@@ -528,7 +555,7 @@ struct Example : public Application {
     ed::EditorContext* m_Context = nullptr;
     bool m_FirstFrame = true;
     ImVector<LinkInfo> m_Links;
-    ImVector<AudioModule*> modules;
+    ImVector<Module*> modules;
     int m_NextLinkId = 2000;
 };
 

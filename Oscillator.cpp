@@ -1,7 +1,13 @@
 #include "Oscillator.h"
+#include "AudioModule.h"
+#include "ControlModule.h"
+#include "imgui.h"
+#include "imgui_node_editor.h"
 #include <cmath>
 #include <SDL2/SDL.h>
+#include <iostream>
 #include <vector>
+#include <map>
 
 # define portable_strcpy    strcpy
 
@@ -10,29 +16,55 @@ const int SAMPLE_RATE = 44100;
 
 Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), volume(vol), waveType(type)  {
     nodeId = nextNodeId++;
-    inputPinId = nextPinId++;
-    outputPinId = nextPinId++;
+    inputPin.Id = nextPinId++;
+    inputPin.pinType = PinType::ControlSignal;
+    outputPin.Id = nextPinId++;
+    outputPin.pinType = PinType::AudioSignal;
+    ControlModule* inputModule = NULL;
 }
 
 void Oscillator::process(AudioSample* stream, int length) {
-    if (isSignalActive) {
-        
-        switch (waveType) {
-            case SINE:
-                generateSineWave(stream, length);
-                break;
-            case SQUARE:
-                generateSquareWave(stream, length);
-                break;
-            case SAWTOOTH:
-                generateSawtoothWave(stream, length);
-                break;
-            case TRIANGLE:
-                generateTriangleWave(stream, length);
-                break;
+    if (inputModule == NULL){
+        if (isSignalActive) {
+            
+            switch (waveType) {
+                case SINE:
+                    generateSineWave(stream, length);
+                    break;
+                case SQUARE:
+                    generateSquareWave(stream, length);
+                    break;
+                case SAWTOOTH:
+                    generateSawtoothWave(stream, length);
+                    break;
+                case TRIANGLE:
+                    generateTriangleWave(stream, length);
+                    break;
+            }
+        } else {
+            memset(stream, 0, length * sizeof(AudioSample));
         }
     } else {
-        memset(stream, 0, length * sizeof(AudioSample));
+        this->frequency = inputModule->get();
+        if (isSignalActive) {
+            
+            switch (waveType) {
+                case SINE:
+                    generateSineWave(stream, length);
+                    break;
+                case SQUARE:
+                    generateSquareWave(stream, length);
+                    break;
+                case SAWTOOTH:
+                    generateSawtoothWave(stream, length);
+                    break;
+                case TRIANGLE:
+                    generateTriangleWave(stream, length);
+                    break;
+            }
+        } else {
+            memset(stream, 0, length * sizeof(AudioSample));
+        }
     }
 }
 
@@ -40,13 +72,13 @@ void Oscillator::process(AudioSample* stream, int length) {
 void Oscillator::render() {
 
     ed::BeginNode(nodeId);
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
+        // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
         ImGui::Text("Oscillator");
-        ed::BeginPin(inputPinId, ed::PinKind::Input);
+        ed::BeginPin(inputPin.Id, ed::PinKind::Input);
             ImGui::Text("-> In");
         ed::EndPin();
         ImGui::SameLine(180.0F);
-        ed::BeginPin(outputPinId, ed::PinKind::Output);
+        ed::BeginPin(outputPin.Id, ed::PinKind::Output);
             ImGui::Text("Out ->");
         ed::EndPin();
         ImGui::AlignTextToFramePadding();
@@ -57,15 +89,15 @@ void Oscillator::render() {
         ImGui::SameLine(180.0F);
         std::string buttonLabel2 = isSignalActive ? std::string("OFF") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" : std::string("ON") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" ;
         if (ImGui::Button(buttonLabel2.c_str())) {
-        isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
+            isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
         }
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->frequency, 7.0F, 0.0F, 1000.0F);
         
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
-        
         ed::EndNode();
+        
         ed::Suspend();
         std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         if (do_popup) {
@@ -100,17 +132,25 @@ void Oscillator::render() {
             ImGui::EndPopup(); // Note this does not do anything to the popup open/close state. It just terminates the content declaration.
         }
         ed::Resume();
-    }
+}
 
 std::vector<ed::PinId> Oscillator::getPins() const {
-    return { inputPinId ,outputPinId };
+    return { inputPin.Id ,outputPin.Id };
 }
 
 ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
-    if (outputPinId == pin) {
+    if (outputPin.Id == pin) {
         return ed::PinKind::Output;
-    } else if (inputPinId == pin) {
+    } else if (inputPin.Id == pin) {
         return ed::PinKind::Input;
+    }
+}
+
+PinType Oscillator::getPinType(ed::PinId pinId) {
+    if (inputPin.Id == pinId) {
+        return inputPin.pinType;
+    } else if (outputPin.Id == pinId) {
+        return outputPin.pinType;
     }
 }
 
@@ -179,14 +219,20 @@ void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
     }
 }
 
-void Oscillator::connect(AudioModule* module, int id) {
-    return;
+void Oscillator::connect(Module* module, ed::PinId pin) {
+    if (module->getNodeType() == NodeType::Control) {
+        this->inputModule = dynamic_cast<ControlModule*>(module);
+        std::cout << "Control";
+    } else {
+        ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+        std::cout << "nice";
+    }
 }
-void Oscillator::disconnect(AudioModule* module) {
+void Oscillator::disconnect(Module* module) {
+    if (dynamic_cast<ControlModule*>(module) == this->inputModule) {
+        this->inputModule = nullptr;
+    }
     return;
-}
-int Oscillator::chooseIn(ed::PinId id) {
-    return 1;
 }
 
 void Oscillator::fromJson(const json& data) {
@@ -196,8 +242,8 @@ void Oscillator::fromJson(const json& data) {
     volume = data["volume"];
     waveType = static_cast<WaveType>(data["waveType"].get<int>());
 
-    inputPinId = ed::PinId(data["pins"][0].get<int>());
-    outputPinId = ed::PinId(data["pins"][1].get<int>());
+    inputPin.Id = ed::PinId(data["pins"][0].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][1].get<int>());
 
     switch (waveType) {
         case WaveType::SINE:

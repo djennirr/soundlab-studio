@@ -2,6 +2,7 @@
 
 #include "AudioModule.h"
 #include "WaveType.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
 class AudioOutput : public AudioModule {
@@ -10,8 +11,8 @@ private:
     SDL_AudioSpec wavSpec;
     AudioModule* inputModule = nullptr;
     bool isPlaying = false;
-    ed::PinId inputPinId;
-    ed::PinId outputPinId;
+    Pin inputPin;
+    Pin outputPin;
     NodeType type;
     json toJson() const override {
         json data = AudioModule::toJson();
@@ -29,10 +30,11 @@ public:
     NodeType getNodeType() const override {
         return NodeType::AudioOutput;
     }
+    PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, int id = 1) override;
-    virtual void disconnect(AudioModule* module) override;
-    virtual int chooseIn(ed::PinId pin) override;
+    void connect(Module* input, ed::PinId pin) override;
+    virtual void disconnect(Module* module) override;
+    // virtual int chooseIn(Pin pin) override;
     void start();
     void stop();
     void fromJson(const json& data) override;

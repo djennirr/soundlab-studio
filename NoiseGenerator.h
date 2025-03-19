@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioModule.h"
+#include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <random>
@@ -15,7 +16,7 @@ class NoiseGenerator : public AudioModule {
 private:
     NoiseType noiseType;
     float amplitude;
-    ed::PinId outputPinId;
+    Pin outputPin;
     char popup_text[100] = "White";
     float phase;
     std::default_random_engine generator;
@@ -41,9 +42,10 @@ public:
     NodeType getNodeType() const override {
         return NodeType::NoiseGenerator;
     }
+    PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* module, int id) override;
-    void disconnect(AudioModule* module) override;
-    int chooseIn(ed::PinId id) override;
+    void connect(Module* module, ed::PinId pin) override;
+    void disconnect(Module* module) override;
+    // int chooseIn(ed::PinId id) override;
     void fromJson(const json& data) override;
 };
