@@ -1,4 +1,5 @@
 #include "Reverb.h"
+#include "AudioModule.h"
 #include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
@@ -6,8 +7,10 @@
 Reverb::Reverb() {
     module = nullptr;
     nodeId = nextNodeId++;
-    inputPinId = nextNodeId++;
-    outputPinId = nextNodeId++;
+    inputPin.Id = nextNodeId++;
+    inputPin.pinType = PinType::AudioSignal;
+    outputPin.Id = nextNodeId++;
+    outputPin.pinType = PinType::AudioSignal;
 
     delayBuffer.resize(bufferSize, 0.0f);
     delayIndex = 0;
@@ -137,13 +140,13 @@ void Reverb::render() {
     ed::BeginNode(nodeId);
 
     ImGui::Text("Reverb");
-    ed::BeginPin(inputPinId, ed::PinKind::Input);
+    ed::BeginPin(inputPin.Id, ed::PinKind::Input);
         ImGui::Text("-> In");
     ed::EndPin();
 
     ImGui::SameLine();
 
-    ed::BeginPin(outputPinId, ed::PinKind::Output);
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
         ImGui::Text("Out ->");
     ed::EndPin();
     // ImGui::SetNextItemWidth(80.0f);
@@ -159,24 +162,32 @@ void Reverb::render() {
 }
 
 std::vector<ed::PinId> Reverb::getPins() const {
-        return { inputPinId, outputPinId };
+        return { inputPin.Id, outputPin.Id };
 }
 
 
 ed::PinKind Reverb::getPinKind(ed::PinId pin) const {
 
-    if (pin == inputPinId) {
+    if (pin == inputPin.Id) {
         return ed::PinKind::Input;
     } else {
         return ed::PinKind::Output;
     }
 }
 
-void Reverb::connect(AudioModule* input, ed::PinId pin) {
-    if (pin == inputPinId) {
-        this->module = input;
+void Reverb::connect(Module* input, ed::PinId pin) {
+    if (pin == inputPin.Id) {
+        this->module = dynamic_cast<AudioModule*>(input);
     }
     return;
+}
+
+PinType Reverb::getPinType(ed::PinId pinId) {
+    if (inputPin.Id == pinId) {
+        return inputPin.pinType;
+    } else if (outputPin.Id == pinId) {
+        return outputPin.pinType;
+    }
 }
 
 ed::NodeId Reverb::getNodeId() {
@@ -189,8 +200,8 @@ ed::NodeId Reverb::getNodeId() {
 //     }
 // }
 
-void Reverb::disconnect(AudioModule* module) {
-    if (this->module == module) {
+void Reverb::disconnect(Module* module) {
+    if (this->module == dynamic_cast<AudioModule*>(module)) {
         this->module = nullptr;
     }
     return;

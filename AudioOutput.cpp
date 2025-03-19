@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include "AudioOutput.h"
+#include "AudioModule.h"
 #include "imgui_node_editor.h"
 #include <iostream>
 
@@ -22,12 +23,13 @@ AudioOutput::AudioOutput() {
         }
     }
     nodeId = nextNodeId++;
-    inputPinId = nextPinId++;
+    inputPin.Id = nextPinId++;
+    inputPin.pinType =  PinType::AudioSignal;
 }
 
 AudioOutput::AudioOutput(int a) {
     this->nodeId = 1000;
-    inputPinId = nextPinId++;
+    inputPin.Id = nextPinId++;
         
     if (!SDL_WasInit(SDL_INIT_AUDIO)) {
         SDL_AudioSpec wavSpec;
@@ -69,7 +71,7 @@ void AudioOutput::render() {
     if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(210, 60));
     ed::BeginNode(nodeId);
         ImGui::Text("Audio Output");
-        ed::BeginPin(inputPinId, ed::PinKind::Input);
+        ed::BeginPin(inputPin.Id, ed::PinKind::Input);
         ImGui::Text("=> Signal In");
         ed::EndPin();
         std::string buttonName = "Play";
@@ -84,12 +86,18 @@ void AudioOutput::render() {
 }
 
 std::vector<ed::PinId> AudioOutput::getPins() const {
-    return { inputPinId };
+    return { inputPin.Id };
 }
 
 ed::PinKind AudioOutput::getPinKind(ed::PinId pin) const {
-    if (inputPinId == pin) {
+    if (inputPin.Id == pin) {
         return ed::PinKind::Input;
+    }
+}
+
+PinType AudioOutput::getPinType(ed::PinId pinId) {
+    if (inputPin.Id == pinId) {
+        return inputPin.pinType;
     }
 }
 
@@ -97,13 +105,13 @@ ed::NodeId AudioOutput::getNodeId() {
     return nodeId;
 }
 
-void AudioOutput::connect(AudioModule* input, ed::PinId pin) {
-    this->inputModule = input;
+void AudioOutput::connect(Module* input, ed::PinId pin) {
+    this->inputModule = dynamic_cast<AudioModule*>(input);
     this->isPlaying = true;
     this->start();
 }
 
-void AudioOutput::disconnect(AudioModule* module) {
+void AudioOutput::disconnect(Module* module) {
     if (inputModule == module) {
         inputModule = nullptr;
         stop();
@@ -122,5 +130,5 @@ void AudioOutput::fromJson(const json& data) {
     AudioModule::fromJson(data);
     isPlaying = data["isPlaying"];
 
-    inputPinId = ed::PinId(data["pins"][0].get<int>());
+    inputPin.Id = ed::PinId(data["pins"][0].get<int>());
 }

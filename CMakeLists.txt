@@ -25,7 +25,7 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/AudioOutput.cpp
     ${CMAKE_SOURCE_DIR}/Oscillator.cpp
     ${CMAKE_SOURCE_DIR}/Oscilloscope.cpp  
-    ${CMAKE_SOURCE_DIR}/AudioModule.cpp
+    ${CMAKE_SOURCE_DIR}/Module.cpp
     ${CMAKE_SOURCE_DIR}/Adder.cpp
     ${CMAKE_SOURCE_DIR}/Reverb.cpp
     ${CMAKE_SOURCE_DIR}/Distortion.cpp

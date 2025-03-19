@@ -1,9 +1,11 @@
 #include "Oscillator.h"
 #include "AudioModule.h"
+#include "ControlModule.h"
 #include "imgui.h"
 #include "imgui_node_editor.h"
 #include <cmath>
 #include <SDL2/SDL.h>
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -14,30 +16,55 @@ const int SAMPLE_RATE = 44100;
 
 Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), volume(vol), waveType(type)  {
     nodeId = nextNodeId++;
-    inputPinId = nextPinId++;
-    outputPinId = nextPinId++;
-    AudioModule* inputModule = NULL;
+    inputPin.Id = nextPinId++;
+    inputPin.pinType = PinType::ControlSignal;
+    outputPin.Id = nextPinId++;
+    outputPin.pinType = PinType::AudioSignal;
+    ControlModule* inputModule = NULL;
 }
 
 void Oscillator::process(AudioSample* stream, int length) {
-    if (isSignalActive) {
-        
-        switch (waveType) {
-            case SINE:
-                generateSineWave(stream, length);
-                break;
-            case SQUARE:
-                generateSquareWave(stream, length);
-                break;
-            case SAWTOOTH:
-                generateSawtoothWave(stream, length);
-                break;
-            case TRIANGLE:
-                generateTriangleWave(stream, length);
-                break;
+    if (inputModule == NULL){
+        if (isSignalActive) {
+            
+            switch (waveType) {
+                case SINE:
+                    generateSineWave(stream, length);
+                    break;
+                case SQUARE:
+                    generateSquareWave(stream, length);
+                    break;
+                case SAWTOOTH:
+                    generateSawtoothWave(stream, length);
+                    break;
+                case TRIANGLE:
+                    generateTriangleWave(stream, length);
+                    break;
+            }
+        } else {
+            memset(stream, 0, length * sizeof(AudioSample));
         }
     } else {
-        memset(stream, 0, length * sizeof(AudioSample));
+        this->frequency = inputModule->get();
+        if (isSignalActive) {
+            
+            switch (waveType) {
+                case SINE:
+                    generateSineWave(stream, length);
+                    break;
+                case SQUARE:
+                    generateSquareWave(stream, length);
+                    break;
+                case SAWTOOTH:
+                    generateSawtoothWave(stream, length);
+                    break;
+                case TRIANGLE:
+                    generateTriangleWave(stream, length);
+                    break;
+            }
+        } else {
+            memset(stream, 0, length * sizeof(AudioSample));
+        }
     }
 }
 
@@ -47,11 +74,11 @@ void Oscillator::render() {
     ed::BeginNode(nodeId);
         // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
         ImGui::Text("Oscillator");
-        ed::BeginPin(inputPinId, ed::PinKind::Input);
+        ed::BeginPin(inputPin.Id, ed::PinKind::Input);
             ImGui::Text("-> In");
         ed::EndPin();
         ImGui::SameLine(180.0F);
-        ed::BeginPin(outputPinId, ed::PinKind::Output);
+        ed::BeginPin(outputPin.Id, ed::PinKind::Output);
             ImGui::Text("Out ->");
         ed::EndPin();
         ImGui::AlignTextToFramePadding();
@@ -70,100 +97,7 @@ void Oscillator::render() {
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
         ed::EndNode();
-
-        /*
-            WARNING!!!! проблемки с вводом кнопок почему то они у меня считываются как -3 от алфавита (если ввожу A вводится D)
-            upd: короче старая версия имгуи у нас возможно из за этого
-
-        */
-        // std::cout << "ImGui version: " << IMGUI_VERSION << std::endl;
-        // std::cout << "ImGui version (numeric): " << IMGUI_VERSION_NUM << std::endl;
-        if (ed::IsNodeSelected(nodeId)) {
-            auto& io = ImGui::GetIO();
-            // printf("selected\n");
-            
-            std::map<ImGuiKey, int> key_frequency = {
-                {ImGuiKey_Q, 261},
-                {ImGuiKey_W, 277},
-                {ImGuiKey_E, 293},
-                {ImGuiKey_R, 311},
-                {ImGuiKey_T, 329},
-                {ImGuiKey_Y, 349},
-                {ImGuiKey_U, 370},
-                {ImGuiKey_I, 392},
-                {ImGuiKey_O, 415},
-                {ImGuiKey_P, 440},
-                {ImGuiKey_F1, 466},
-                {ImGuiKey_F3, 493}
-            };
-
-            for (const auto& [key, frequency] : key_frequency) {
-                if (ImGui::IsKeyPressed(key - 3)) {
-                    this->frequency = frequency;
-                }
-            }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_A - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     std::cout << "\n";
-            //     isSignalActive = !isSignalActive;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_Q - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 220;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_W - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 330;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_E - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 440;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_R - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 550;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_T - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 660;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_Y - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 770;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_U - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 880;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_I - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 990;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_O - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 1100;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_P - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 1200;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_F1 - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 1300;
-            // }
-
-            // if(ImGui::IsKeyPressed(ImGuiKey_F3 - 3)) { //оно считывается как D | короче оно считывает клавишу как -3 от асции кодировки хз почему (мб у меня на маке так)
-            //     this->frequency = 1400;
-            // }
-
-            // for (int i = 0; i < ImGuiKey_COUNT; ++i) {
-            //     if (io.KeysDown[i]) {
-            //         const char* keyName = ImGui::GetKeyName((ImGuiKey)i + 3); // Получаем название клавиши по индексу
-            //         std::cout << "Key " << keyName << " is pressed!" << std::endl;
-            //     }
-            // }
-        }
-
+        
         ed::Suspend();
         std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         if (do_popup) {
@@ -201,14 +135,22 @@ void Oscillator::render() {
 }
 
 std::vector<ed::PinId> Oscillator::getPins() const {
-    return { inputPinId ,outputPinId };
+    return { inputPin.Id ,outputPin.Id };
 }
 
 ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
-    if (outputPinId == pin) {
+    if (outputPin.Id == pin) {
         return ed::PinKind::Output;
-    } else if (inputPinId == pin) {
+    } else if (inputPin.Id == pin) {
         return ed::PinKind::Input;
+    }
+}
+
+PinType Oscillator::getPinType(ed::PinId pinId) {
+    if (inputPin.Id == pinId) {
+        return inputPin.pinType;
+    } else if (outputPin.Id == pinId) {
+        return outputPin.pinType;
     }
 }
 
@@ -277,17 +219,17 @@ void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
     }
 }
 
-void Oscillator::connect(AudioModule* module, ed::PinId pin) {
+void Oscillator::connect(Module* module, ed::PinId pin) {
     if (module->getNodeType() == NodeType::Control) {
-        this -> inputModule = module;
+        this->inputModule = dynamic_cast<ControlModule*>(module);
         std::cout << "Control";
     } else {
         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
         std::cout << "nice";
     }
 }
-void Oscillator::disconnect(AudioModule* module) {
-    if (module == this->inputModule) {
+void Oscillator::disconnect(Module* module) {
+    if (dynamic_cast<ControlModule*>(module) == this->inputModule) {
         this->inputModule = nullptr;
     }
     return;
@@ -300,8 +242,8 @@ void Oscillator::fromJson(const json& data) {
     volume = data["volume"];
     waveType = static_cast<WaveType>(data["waveType"].get<int>());
 
-    inputPinId = ed::PinId(data["pins"][0].get<int>());
-    outputPinId = ed::PinId(data["pins"][1].get<int>());
+    inputPin.Id = ed::PinId(data["pins"][0].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][1].get<int>());
 
     switch (waveType) {
         case WaveType::SINE:

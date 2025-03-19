@@ -1,25 +1,26 @@
 
-#include "AudioModule.h"
+#include "ControlModule.h"
 #include "imgui_node_editor.h"
-class Control : public AudioModule {
+class Control : public ControlModule {
 private:
-    float frequency = 220;
-    ed::PinId inputPinId;
-    ed::PinId outputPinId;
+    int frequency = 220;
+    bool signal = false;
+    Pin outputPin;
     NodeType type;
 
 
 public:
     Control();
-    void process(AudioSample* stream, int length) override;
     void render() override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
     NodeType getNodeType() const override {
         return NodeType::Control;
     }
+    PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
-    void connect(AudioModule* input, ed::PinId pin) override;
-    void disconnect(AudioModule* module) override;
+    virtual void connect(Module* input, ed::PinId pin) override;
+    virtual void disconnect(Module* module) override;
+    int get() override;
     // int chooseIn(ed::PinId pin) override;
 };
