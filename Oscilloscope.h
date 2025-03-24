@@ -6,6 +6,22 @@
 #include <SDL2/SDL.h>
 
 class Oscilloscope : public AudioModule {
+public:
+    Oscilloscope();
+    void process(AudioSample* stream, int length) override;
+    void render() override;
+    std::vector<ed::PinId> getPins() const override;
+    ed::PinKind getPinKind(ed::PinId pin) const override;
+    NodeType getNodeType() const override {
+        return NodeType::Oscilloscope; 
+    }
+    ed::NodeId getNodeId() override;
+    void connect(AudioModule* input, int id) override;
+    void disconnect(AudioModule* module) override;
+    int chooseIn(ed::PinId pin) override;
+    void clearBuffer();
+    void fromJson(const json& data) override;
+    
 private:
     AudioModule* inputModule;
     ed::PinId inputPinId;
@@ -20,21 +36,4 @@ private:
     int updateInterval = 8; 
     float width = 300.0f;
     float height = 150.0f;
-
-
-public:
-    Oscilloscope();
-    std::vector<ed::PinId> getPins() const override;
-    ed::PinKind getPinKind(ed::PinId pin) const override;
-    NodeType getNodeType() const override { return NodeType::Oscilloscope; }
-    ed::NodeId getNodeId() override;
-    void process(Uint16* stream, int length) override;
-    void disconnect(AudioModule* module) override;
-    void connect(AudioModule* input, int id) override;
-    void render() override;
-    int chooseIn(ed::PinId pin) override;
-
-    void addSample(float sample);
-    void clearBuffer();
-
 };

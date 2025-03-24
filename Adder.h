@@ -12,8 +12,6 @@ class Adder : public AudioModule{
         ed::PinId input1PinId;
         ed::PinId input2PinId;
         ed::PinId outputPinId;
-        // float mixFactor1;
-        // float mixFactor2;
 
     public:
         Adder();
@@ -24,8 +22,9 @@ class Adder : public AudioModule{
         NodeType getNodeType() const override {
             return NodeType::Adder;
         }
-        void connect(AudioModule* input, int id) override;
         ed::NodeId getNodeId() override;
-        int chooseIn(ed::PinId pin) override;
+        void connect(AudioModule* input, int id) override;
         void disconnect(AudioModule* module) override;
+        int chooseIn(ed::PinId pin) override;
+        void fromJson(const json& data) override;
 };

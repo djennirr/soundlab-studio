@@ -42,7 +42,7 @@ float Reverb::softClip(float sample) {
 
 
 
-// void Reverb::process(Uint16* stream, int length) {
+// void Reverb::process(AudioSample* stream, int length) {
 //     if (module) {
 //         module->process(stream, length);
 
@@ -64,11 +64,11 @@ float Reverb::softClip(float sample) {
 //             // Увеличиваем индекс
 //             delayIndex = (delayIndex + 1) % bufferSize;
 
-//             // Преобразуем обратно в Uint16
-//             stream[i] = static_cast<Uint16>(std::clamp((outputSample * 32767.5f) + 32767.5f, 0.0f, 65535.0f));
+//             // Преобразуем обратно в AudioSample
+//             stream[i] = static_cast<AudioSample>(std::clamp((outputSample * 32767.5f) + 32767.5f, 0.0f, 65535.0f));
 //         }
 //     } else {
-//         memset(stream, 0, length * sizeof(Uint16));
+//         memset(stream, 0, length * sizeof(AudioSample));
 //     }
 // }
 
@@ -84,9 +84,9 @@ float Reverb::lowPassFilter(float currentSample, float previousSample, float cut
     return (1.0f - alpha) * previousSample + alpha * currentSample;
 }
 
-void Reverb::process(Uint16* stream, int length) {
+void Reverb::process(AudioSample* stream, int length) {
     if (!module) {
-        memset(stream, 0, length * sizeof(Uint16));
+        memset(stream, 0, length * sizeof(AudioSample));
         return;
     }
 
@@ -126,7 +126,7 @@ void Reverb::process(Uint16* stream, int length) {
         outputSample = std::clamp(outputSample, -1.0f, 1.0f);
 
         // Преобразуем обратно в 16-битный диапазон (0 - 65535)
-        stream[i] = static_cast<Uint16>(std::clamp((outputSample + 1.0f) * 32767.5f, 0.0f, 65535.0f));
+        stream[i] = static_cast<AudioSample>(std::clamp((outputSample + 1.0f) * 32767.5f, 0.0f, 65535.0f));
 
         previousSample = outputSample;  // Обновляем предыдущий сэмпл для следующего вызова low-pass
     }
@@ -170,6 +170,7 @@ ed::PinKind Reverb::getPinKind(ed::PinId pin) const {
         return ed::PinKind::Output;
     }
 }
+
 void Reverb::connect(AudioModule* input, int id) {
     if (id == 1) {
         this->module = input;

@@ -13,11 +13,11 @@ Adder::Adder()  {
     outputPinId = nextPinId++;
 }
 
-void Adder::process(Uint16* stream, int length) {
+void Adder::process(AudioSample* stream, int length) {
     length = std::min(length, 1024); // Максимальная длина
 
-    Uint16 stream1[1024] = {0};
-    Uint16 stream2[1024] = {0};
+    AudioSample stream1[1024] = {0};
+    AudioSample stream2[1024] = {0};
 
     if (module1 != nullptr) {
         module1->process(stream1, length);
@@ -28,13 +28,12 @@ void Adder::process(Uint16* stream, int length) {
 
     for (int i = 0; i < length; i += 2) {  // Шаг на 2 для стерео
         int left = stream1[i] + stream2[i];
-        stream[i] = static_cast<Uint16>(left % 65535); // Ограничиваем в пределах [0, 65535]
+        stream[i] = static_cast<AudioSample>(std::min(left, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
 
         int right = stream1[i + 1] + stream2[i + 1];
-        stream[i + 1] = static_cast<Uint16>(right % 65535); // Ограничиваем в пределах [0, 65535]
+        stream[i + 1] = static_cast<AudioSample>(std::min(right, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
     }
 }
-
 
 void Adder::render() {
     ed::BeginNode(nodeId);
@@ -57,7 +56,6 @@ void Adder::render() {
         ed::EndNode();
 }
 
-
 std::vector<ed::PinId> Adder::getPins() const {
         return { input1PinId, input2PinId, outputPinId };
 }
@@ -72,6 +70,10 @@ ed::PinKind Adder::getPinKind(ed::PinId pin) const {
 
 }
 
+ed::NodeId Adder::getNodeId() {
+    return nodeId;
+}
+
 void Adder::connect(AudioModule* input, int id) {
     if (id == 1) {
         this->module1 = input;
@@ -81,8 +83,13 @@ void Adder::connect(AudioModule* input, int id) {
     return;
 }
 
-ed::NodeId Adder::getNodeId() {
-    return nodeId;
+void Adder::disconnect(AudioModule* module) {
+    if (module1 == module) {
+        module1 = nullptr;
+    } else if (module2 == module) {
+        module2 = nullptr;
+    }
+    return;
 }
 
 int Adder::chooseIn(ed::PinId pin) {
@@ -91,13 +98,13 @@ int Adder::chooseIn(ed::PinId pin) {
     } else if(pin == input2PinId) {
         return 2;
     }
+    return 0;
 }
 
-void Adder::disconnect(AudioModule* module) {
-    if (module1 == module) {
-        module1 = nullptr;
-    } else if (module2 == module) {
-        module2 = nullptr;
-    }
-    return;
+void Adder::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+
+    input1PinId = ed::PinId(data["pins"][0].get<int>());
+    input2PinId = ed::PinId(data["pins"][1].get<int>());
+    outputPinId = ed::PinId(data["pins"][2].get<int>());
 }
