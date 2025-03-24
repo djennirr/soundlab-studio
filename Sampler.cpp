@@ -184,7 +184,8 @@ void Sampler::fromJson(const json& data) {
     AudioModule::fromJson(data);
     
     volume = data["volume"];
-    sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
+    // sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
+    sampleType = DRUMS;
 
     inputPinId = ed::PinId(data["pins"][0].get<int>());
     outputPinId = ed::PinId(data["pins"][1].get<int>());
