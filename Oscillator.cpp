@@ -222,11 +222,9 @@ void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
 void Oscillator::connect(Module* module, ed::PinId pin) {
     if (module->getNodeType() == NodeType::Control) {
         this->inputModule = dynamic_cast<ControlModule*>(module);
-        std::cout << "Control";
-    } else {
-        ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
-        std::cout << "nice";
+        // std::cout << "Control";
     }
+    return;
 }
 void Oscillator::disconnect(Module* module) {
     if (dynamic_cast<ControlModule*>(module) == this->inputModule) {
