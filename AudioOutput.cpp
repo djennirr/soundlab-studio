@@ -28,25 +28,25 @@ AudioOutput::AudioOutput() {
     AudioModule* inputModule = nullptr;
 }
 
-AudioOutput::AudioOutput(int a) {
-    this->nodeId = 1000;
-    inputPin.Id = nextPinId++;
+// AudioOutput::AudioOutput(int a) {
+//     this->nodeId = 1000;
+//     inputPin.Id = nextPinId++;
         
-    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
-        SDL_AudioSpec wavSpec;
-        wavSpec.freq = 44100;
-        wavSpec.format = AUDIO_U8;
-        wavSpec.channels = 2;
-        wavSpec.samples = 512;
-        wavSpec.size = 512;
-        wavSpec.userdata = this;
-        wavSpec.callback = audioCallback;
+//     if (!SDL_WasInit(SDL_INIT_AUDIO)) {
+//         SDL_AudioSpec wavSpec;
+//         wavSpec.freq = 44100;
+//         wavSpec.format = AUDIO_U8;
+//         wavSpec.channels = 2;
+//         wavSpec.samples = 512;
+//         wavSpec.size = 512;
+//         wavSpec.userdata = this;
+//         wavSpec.callback = audioCallback;
 
-        if (SDL_OpenAudio(&wavSpec, nullptr) < 0) {
-            std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
-        }
-    }
-}
+//         if (SDL_OpenAudio(&wavSpec, nullptr) < 0) {
+//             std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
+//         }
+//     }
+// }
 
 void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
     AudioOutput* audioOutput = static_cast<AudioOutput*>(userdata);
@@ -107,13 +107,13 @@ ed::NodeId AudioOutput::getNodeId() {
 }
 
 void AudioOutput::connect(Module* input, ed::PinId pin) {
-    this->inputModule = dynamic_cast<AudioModule*>(input);
+    this->inputModule = static_cast<AudioModule*>(input);
     this->isPlaying = true;
     this->start();
 }
 
 void AudioOutput::disconnect(Module* module) {
-    if (inputModule == dynamic_cast<AudioModule*>(module)) {
+    if (inputModule == static_cast<AudioModule*>(module)) {
         inputModule = nullptr;
         stop();
     }

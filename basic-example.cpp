@@ -379,14 +379,14 @@ struct Example : public Application {
                     ed::PinKind input = inputNode->getPinKind(inputPinId);
                     ed::PinKind output = inputNode->getPinKind(outputPinId);
 
-                    if(input == ed::PinKind::Input) {
-                        ed::PinId tmp = inputPinId;
-                        inputPinId = outputPinId;
-                        outputPinId = tmp;
-                        Module* temp = inputNode;
-                        inputNode = outputNode;
-                        outputNode = temp;
-                    }
+                    // if(input == ed::PinKind::Input) {
+                    //     ed::PinId tmp = inputPinId;
+                    //     inputPinId = outputPinId;
+                    //     outputPinId = tmp;
+                    //     Module* temp = inputNode;
+                    //     inputNode = outputNode;
+                    //     outputNode = temp;
+                    // }
 
                     if (!inputNode || !outputNode) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
