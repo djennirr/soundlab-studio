@@ -9,12 +9,12 @@ Adder::Adder()  {
     module1 = nullptr;
     module2 = nullptr;
     nodeId = nextNodeId++;
-    input1Pin->Id = nextPinId++;
-    input1Pin->pinType = PinType::AudioSignal;
-    input2Pin->Id = nextPinId++;
-    input2Pin->pinType = PinType::AudioSignal;
-    outputPin->Id = nextPinId++;
-    outputPin->pinType = PinType::AudioSignal;
+    input1Pin.Id = nextPinId++;
+    input1Pin.pinType = PinType::AudioSignal;
+    input2Pin.Id = nextPinId++;
+    input2Pin.pinType = PinType::AudioSignal;
+    outputPin.Id = nextPinId++;
+    outputPin.pinType = PinType::AudioSignal;
 }
 
 void Adder::process(AudioSample* stream, int length) {
@@ -43,17 +43,17 @@ void Adder::render() {
     ed::BeginNode(nodeId);
 
         ImGui::Text("Adder");
-        ed::BeginPin(input1Pin->Id, ed::PinKind::Input);
+        ed::BeginPin(input1Pin.Id, ed::PinKind::Input);
             ImGui::Text("-> In");
         ed::EndPin();
 
         ImGui::SameLine();
 
-        ed::BeginPin(outputPin->Id, ed::PinKind::Output);
+        ed::BeginPin(outputPin.Id, ed::PinKind::Output);
             ImGui::Text("Out ->");
         ed::EndPin();
 
-        ed::BeginPin(input2Pin->Id, ed::PinKind::Input);
+        ed::BeginPin(input2Pin.Id, ed::PinKind::Input);
             ImGui::Text("-> In");
         ed::EndPin();
 
@@ -61,12 +61,12 @@ void Adder::render() {
 }
 
 std::vector<ed::PinId> Adder::getPins() const {
-        return { input1Pin->Id, input2Pin->Id, outputPin->Id };
+        return { input1Pin.Id, input2Pin.Id, outputPin.Id };
 }
 
 ed::PinKind Adder::getPinKind(ed::PinId pin) const {
 
-    if (pin == input1Pin->Id || pin == input2Pin->Id) {
+    if (pin == input1Pin.Id || pin == input2Pin.Id) {
         return ed::PinKind::Input;
     } else {
         return ed::PinKind::Output;
@@ -75,12 +75,12 @@ ed::PinKind Adder::getPinKind(ed::PinId pin) const {
 }
 
 PinType Adder::getPinType(ed::PinId pinId) {
-    if (input1Pin->Id == pinId) {
-        return input1Pin->pinType;
-    } else if (input2Pin->Id == pinId) {
-        return input2Pin->pinType;
-    } else if (outputPin->Id == pinId) {
-        return outputPin->pinType;
+    if (input1Pin.Id == pinId) {
+        return input1Pin.pinType;
+    } else if (input2Pin.Id == pinId) {
+        return input2Pin.pinType;
+    } else if (outputPin.Id == pinId) {
+        return outputPin.pinType;
     }
 
 }
@@ -90,9 +90,9 @@ ed::NodeId Adder::getNodeId() {
 }
 
 void Adder::connect(Module* input, ed::PinId pin) {
-    if (pin == input1Pin->Id) {
+    if (pin == input1Pin.Id) {
         this->module1 = dynamic_cast<AudioModule*>(input);
-    } else if(pin == input2Pin->Id) {
+    } else if(pin == input2Pin.Id) {
         this->module2 = dynamic_cast<AudioModule*>(input);
     }
     return;
@@ -111,7 +111,7 @@ void Adder::disconnect(Module* module) {
 void Adder::fromJson(const json& data) {
     AudioModule::fromJson(data);
 
-    input1Pin->Id = ed::PinId(data["pins"][0].get<int>());
-    input2Pin->Id = ed::PinId(data["pins"][1].get<int>());
-    outputPin->Id = ed::PinId(data["pins"][2].get<int>());
+    input1Pin.Id = ed::PinId(data["pins"][0].get<int>());
+    input2Pin.Id = ed::PinId(data["pins"][1].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][2].get<int>());
 }

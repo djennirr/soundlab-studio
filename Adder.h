@@ -8,9 +8,9 @@ class Adder : public AudioModule{
     private:
         AudioModule* module1;
         AudioModule* module2;
-        Pin* input1Pin;
-        Pin* input2Pin;
-        Pin* outputPin;
+        Pin input1Pin;
+        Pin input2Pin;
+        Pin outputPin;
 
     public:
         Adder();
