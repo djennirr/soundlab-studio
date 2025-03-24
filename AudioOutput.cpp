@@ -112,7 +112,7 @@ void AudioOutput::connect(Module* input, ed::PinId pin) {
 }
 
 void AudioOutput::disconnect(Module* module) {
-    if (inputModule == module) {
+    if (inputModule == dynamic_cast<AudioModule*>(module)) {
         inputModule = nullptr;
         stop();
     }
