@@ -1,10 +1,11 @@
 #include "Sampler.h"
 
-Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
-{
-    nodeId = ed::NodeId(nextNodeId++);
-    inputPinId = ed::PinId(nextPinId++);
-    outputPinId = ed::PinId(nextPinId++);
+# define portable_strcpy    strcpy
+
+Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true) {
+    nodeId = nextNodeId++;
+    inputPinId = nextPinId++;
+    outputPinId = nextPinId++;
 
     loadWAV(DRUMS_sample);
     isChanged = false;
@@ -178,3 +179,13 @@ ed::NodeId Sampler::getNodeId() { return nodeId; }
 void Sampler::connect(AudioModule *module, int id) { return; }
 void Sampler::disconnect(AudioModule *module) { return; }
 int Sampler::chooseIn(ed::PinId id) { return 1; }
+
+void Sampler::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    
+    volume = data["volume"];
+    sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
+
+    inputPinId = ed::PinId(data["pins"][0].get<int>());
+    outputPinId = ed::PinId(data["pins"][1].get<int>());
+}

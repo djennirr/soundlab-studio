@@ -26,6 +26,27 @@ class Sampler : public AudioModule
     const std::string ELECTRO_sample = "samples/electro140bpm.wav";
     const std::string COOL_DRUMS_sample = "samples/drum-loop.wav";
 
+public:
+    Sampler(float volume = 1.0f);
+
+    void process(Uint16 *stream, int length) override;
+    void render() override;
+
+    std::vector<ed::PinId> getPins() const override;
+    ed::PinKind getPinKind(ed::PinId pin) const override;
+    ed::NodeId getNodeId() override;
+    NodeType getNodeType() const override
+    {
+        return NodeType::Sampler;
+    }
+
+    void connect(AudioModule *module, int id) override;
+    void disconnect(AudioModule *module) override;
+    int chooseIn(ed::PinId id) override;
+
+    void addButton();
+    void fromJson(const json& data) override;
+
 private:
     std::string popup_text = "DRUMS"; // Было: char popup_text[20]
     float volume;
@@ -39,7 +60,6 @@ private:
 
     SDL_AudioSpec audioSpec;
     SampleType sampleType;
-    ed::NodeId nodeId;
     ed::PinId inputPinId, outputPinId;
 
     const std::vector<SampleType> sampleTypes = {
@@ -61,23 +81,10 @@ private:
         isChanged = true;
     }
 
-public:
-    Sampler(float volume = 1.0f);
-
-    void process(Uint16 *stream, int length) override;
-    void render() override;
-
-    std::vector<ed::PinId> getPins() const override;
-    ed::PinKind getPinKind(ed::PinId pin) const override;
-    ed::NodeId getNodeId() override;
-    NodeType getNodeType() const override
-    {
-        return NodeType::Sampler;
+    json toJson() const override {
+        json data = AudioModule::toJson();
+        data["volume"] = volume;
+        data["sampleType"] = static_cast<int>(sampleType);
+        return data;
     }
-
-    void connect(AudioModule *module, int id) override;
-    void disconnect(AudioModule *module) override;
-    int chooseIn(ed::PinId id) override;
-
-    void addButton();
 };
