@@ -107,13 +107,13 @@ ed::NodeId AudioOutput::getNodeId() {
 }
 
 void AudioOutput::connect(Module* input, ed::PinId pin) {
-    this->inputModule = static_cast<AudioModule*>(input);
+    this->inputModule = (AudioModule*)input;
     this->isPlaying = true;
     this->start();
 }
 
 void AudioOutput::disconnect(Module* module) {
-    if (inputModule == static_cast<AudioModule*>(module)) {
+    if (inputModule == (AudioModule*)module) {
         inputModule = nullptr;
         stop();
     }
