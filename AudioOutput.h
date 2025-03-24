@@ -9,7 +9,7 @@ class AudioOutput : public AudioModule {
 private:
     static void audioCallback(void* userdata, Uint8* stream, int len);
     SDL_AudioSpec wavSpec;
-    AudioModule* inputModule = nullptr;
+    AudioModule* inputModule;
     bool isPlaying = false;
     Pin inputPin;
     Pin outputPin;

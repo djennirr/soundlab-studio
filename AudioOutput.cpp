@@ -25,6 +25,7 @@ AudioOutput::AudioOutput() {
     nodeId = nextNodeId++;
     inputPin.Id = nextPinId++;
     inputPin.pinType =  PinType::AudioSignal;
+    AudioModule* inputModule = nullptr;
 }
 
 AudioOutput::AudioOutput(int a) {
@@ -106,13 +107,13 @@ ed::NodeId AudioOutput::getNodeId() {
 }
 
 void AudioOutput::connect(Module* input, ed::PinId pin) {
-    this->inputModule = static_cast<AudioModule*>(input);
+    this->inputModule = dynamic_cast<AudioModule*>(input);
     this->isPlaying = true;
     this->start();
 }
 
 void AudioOutput::disconnect(Module* module) {
-    if (inputModule == static_cast<AudioModule*>(module)) {
+    if (inputModule == dynamic_cast<AudioModule*>(module)) {
         inputModule = nullptr;
         stop();
     }

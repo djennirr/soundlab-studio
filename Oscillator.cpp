@@ -3,7 +3,6 @@
 #include "ControlModule.h"
 #include "imgui.h"
 #include "imgui_node_editor.h"
-#include <__config>
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <iostream>
