@@ -3,6 +3,7 @@
 #include "ControlModule.h"
 #include "imgui.h"
 #include "imgui_node_editor.h"
+#include <__config>
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -20,11 +21,11 @@ Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), 
     inputPin.pinType = PinType::ControlSignal;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
-    ControlModule* inputModule = NULL;
+    ControlModule* inputModule = nullptr;
 }
 
 void Oscillator::process(AudioSample* stream, int length) {
-    if (inputModule == NULL){
+    if (inputModule == nullptr){
         if (isSignalActive) {
             
             switch (waveType) {
