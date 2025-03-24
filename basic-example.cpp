@@ -14,6 +14,7 @@
 #include "Sampler.h"
 #include <vector>
 #include <algorithm>
+#include "imgui_node_editor_internal.h"
 #include "libs/json/single_include/nlohmann/json.hpp"
 #include <fstream>
 #include <iostream>
@@ -345,6 +346,7 @@ struct Example : public Application {
 
         for (auto& linkInfo : m_Links) {
             ed::Link(linkInfo.Id, linkInfo.InputId, linkInfo.OutputId);
+            // ed::Flow(m_Links.back().Id);
         }
 
          // Handle creation action, returns true if editor want to create new object (node or link)
@@ -435,7 +437,7 @@ struct Example : public Application {
 
                         // Draw new link.
                         ed::Link(m_Links.back().Id, m_Links.back().InputId, m_Links.back().OutputId);
-                        ed::Flow(m_Links.back().Id);
+                        // ed::Flow(m_Links.back().Id);
                     }
                     // You may choose to reject connection between these nodes
                     // by calling ed::RejectNewItem(). This will allow editor to give
@@ -490,6 +492,7 @@ struct Example : public Application {
                             deleteConnection(first, it->InputId, second, it->OutputId);
 
                         // Удалить ссылку
+                        
                         m_Links.erase(it);
                     }
                 }

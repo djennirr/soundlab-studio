@@ -6,5 +6,4 @@
 class ControlModule : public Module {
     public:
         virtual int get() = 0;
-    
 };

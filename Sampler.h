@@ -19,7 +19,6 @@ class Sampler : public AudioModule
     const std::string DRUMS_sample = "samples/sample-12s.wav";
     const std::string CHILD_sample = "samples/sample-15s.wav";
     const std::string ADULT_sample = "samples/adult.wav";
-
     const std::string VIBE_sample = "samples/vibe.wav";
     const std::string SNARE_sample = "samples/snare.wav";
     const std::string KICK_sample = "samples/kick.wav";
@@ -66,7 +65,7 @@ private:
 public:
     Sampler(float volume = 1.0f);
 
-    void process(Uint16 *stream, int length) override;
+    void process(AudioSample *stream, int length) override;
     void render() override;
 
     std::vector<ed::PinId> getPins() const override;

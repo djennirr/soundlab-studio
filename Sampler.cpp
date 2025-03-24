@@ -1,11 +1,14 @@
 #include "Sampler.h"
+#include "Module.h"
 #include "imgui_node_editor.h"
 
 Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
 {
     nodeId = ed::NodeId(nextNodeId++);
     inputPin.Id = ed::PinId(nextPinId++);
+    inputPin.pinType = PinType::ControlSignal;
     outputPin.Id = ed::PinId(nextPinId++);
+    outputPin.pinType = PinType::AudioSignal;
 
     loadWAV(DRUMS_sample);
     isChanged = false;
@@ -57,7 +60,7 @@ void Sampler::loadWAV(const std::string &filename)
     audioSpec = wavSpec;
 }
 
-void Sampler::process(Uint16 *stream, int len)
+void Sampler::process(AudioSample *stream, int len)
 {
     if (isChanged)
     {
@@ -110,7 +113,7 @@ void Sampler::process(Uint16 *stream, int len)
             position = 0;
 
         float scaled = audioData[position] * volume;
-        Uint16 sample = static_cast<Uint16>(scaled);
+        AudioSample sample = static_cast<AudioSample>(scaled);
 
         stream[i] = sample;     // левый канал
         stream[i + 1] = sample; // правый канал

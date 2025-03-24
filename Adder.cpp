@@ -1,5 +1,6 @@
 #include "Adder.h"
 #include "AudioModule.h"
+#include "Module.h"
 #include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 #include <vector>
@@ -13,6 +14,7 @@ Adder::Adder()  {
     input2Pin->Id = nextPinId++;
     input2Pin->pinType = PinType::AudioSignal;
     outputPin->Id = nextPinId++;
+    outputPin->pinType = PinType::AudioSignal;
 }
 
 void Adder::process(AudioSample* stream, int length) {
@@ -55,7 +57,7 @@ void Adder::render() {
             ImGui::Text("-> In");
         ed::EndPin();
 
-        ed::EndNode();
+    ed::EndNode();
 }
 
 std::vector<ed::PinId> Adder::getPins() const {
@@ -80,6 +82,7 @@ PinType Adder::getPinType(ed::PinId pinId) {
     } else if (outputPin->Id == pinId) {
         return outputPin->pinType;
     }
+
 }
 
 ed::NodeId Adder::getNodeId() {
@@ -104,15 +107,6 @@ void Adder::disconnect(Module* module) {
     return;
     
 }
-
-// int Adder::chooseIn(ed::PinId pin) {
-//     if (pin == input1Pin) {
-//         return 1;
-//     } else if(pin == input2Pin) {
-//         return 2;
-//     }
-//     return 0;
-// }
 
 void Adder::fromJson(const json& data) {
     AudioModule::fromJson(data);
