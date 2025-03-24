@@ -125,6 +125,7 @@ int Oscilloscope::chooseIn(ed::PinId id)
         return 1;
 }
 
+
 void Oscilloscope::clearBuffer()
 {
     std::fill(waveformBuffer.begin(), waveformBuffer.end(), 0.0f);

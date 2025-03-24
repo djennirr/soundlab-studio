@@ -10,8 +10,10 @@
 #include "Distortion.h"
 #include "NoiseGenerator.h"
 #include "Reverb.h"
+#include "Sampler.h"
 #include <vector>
 #include <algorithm>
+
 #include "libs/json/single_include/nlohmann/json.hpp"
 #include <fstream>
 #include <iostream>
@@ -21,6 +23,7 @@
 namespace fs = std::filesystem;
 static std::vector<std::string> jsonFiles;
 static int selectedFileIndex = -1;
+
 
 namespace ed = ax::NodeEditor;
 
@@ -514,7 +517,19 @@ struct Example : public Application {
                 node = new NoiseGenerator();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Reverb")) {
+                node = new Reverb();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Sampler")) {
+                //на small_sata работает, а на big_data нет
+            
+                //const std::string& big_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/Soft Piano Music_16000_mono.wav";
+                node = new Sampler();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
+
             ImGui::EndPopup();
         } 
         ImGui::PopStyleVar();

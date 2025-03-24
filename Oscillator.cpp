@@ -5,9 +5,6 @@
 
 # define portable_strcpy    strcpy
 
-const int AMPLITUDE = 32768;
-const int SAMPLE_RATE = 44100;
-
 Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), volume(vol), waveType(type)  {
     nodeId = nextNodeId++;
     inputPinId = nextPinId++;
@@ -64,8 +61,8 @@ void Oscillator::render() {
         
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
-        
         ed::EndNode();
+        
         ed::Suspend();
         std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         if (do_popup) {
@@ -147,6 +144,7 @@ void Oscillator::generateSquareWave(AudioSample* stream, int length) {
     }
 }
 
+
 void Oscillator::generateSawtoothWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
 
@@ -163,7 +161,7 @@ void Oscillator::generateSawtoothWave(AudioSample* stream, int length) {
 
 void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
     
-    const double period = SAMPLE_RATE / frequency;
+    const double period = 44100 / frequency;
 
     for (int i = 0; i < length; i++) {
         if (phase < period / 2) {
