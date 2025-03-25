@@ -521,10 +521,6 @@ struct Example : public Application {
                 node = new NoiseGenerator();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Reverb")) {
-                node = new Reverb();
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Sampler")) {
                 //на small_sata работает, а на big_data нет
             
