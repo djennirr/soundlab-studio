@@ -100,6 +100,9 @@ void Sampler::process(AudioSample *stream, int len)
         case SampleType::COOL_DRUMS:
             loadWAV(COOL_DRUMS_sample);
             break;
+        case SampleType::CARTI:
+            loadWAV(CARTI_sample);
+            break;
         default:
             std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
             break;

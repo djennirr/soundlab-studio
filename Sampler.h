@@ -27,6 +27,8 @@ class Sampler : public AudioModule
     const std::string ELECTRO_sample = "samples/electro140bpm.wav";
     const std::string COOL_DRUMS_sample = "samples/drum-loop.wav";
 
+    const std::string CARTI_sample = "samples/vamp-anthem.wav";
+
 private:
     std::string popup_text = "DRUMS"; // Было: char popup_text[20]
     float volume;
@@ -53,7 +55,8 @@ private:
         KICK,
         KICK2,
         SNARE,
-        VIBE
+        VIBE,
+        CARTI
     };
 
     inline void setSample(const std::string& sampleName, SampleType type) {
