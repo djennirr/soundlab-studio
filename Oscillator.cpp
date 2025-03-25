@@ -20,7 +20,17 @@ Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), 
     inputPin.pinType = PinType::ControlSignal;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
-    ControlModule* inputModule = nullptr;
+}
+
+Oscillator::Oscillator() {
+    frequency = 440;
+    volume = 0.5;
+    waveType = WaveType::SINE;
+    nodeId = nextNodeId++;
+    inputPin.Id = nextPinId++;
+    inputPin.pinType = PinType::ControlSignal;
+    outputPin.Id = nextPinId++;
+    outputPin.pinType = PinType::AudioSignal;
 }
 
 void Oscillator::process(AudioSample* stream, int length) {
@@ -44,7 +54,8 @@ void Oscillator::process(AudioSample* stream, int length) {
         } else {
             memset(stream, 0, length * sizeof(AudioSample));
         }
-    } else {
+    } 
+    else {
         this->frequency = inputModule->get();
         if (isSignalActive) {
             
@@ -220,10 +231,8 @@ void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
 }
 
 void Oscillator::connect(Module* module, ed::PinId pin) {
-    if (module->getNodeType() == NodeType::Control) {
-        this->inputModule = dynamic_cast<ControlModule*>(module);
+    this->inputModule = dynamic_cast<ControlModule*>(module);
         // std::cout << "Control";
-    }
     return;
 }
 void Oscillator::disconnect(Module* module) {

@@ -11,7 +11,7 @@
 
 class Oscillator : public AudioModule {
 private:
-    ControlModule* inputModule;
+    ControlModule* inputModule = nullptr;
     double phase = 0.0;
     float frequency;
     float volume;
@@ -36,7 +36,7 @@ private:
     }
 
 public:
-    Oscillator() {}
+    Oscillator();
     Oscillator(float freq, float vol, WaveType type);
     void process(AudioSample* stream, int length) override;
     void render() override;
