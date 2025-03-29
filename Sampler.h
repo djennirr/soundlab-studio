@@ -30,9 +30,10 @@ class Sampler : public AudioModule
     const std::string CARTI_sample = "samples/vamp-anthem.wav";
 
 private:
-    std::string popup_text = "DRUMS"; // Было: char popup_text[20]
+    std::string popup_text = "DRUMS";
+    std::string USER_sample;
     float volume;
-    bool isChanged; // флаг для отслеживания изменил ли пользователь сэмпл
+    bool isChanged = false; // флаг для отслеживания изменил ли пользователь сэмпл
     void loadWAV(const std::string &filename);
     size_t position = 0;
 
@@ -42,7 +43,8 @@ private:
 
     SDL_AudioSpec audioSpec;
     SampleType sampleType;
-    ed::NodeId nodeId;
+    NodeType type;
+    // ed::NodeId nodeId;
     Pin inputPin, outputPin;
 
     const std::vector<SampleType> sampleTypes = {
@@ -56,17 +58,28 @@ private:
         KICK2,
         SNARE,
         VIBE,
-        CARTI
+        CARTI,
+        USER
     };
 
-    inline void setSample(const std::string& sampleName, SampleType type) {
+    void setSample(const std::string& sampleName, SampleType type) {
         popup_text = sampleName + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
         sampleType = type;
         isChanged = true;
     }
 
+    json toJson() const override {
+        json data = AudioModule::toJson();
+
+        data["volume"] = volume;
+        data["sampleType"] = static_cast<int>(sampleType);
+        return data;
+    }
+
+
+
 public:
-    Sampler(float volume = 1.0f);
+    Sampler();
 
     void process(AudioSample *stream, int length) override;
     void render() override;
@@ -81,6 +94,6 @@ public:
     PinType getPinType(ed::PinId pinId) override;
     void connect(Module *module, ed::PinId pin) override;
     void disconnect(Module *module) override;
-
+    void fromJson(const json& data) override;
     void addButton();
 };

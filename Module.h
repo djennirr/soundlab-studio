@@ -36,7 +36,7 @@ enum class NodeType {
     Distortion,
     NoiseGenerator,
     Control,
-    Sampler
+    Sampler,
 };
 
 enum class PinType {

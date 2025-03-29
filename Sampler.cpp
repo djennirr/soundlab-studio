@@ -2,16 +2,27 @@
 #include "Module.h"
 #include "imgui_node_editor.h"
 
-Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
-{
-    nodeId = ed::NodeId(nextNodeId++);
-    inputPin.Id = ed::PinId(nextPinId++);
-    inputPin.pinType = PinType::ControlSignal;
-    outputPin.Id = ed::PinId(nextPinId++);
-    outputPin.pinType = PinType::AudioSignal;
+// Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
+// {
+//     nodeId = nextNodeId++;
+//     inputPin.Id = nextPinId++;
+//     inputPin.pinType = PinType::ControlSignal;  
+//     outputPin.Id = nextPinId++;
+//     outputPin.pinType = PinType::AudioSignal;
 
+//     loadWAV(DRUMS_sample);
+//     isChanged = false;
+// }
+
+Sampler::Sampler() {
+    volume = 1.0f;
+    sampleType = SampleType::DRUMS;
     loadWAV(DRUMS_sample);
-    isChanged = false;
+    nodeId = nextPinId++;
+    inputPin.Id = nextPinId++;
+    inputPin.pinType = PinType::ControlSignal;
+    outputPin.Id = nextPinId++;
+    outputPin.pinType = PinType::AudioSignal;
 }
 
 void Sampler::loadWAV(const std::string &filename)
@@ -64,7 +75,6 @@ void Sampler::process(AudioSample *stream, int len)
 {
     if (isChanged)
     {
-
         switch (sampleType)
         {
         case SampleType::DRUMS:
@@ -180,7 +190,9 @@ void Sampler::render()
 }
 
 std::vector<ed::PinId> Sampler::getPins() const { return {inputPin.Id, outputPin.Id}; }
-ed::PinKind Sampler::getPinKind(ed::PinId pin) const { return pin == outputPin.Id ? ed::PinKind::Output : ed::PinKind::Input; }
+ed::PinKind Sampler::getPinKind(ed::PinId pin) const {
+    return pin == outputPin.Id ? ed::PinKind::Output : ed::PinKind::Input; 
+    }
 PinType Sampler::getPinType(ed::PinId pinId) {
     if (inputPin.Id == pinId) {
         return inputPin.pinType;
@@ -188,6 +200,62 @@ PinType Sampler::getPinType(ed::PinId pinId) {
         return outputPin.pinType;
     }
 }
+
 ed::NodeId Sampler::getNodeId() { return nodeId; }
 void Sampler::connect(Module *module, ed::PinId pin) { return; }
 void Sampler::disconnect(Module *module) { return; }
+
+void Sampler::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    volume = data["volume"];
+    sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
+
+
+    switch (sampleType)
+        {
+        case SampleType::DRUMS:
+            loadWAV(DRUMS_sample);
+            break;
+        case SampleType::CEREMONIAL:
+            loadWAV(CEREMONIAL_sample);
+            break;
+        case SampleType::CHILD:
+            loadWAV(CHILD_sample);
+            break;
+        case SampleType::ADULT:
+            loadWAV(ADULT_sample);
+            break;
+        case SampleType::VIBE:
+            loadWAV(VIBE_sample);
+            break;
+        case SampleType::SNARE:
+            loadWAV(SNARE_sample);
+            break;
+        case SampleType::KICK:
+            loadWAV(KICK_sample);
+            break;
+        case SampleType::KICK2:
+            loadWAV(KICK2_sample);
+            break;
+        case SampleType::ALIEN:
+            loadWAV(ALIEN_sample);
+            break;
+        case SampleType::ELECTRO:
+            loadWAV(ELECTRO_sample);
+            break;
+        case SampleType::COOL_DRUMS:
+            loadWAV(COOL_DRUMS_sample);
+            break;
+        case SampleType::CARTI:
+            loadWAV(CARTI_sample);
+            break;
+        case SampleType::USER:
+            break;
+        default:
+            std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
+            break;
+        }
+
+        inputPin.Id = ed::PinId(data["pins"][0].get<int>());
+        outputPin.Id = ed::PinId(data["pins"][1].get<int>());
+}

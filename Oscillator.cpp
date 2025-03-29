@@ -36,7 +36,6 @@ Oscillator::Oscillator() {
 void Oscillator::process(AudioSample* stream, int length) {
     if (inputModule == nullptr){
         if (isSignalActive) {
-            
             switch (waveType) {
                 case SINE:
                     generateSineWave(stream, length);

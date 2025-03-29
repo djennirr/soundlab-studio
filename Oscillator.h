@@ -7,8 +7,6 @@
 #include <SDL2/SDL.h>
 
 
-
-
 class Oscillator : public AudioModule {
 private:
     ControlModule* inputModule = nullptr;

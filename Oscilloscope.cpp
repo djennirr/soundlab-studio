@@ -93,16 +93,13 @@ std::vector<ed::PinId> Oscilloscope::getPins() const
 
 ed::PinKind Oscilloscope::getPinKind(ed::PinId pin) const
 {
-    if (inputPin.Id == pin)
-    {
-        return ed::PinKind::Input;
-    }
-    else
-    {
-        return ed::PinKind::Output;
-    }
+    // if (inputPin.Id == pin){
+    //     return ed::PinKind::Input;
+    // } else{
+    //     return ed::PinKind::Output;
+    // }
+    return pin == outputPin.Id ? ed::PinKind::Output : ed::PinKind::Input;
 }
-
 PinType Oscilloscope::getPinType(ed::PinId pinId) {
     if (inputPin.Id == pinId) {
         return inputPin.pinType;

@@ -26,6 +26,7 @@ public:
     
 private:
     AudioModule* inputModule;
+    NodeType type;
     Pin inputPin;
     Pin outputPin;
     std::vector<float> waveformBuffer;
