@@ -323,7 +323,7 @@ while (ed::QueryDeletedNode(&nodeId)) {
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("LFO")) {
-                node = new LFO(10.0);
+                node = new LFO(1.0);
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

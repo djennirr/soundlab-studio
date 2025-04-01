@@ -18,10 +18,10 @@ Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), 
 }
 
 void Oscillator::process(Uint8* stream, int length) {
-    Uint8 streamFreq[1024] = {0};
-    Uint8 streamVol[1024] = {0};
+    Uint8 streamFreq[10240] = {0};
+    Uint8 streamVol[10240] = {0};
 
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < 10240; i++) {
         streamFreq[i] = 255;
         streamVol[i] = 255;
     }

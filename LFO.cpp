@@ -30,7 +30,7 @@ void LFO::render() {
         ImGui::AlignTextToFramePadding();
         
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->frequency, 7.0F, 0.0F, 1000.0F);
+        ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->frequency, 0.5F, 1.0F, 20.0F);
         
         ed::EndNode();
     }

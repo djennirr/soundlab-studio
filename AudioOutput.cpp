@@ -10,8 +10,8 @@ AudioOutput::AudioOutput() {
     wavSpec.freq = 44100;
     wavSpec.format = AUDIO_U8;
     wavSpec.channels = 2;
-    wavSpec.samples = 512; // ?
-    wavSpec.size = 512;   // ?
+    wavSpec.samples = 10240; // ?
+    wavSpec.size = 10240;   // ?
     wavSpec.callback = audioCallback;
     wavSpec.userdata = this;
     nodeId = nextNodeId++;
