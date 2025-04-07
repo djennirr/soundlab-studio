@@ -126,6 +126,10 @@ struct Example : public Application {
                 Oscilloscope* oscilloscope = new Oscilloscope();
                 oscilloscope->fromJson(moduleJson);
                 module = oscilloscope;
+            } else if (type == NodeType::ADSR) {
+                ADSR* adsr = new ADSR();
+                adsr->fromJson(moduleJson);
+                module = adsr;
             }
     
             if (!module) continue;

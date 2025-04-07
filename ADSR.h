@@ -31,6 +31,15 @@ private:
 
     void updateEnvelope();
 
+    json toJson() const override {
+        json data = Module::toJson();
+        data["attack"] = attack;
+        data["decay"] = decay;
+        data["sustain"] = sustain;
+        data["release"] = release;
+        return data;
+    }
+
 public:
     ADSR();
     void process(AudioSample* stream, int length) override;
@@ -44,4 +53,5 @@ public:
     ed::NodeId getNodeId() override;
     void connect(Module* input, ed::PinId pin) override;
     void disconnect(Module* module) override;
+    void fromJson(const json& data) override;
 };

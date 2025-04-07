@@ -110,3 +110,15 @@ void ADSR::disconnect(Module* module) {
     }
     return;
 }
+
+void ADSR::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    attack = data["attack"].get<float>();
+    decay = data["decay"].get<float>();
+    sustain = data["sustain"].get<float>();
+    release = data["release"].get<float>();
+    currentValue = 1.0f;
+    state = State::IDLE;
+    time = 0.0f;
+    gate = false;
+}
