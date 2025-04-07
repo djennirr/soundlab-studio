@@ -36,7 +36,9 @@ enum class NodeType {
     Distortion,
     NoiseGenerator,
     Control,
-    Sampler
+    Sampler,
+    ADSR,
+    ControlADSR
 };
 
 enum class PinType {

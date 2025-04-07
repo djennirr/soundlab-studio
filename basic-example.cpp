@@ -12,6 +12,8 @@
 #include "NoiseGenerator.h"
 #include "Reverb.h"
 #include "Sampler.h"
+#include "ADSR.h"
+#include "ControlADSR.h"
 #include <vector>
 #include <algorithm>
 #include "imgui_node_editor_internal.h"
@@ -549,6 +551,14 @@ struct Example : public Application {
             
                 //const std::string& big_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/Soft Piano Music_16000_mono.wav";
                 node = new Sampler();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("ADSR")) {
+                node = new ADSR();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("ControlADSR")) {
+                node = new ControlADSR();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
