@@ -24,6 +24,8 @@ private:
     float decay;
     float sustain;
     float release;
+    float startLevel;
+    float peak;
     float currentValue;
     State state;
     float time;

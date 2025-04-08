@@ -1,7 +1,6 @@
 #include "ADSR.h"
 #include "imgui.h"
 #include <algorithm>
-#include "Oscillator.h"
 
 ADSR::ADSR() {
     nodeId = nextNodeId++;
@@ -16,7 +15,9 @@ ADSR::ADSR() {
     decay = 0.5f;
     sustain = 0.5f;
     release = 0.5f;
-    currentValue = 1.0f;
+    startLevel = 1.0f;
+    peak = 3.0f;
+    currentValue = startLevel;
     state = State::IDLE;
     time = 0.0f;
     gate = false;
@@ -30,10 +31,10 @@ void ADSR::process(AudioSample* stream, int length) {
     }
 
     for (int i = 0; i < length; ++i) {
-        float sample = (static_cast<float>(stream[i]) - AMPLITUDE) / AMPLITUDE;
-        sample *= currentValue;        
+        float sample = (static_cast<float>(stream[i]) - 32768.0f) / 32768.0f;
+        sample *= currentValue;
         sample = std::tanh(sample);
-        stream[i] = static_cast<AudioSample>((sample * AMPLITUDE) + AMPLITUDE);
+        stream[i] = static_cast<AudioSample>((sample * 32768.0f) + 32768.0f);
     }
 }
 
@@ -41,11 +42,9 @@ void ADSR::updateEnvelope() {
     const float deltaTime = ImGui::GetIO().DeltaTime;
     time += deltaTime;
 
-    const float peak = 5.0f;
-
     switch (state) {
         case State::IDLE:
-            currentValue = 1.0f;
+            currentValue = startLevel; 
             if (gate) {
                 state = State::ATTACK;
                 time = 0.0f;
@@ -54,7 +53,7 @@ void ADSR::updateEnvelope() {
 
         case State::ATTACK:
             if (gate) {
-                currentValue = 1.0f + (peak - 1.0f) * (time / attack);
+                currentValue = startLevel + (peak - startLevel) * (time / attack);
                 if (time >= attack) {
                     currentValue = peak;
                     state = State::DECAY;
@@ -68,9 +67,9 @@ void ADSR::updateEnvelope() {
 
         case State::DECAY:
             if (gate) {
-                currentValue = peak - (peak - (1.0f + sustain)) * (time / decay);
+                currentValue = peak - (peak - sustain) * (time / decay);
                 if (time >= decay) {
-                    currentValue = 1.0f + sustain;
+                    currentValue = sustain;
                     state = State::SUSTAIN;
                 }
             } else {
@@ -80,7 +79,7 @@ void ADSR::updateEnvelope() {
             break;
 
         case State::SUSTAIN:
-            currentValue = 1.0f + sustain; 
+            currentValue = sustain;
             if (!gate) {
                 state = State::RELEASE;
                 time = 0.0f;
@@ -88,9 +87,9 @@ void ADSR::updateEnvelope() {
             break;
 
         case State::RELEASE:
-            currentValue = (1.0f + sustain) - sustain * (time / release);
+            currentValue = sustain - (sustain - startLevel) * (time / release);
             if (time >= release) {
-                currentValue = 1.0f;
+                currentValue = startLevel;
                 state = State::IDLE;
                 time = 0.0f;
             }
@@ -121,9 +120,13 @@ void ADSR::render() {
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("Decay##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &decay, 0.01f, 0.01f, 2.0f, "%.2f s");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Sustain##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &sustain, 0.01f, 0.01f, 2.0f, "%.2f");
+        ImGui::DragFloat(("Sustain##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &sustain, 0.01f, 0.0f, 2.0f, "%.2f");
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("Release##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &release, 0.01f, 0.01f, 2.0f, "%.2f s");
+        ImGui::SetNextItemWidth(150.0f);
+        ImGui::DragFloat(("Start##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &startLevel, 0.01f, 0.0f, 2.0f, "%.2f");
+        ImGui::SetNextItemWidth(150.0f);
+        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.05f, 0.0f, 5.0f, "%.2f");
 
         if (triggerInputModule != nullptr) {
             gate = (triggerInputModule->get() > 0);
