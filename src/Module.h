@@ -4,7 +4,7 @@
 #include <imgui_node_editor.h>
 #include <application.h>
 #include <vector>
-#include "libs/json/single_include/nlohmann/json.hpp"
+#include "../libs/json/single_include/nlohmann/json.hpp"
 
 #define BIT 16
 

@@ -2,16 +2,17 @@
 #include <imgui_node_editor.h>
 #include <application.h>
 #include <cmath>
-#include "Module.h"
-#include "AudioOutput.h"
-#include "Oscillator.h"
-#include "Oscilloscope.h"
-#include "Adder.h"
-#include "WaveType.h"
-#include "Distortion.h"
-#include "NoiseGenerator.h"
-#include "Sampler.h"
-#include "ADSR.h"
+#include "src/Module.h"
+#include "src/AudioOutput.h"
+#include "src/Oscillator.h"
+#include "src/Oscilloscope.h"
+#include "src/Adder.h"
+#include "src/WaveType.h"
+#include "src/Distortion.h"
+#include "src/NoiseGenerator.h"
+#include "src/Sampler.h"
+#include "src/ADSR.h"
+#include "src/Control.h"
 #include <vector>
 #include <algorithm>
 #include "imgui_node_editor_internal.h"
@@ -19,7 +20,6 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
-#include "Control.h"
 
 namespace fs = std::filesystem;
 static std::vector<std::string> jsonFiles;
@@ -100,7 +100,7 @@ struct Example : public Application {
             Module* module = nullptr;
             
             if (type == NodeType::Oscillator) {
-                Oscillator* osc = new Oscillator(); //
+                Oscillator* osc = new Oscillator();
                 osc->fromJson(moduleJson);
                 module = osc;
             } else if (type == NodeType::Adder) {

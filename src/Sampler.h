@@ -26,7 +26,6 @@ class Sampler : public AudioModule
     const std::string ALIEN_sample = "samples/alien.wav";
     const std::string ELECTRO_sample = "samples/electro140bpm.wav";
     const std::string COOL_DRUMS_sample = "samples/drum-loop.wav";
-
     const std::string CARTI_sample = "samples/vamp-anthem.wav";
 
 private:
