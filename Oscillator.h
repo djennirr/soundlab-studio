@@ -6,8 +6,8 @@
 #include "imgui_node_editor.h"
 #include <SDL2/SDL.h>
 
-
-
+const int AMPLITUDE = 32768;
+const int SAMPLE_RATE = 44100;
 
 class Oscillator : public AudioModule {
 private:

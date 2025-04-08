@@ -1,6 +1,7 @@
 #include "ADSR.h"
 #include "imgui.h"
 #include <algorithm>
+#include "Oscillator.h"
 
 ADSR::ADSR() {
     nodeId = nextNodeId++;
@@ -29,12 +30,76 @@ void ADSR::process(AudioSample* stream, int length) {
     }
 
     for (int i = 0; i < length; ++i) {
-        stream[i] = static_cast<AudioSample>(stream[i] * currentValue);
+        float sample = (static_cast<float>(stream[i]) - AMPLITUDE) / AMPLITUDE;
+        sample *= currentValue;        
+        sample = std::tanh(sample);
+        stream[i] = static_cast<AudioSample>((sample * AMPLITUDE) + AMPLITUDE);
     }
 }
 
 void ADSR::updateEnvelope() {
-    //
+    const float deltaTime = ImGui::GetIO().DeltaTime;
+    time += deltaTime;
+
+    const float peak = 5.0f;
+
+    switch (state) {
+        case State::IDLE:
+            currentValue = 1.0f;
+            if (gate) {
+                state = State::ATTACK;
+                time = 0.0f;
+            }
+            break;
+
+        case State::ATTACK:
+            if (gate) {
+                currentValue = 1.0f + (peak - 1.0f) * (time / attack);
+                if (time >= attack) {
+                    currentValue = peak;
+                    state = State::DECAY;
+                    time = 0.0f;
+                }
+            } else {
+                state = State::RELEASE;
+                time = 0.0f;
+            }
+            break;
+
+        case State::DECAY:
+            if (gate) {
+                currentValue = peak - (peak - (1.0f + sustain)) * (time / decay);
+                if (time >= decay) {
+                    currentValue = 1.0f + sustain;
+                    state = State::SUSTAIN;
+                }
+            } else {
+                state = State::RELEASE;
+                time = 0.0f;
+            }
+            break;
+
+        case State::SUSTAIN:
+            currentValue = 1.0f + sustain; 
+            if (!gate) {
+                state = State::RELEASE;
+                time = 0.0f;
+            }
+            break;
+
+        case State::RELEASE:
+            currentValue = (1.0f + sustain) - sustain * (time / release);
+            if (time >= release) {
+                currentValue = 1.0f;
+                state = State::IDLE;
+                time = 0.0f;
+            }
+            if (gate) {
+                state = State::ATTACK;
+                time = 0.0f;
+            }
+            break;
+    }
 }
 
 void ADSR::render() {
@@ -56,7 +121,7 @@ void ADSR::render() {
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("Decay##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &decay, 0.01f, 0.01f, 2.0f, "%.2f s");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Sustain##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &sustain, 0.01f, 0.0f, 1.0f, "%.2f");
+        ImGui::DragFloat(("Sustain##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &sustain, 0.01f, 0.01f, 2.0f, "%.2f");
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("Release##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &release, 0.01f, 0.01f, 2.0f, "%.2f s");
 
