@@ -204,13 +204,16 @@ struct Example : public Application {
         return nullptr;
     }
 
-    void checkOnValid(Module* inputNode, Module* outputNode) {
+    bool checkOnValid(Module* inputNode, Module* outputNode) {
         if (inputNode->getNodeType() == NodeType::ControlADSR && !(outputNode->getNodeType() == NodeType::ADSR)) {
-            ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+
+            return true;
+
         } else if (inputNode->getNodeType() == NodeType::Control && !(outputNode->getNodeType() == NodeType::Oscillator)){
-            ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+            
+            return true;
         }
-        return;
+        return false;
     }
 
     void createConnection(Module* inputId, ed::PinId inputPin, Module* outputID, ed::PinId outputPin) {
@@ -407,9 +410,7 @@ struct Example : public Application {
                         outputNode = temp;
                     }
                     
-                    checkOnValid(inputNode, outputNode);
-
-                    if (!inputNode || !outputNode) {
+                    if (checkOnValid(inputNode, outputNode)) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                     }
 
