@@ -148,11 +148,12 @@ std::vector<ed::PinId> Oscillator::getPins() const {
 }
 
 ed::PinKind Oscillator::getPinKind(ed::PinId pin) const {
-    if (outputPin.Id == pin) {
-        return ed::PinKind::Output;
-    } else if (inputPin.Id == pin) {
-        return ed::PinKind::Input;
-    }
+    // if (outputPin.Id == pin) {
+    //     return ed::PinKind::Output;
+    // } else if (inputPin.Id == pin) {
+    //     return ed::PinKind::Input;
+    // }
+    return pin == outputPin.Id ? ed::PinKind::Output : ed::PinKind::Input;
 }
 
 PinType Oscillator::getPinType(ed::PinId pinId) {
