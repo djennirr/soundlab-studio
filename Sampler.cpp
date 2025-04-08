@@ -184,9 +184,49 @@ void Sampler::fromJson(const json& data) {
     AudioModule::fromJson(data);
     
     volume = data["volume"];
-    // sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
-    sampleType = DRUMS;
+    sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
+    isChanged = true;
 
     inputPinId = ed::PinId(data["pins"][0].get<int>());
     outputPinId = ed::PinId(data["pins"][1].get<int>());
+
+    switch (sampleType) {
+        case SampleType::DRUMS:
+            popup_text = "DRUMS";
+            break;
+        case SampleType::ADULT:
+            popup_text = "ADULT";
+            break;
+        case SampleType::ALIEN:
+            popup_text = "ALIEN";
+            break;
+        case SampleType::CEREMONIAL:
+            popup_text = "CEREMONIAL";
+            break;
+        case SampleType::CHILD:
+            popup_text = "CHILD";
+            break;
+        case SampleType::ELECTRO:
+            popup_text = "ELECTRO";
+            break;
+        case SampleType::KICK:
+            popup_text = "KICK";
+            break;
+        case SampleType::KICK2:
+            popup_text = "KICK2";
+            break;
+        case SampleType::SNARE:
+            popup_text = "SNARE";
+            break;
+        case SampleType::VIBE:
+            popup_text = "VIBE";
+            break;
+        case SampleType::COOL_DRUMS:
+            popup_text = "COOL_DRUMS";
+            break;
+        default:
+            popup_text = "UNKNOWN";
+            std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
+            break;
+    }
 }
