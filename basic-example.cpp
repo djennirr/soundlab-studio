@@ -428,18 +428,18 @@ struct Example : public Application {
                             m_Links.erase(existingLinkOutput);
                         }
 
-                        if (!(inputNode->getNodeType() == NodeType::Control)) {
-                            LinkInfo* existingLinkInput = findLinkByPin(inputPinId);
+                        // if (!(inputNode->getNodeType() == NodeType::Control)) {
+                        //     LinkInfo* existingLinkInput = findLinkByPin(inputPinId);
                             
-                            if (existingLinkInput) {
-                                Module* inputNode = findNodeByPin(existingLinkInput->InputId);
-                                Module* outputNode = findNodeByPin(existingLinkInput->OutputId);
-                                if (inputNode && outputNode) {
-                                    deleteConnection(inputNode, existingLinkInput->InputId, outputNode, existingLinkInput->OutputId);
-                                }
-                                m_Links.erase(existingLinkInput);
-                            }
-                        }
+                        //     if (existingLinkInput) {
+                        //         Module* inputNode = findNodeByPin(existingLinkInput->InputId);
+                        //         Module* outputNode = findNodeByPin(existingLinkInput->OutputId);
+                        //         if (inputNode && outputNode) {
+                        //             deleteConnection(inputNode, existingLinkInput->InputId, outputNode, existingLinkInput->OutputId);
+                        //         }
+                        //         m_Links.erase(existingLinkInput);
+                        //     }
+                        // }
 
                         createConnection(inputNode, inputPinId, outputNode, outputPinId);
                         

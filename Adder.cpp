@@ -124,9 +124,9 @@ void Adder::disconnect(Module* module, ed::PinId pin) {
     // }
     // return;
 
-    if (pin == input1Pin.Id) {
+    if (module1 == dynamic_cast<AudioModule*>(module) && pin == input1Pin.Id) {
         this->module1 = nullptr;
-    } else if(pin == input2Pin.Id) {
+    } else if(module2 == dynamic_cast<AudioModule*>(module) && pin == input2Pin.Id) {
         this->module2 = nullptr;
     }
     return;
