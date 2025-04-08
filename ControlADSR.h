@@ -3,6 +3,9 @@
 #include "ControlModule.h"
 #include "imgui_node_editor.h"
 
+
+
+// оно нам не надо
 class ControlADSR : public ControlModule {
 private:
     Pin outputPin;

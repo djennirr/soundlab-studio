@@ -33,7 +33,6 @@ add_executable(basic-interaction-example
     ${CMAKE_SOURCE_DIR}/Sampler.cpp
     ${CMAKE_SOURCE_DIR}/Control.cpp
     ${CMAKE_SOURCE_DIR}/ADSR.cpp
-    ${CMAKE_SOURCE_DIR}/ControlADSR.cpp
 )
 
 target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)

@@ -1,6 +1,9 @@
 #include "ControlADSR.h"
 #include "imgui.h"
 
+
+
+// оно нам не надо
 ControlADSR::ControlADSR() {
     nodeId = nextNodeId++;
     outputPin.Id = nextPinId++;

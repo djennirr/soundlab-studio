@@ -129,7 +129,7 @@ void ADSR::render() {
         ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.05f, 0.0f, 5.0f, "%.2f");
 
         if (triggerInputModule != nullptr) {
-            gate = (triggerInputModule->get() > 0);
+            gate = triggerInputModule->active();
         }
         updateEnvelope();
     ed::EndNode();

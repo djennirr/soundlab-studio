@@ -204,18 +204,6 @@ struct Example : public Application {
         return nullptr;
     }
 
-    bool checkOnValid(Module* inputNode, Module* outputNode) {
-        if (inputNode->getNodeType() == NodeType::ControlADSR && !(outputNode->getNodeType() == NodeType::ADSR)) {
-
-            return true;
-
-        } else if (inputNode->getNodeType() == NodeType::Control && !(outputNode->getNodeType() == NodeType::Oscillator)){
-            
-            return true;
-        }
-        return false;
-    }
-
     void createConnection(Module* inputId, ed::PinId inputPin, Module* outputID, ed::PinId outputPin) {
 
         outputID->connect(inputId, outputPin);
@@ -410,12 +398,9 @@ struct Example : public Application {
                         outputNode = temp;
                     }
                     
-                    if (checkOnValid(inputNode, outputNode)) {
-                        ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
-                    }
 
                     // Проверяем тип пинов.
-                    else if (inputNode->getPinKind(inputPinId) == outputNode->getPinKind(outputPinId)) {
+                    if (inputNode->getPinKind(inputPinId) == outputNode->getPinKind(outputPinId)) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                     }
 
@@ -441,16 +426,16 @@ struct Example : public Application {
                             m_Links.erase(existingLinkOutput);
                         }
 
-                        LinkInfo* existingLinkInput = findLinkByPin(inputPinId);
+                        // LinkInfo* existingLinkInput = findLinkByPin(inputPinId);
                         
-                        if (existingLinkInput) {
-                            Module* inputNode = findNodeByPin(existingLinkInput->InputId);
-                            Module* outputNode = findNodeByPin(existingLinkInput->OutputId);
-                            if (inputNode && outputNode) {
-                                deleteConnection(inputNode, existingLinkInput->InputId, outputNode, existingLinkInput->OutputId);
-                            }
-                            m_Links.erase(existingLinkInput);
-                        }
+                        // if (existingLinkInput) {
+                        //     Module* inputNode = findNodeByPin(existingLinkInput->InputId);
+                        //     Module* outputNode = findNodeByPin(existingLinkInput->OutputId);
+                        //     if (inputNode && outputNode) {
+                        //         deleteConnection(inputNode, existingLinkInput->InputId, outputNode, existingLinkInput->OutputId);
+                        //     }
+                        //     m_Links.erase(existingLinkInput);
+                        // }
 
                         createConnection(inputNode, inputPinId, outputNode, outputPinId);
                         
@@ -575,10 +560,6 @@ struct Example : public Application {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("ADSR")) {
                 node = new ADSR();
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("ControlADSR")) {
-                node = new ControlADSR();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
