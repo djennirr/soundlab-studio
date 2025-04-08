@@ -185,8 +185,12 @@ void ADSR::fromJson(const json& data) {
     decay = data["decay"].get<float>();
     sustain = data["sustain"].get<float>();
     release = data["release"].get<float>();
+    peak = data["peak"].get<float>();
     currentValue = 1.0f;
     state = State::IDLE;
     time = 0.0f;
     gate = false;
+    audioInputPin.Id = ed::PinId(data["pins"][0].get<int>());
+    triggerInputPin.Id = ed::PinId(data["pins"][1].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][2].get<int>());
 }

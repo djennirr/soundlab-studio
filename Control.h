@@ -23,5 +23,6 @@ public:
     virtual void disconnect(Module* module, ed::PinId pin) override;
     int get() override;
     bool active() override;
+    void fromJson(const json& data) override;
     // int chooseIn(ed::PinId pin) override;
 };

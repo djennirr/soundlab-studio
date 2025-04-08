@@ -12,7 +12,6 @@
 #include "NoiseGenerator.h"
 #include "Sampler.h"
 #include "ADSR.h"
-#include "ControlADSR.h"
 #include <vector>
 #include <algorithm>
 #include "imgui_node_editor_internal.h"
@@ -45,7 +44,7 @@ struct Example : public Application {
     
         json modulesJson;
         for (auto* module : modules) {
-            modulesJson.push_back(module->toJson()); // core dumped
+            modulesJson.push_back(module->toJson());
         }
         project["modules"] = modulesJson;
     
@@ -57,7 +56,6 @@ struct Example : public Application {
             linksJson.push_back(linkJson);
         }
         project["links"] = linksJson;
-        // мб добавить фичу, что при загрузке проекта линк к AudioOutput не появляется (чтобы звука сразу не было)
     
         std::ofstream file(filename);
         if (file.is_open()) {
@@ -129,6 +127,10 @@ struct Example : public Application {
                 ADSR* adsr = new ADSR();
                 adsr->fromJson(moduleJson);
                 module = adsr;
+            } else if (type == NodeType::Control) {
+                Control* control = new Control();
+                control->fromJson(moduleJson);
+                module = control;
             }
     
             if (!module) continue;

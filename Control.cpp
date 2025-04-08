@@ -34,36 +34,36 @@ void Control::render() {
         
     */
     if (ed::IsNodeSelected(nodeId)) {
-            auto& io = ImGui::GetIO();
-            
-            std::map<ImGuiKey, int> key_frequency = {
-                {ImGuiKey_Q, 261},
-                {ImGuiKey_W, 277},
-                {ImGuiKey_E, 293},
-                {ImGuiKey_R, 311},
-                {ImGuiKey_T, 329},
-                {ImGuiKey_Y, 349},
-                {ImGuiKey_U, 370},
-                {ImGuiKey_I, 392},
-                {ImGuiKey_O, 415},
-                {ImGuiKey_P, 440},
-                {ImGuiKey_F1, 466},
-                {ImGuiKey_F3, 493}
-            };
+        auto& io = ImGui::GetIO();
+        
+        std::map<ImGuiKey, int> key_frequency = {
+            {ImGuiKey_Q, 261},
+            {ImGuiKey_W, 277},
+            {ImGuiKey_E, 293},
+            {ImGuiKey_R, 311},
+            {ImGuiKey_T, 329},
+            {ImGuiKey_Y, 349},
+            {ImGuiKey_U, 370},
+            {ImGuiKey_I, 392},
+            {ImGuiKey_O, 415},
+            {ImGuiKey_P, 440},
+            {ImGuiKey_F1, 466},
+            {ImGuiKey_F3, 493}
+        };
 
 
-            bool anyKeyDown = false;
+        bool anyKeyDown = false;
 
-            for (const auto& [key, frequency] : key_frequency) {
-                ImGuiKey fixedKey = static_cast<ImGuiKey>(key - 3);
+        for (const auto& [key, frequency] : key_frequency) {
+            ImGuiKey fixedKey = static_cast<ImGuiKey>(key - 3);
 
-                if (ImGui::IsKeyDown(fixedKey)) {
-                    this->frequency = frequency;
-                    anyKeyDown = true;
-                    break;
-                }
+            if (ImGui::IsKeyDown(fixedKey)) {
+                this->frequency = frequency;
+                anyKeyDown = true;
+                break;
             }
-            this->isActive = anyKeyDown;
+        }
+        this->isActive = anyKeyDown;
     }
 }
 
@@ -91,4 +91,9 @@ void Control::connect(Module* input, ed::PinId pin) {
 
 void Control::disconnect(Module* module, ed::PinId pin) {
     return;
+}
+
+void Control::fromJson(const json& data) {
+    ControlModule::fromJson(data);
+    outputPin.Id = ed::PinId(data["pins"][0].get<int>());
 }

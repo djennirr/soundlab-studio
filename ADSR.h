@@ -39,6 +39,7 @@ private:
         data["decay"] = decay;
         data["sustain"] = sustain;
         data["release"] = release;
+        data["peak"] = peak;
         return data;
     }
 
