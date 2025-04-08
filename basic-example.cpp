@@ -204,20 +204,33 @@ struct Example : public Application {
         return nullptr;
     }
 
-    void createConnection(Module* inputId, ed::PinId inputPin, Module* outputID, ed::PinId outputPin) {
-        if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
-            outputID->connect(inputId, outputPin);
-        } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
-            inputId->connect(outputID, inputPin);
+    void checkOnValid(Module* inputNode, Module* outputNode) {
+        if (inputNode->getNodeType() == NodeType::ControlADSR && !(outputNode->getNodeType() == NodeType::ADSR)) {
+            ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+        } else if (inputNode->getNodeType() == NodeType::Control && !(outputNode->getNodeType() == NodeType::Oscillator)){
+            ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
         }
+        return;
+    }
+
+    void createConnection(Module* inputId, ed::PinId inputPin, Module* outputID, ed::PinId outputPin) {
+
+        outputID->connect(inputId, outputPin);
+        // if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
+        //     outputID->connect(inputId, outputPin);
+        // } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
+        //     inputId->connect(outputID, inputPin);
+        // }
     }
 
     void deleteConnection(Module* inputId, ed::PinId inputPin, Module* outputID, ed::PinId outputPin) {
-        if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
-            outputID->disconnect(inputId);
-        } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
-            inputId->disconnect(outputID);
-        }
+
+        outputID->disconnect(inputId);
+        // if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
+        //     outputID->disconnect(inputId);
+        // } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
+        //     inputId->disconnect(outputID);
+        // }
     }
 
     void deleteNode(Module* nodeToDelete) {
@@ -385,14 +398,16 @@ struct Example : public Application {
                     ed::PinKind input = inputNode->getPinKind(inputPinId);
                     ed::PinKind output = inputNode->getPinKind(outputPinId);
 
-                    // if(input == ed::PinKind::Input) {
-                    //     ed::PinId tmp = inputPinId;
-                    //     inputPinId = outputPinId;
-                    //     outputPinId = tmp;
-                    //     Module* temp = inputNode;
-                    //     inputNode = outputNode;
-                    //     outputNode = temp;
-                    // }
+                    if(input == ed::PinKind::Input) {
+                        ed::PinId tmp = inputPinId;
+                        inputPinId = outputPinId;
+                        outputPinId = tmp;
+                        Module* temp = inputNode;
+                        inputNode = outputNode;
+                        outputNode = temp;
+                    }
+                    
+                    checkOnValid(inputNode, outputNode);
 
                     if (!inputNode || !outputNode) {
                         ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);

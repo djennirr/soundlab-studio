@@ -16,7 +16,7 @@ public:
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
     NodeType getNodeType() const override {
-        return NodeType::Control;
+        return NodeType::ControlADSR;
     }
     PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
