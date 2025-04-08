@@ -15,6 +15,11 @@ int Control::get() {
     return this->frequency;
 }
 
+
+bool Control::active() {
+    return this->isActive;
+}
+
 void Control::render() {
     ed::BeginNode(nodeId);
         ImGui::Text("Control");
@@ -46,11 +51,19 @@ void Control::render() {
                 {ImGuiKey_F3, 493}
             };
 
+
+            bool anyKeyDown = false;
+
             for (const auto& [key, frequency] : key_frequency) {
-                if (ImGui::IsKeyPressed(key - 3)) {
+                ImGuiKey fixedKey = static_cast<ImGuiKey>(key - 3);
+
+                if (ImGui::IsKeyDown(fixedKey)) {
                     this->frequency = frequency;
+                    anyKeyDown = true;
+                    break;
                 }
             }
+            this->isActive = anyKeyDown;
     }
 }
 

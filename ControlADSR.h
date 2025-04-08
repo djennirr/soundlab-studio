@@ -11,7 +11,8 @@ private:
 
 public:
     ControlADSR();
-    int get() override;   
+    int get() override;
+    bool active() override;
     void render() override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;

@@ -13,6 +13,10 @@ int ControlADSR::get() {
     return gate ? 1 : 0;
 }
 
+bool ControlADSR::active() {
+    return true;
+}
+
 void ControlADSR::render() {
     ed::BeginNode(nodeId);
         ImGui::Text("Control ADSR");

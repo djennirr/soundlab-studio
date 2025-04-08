@@ -54,6 +54,7 @@ void Oscillator::process(AudioSample* stream, int length) {
     } 
     else {
         this->frequency = inputModule->get();
+        this->isSignalActive = inputModule->active();
         if (isSignalActive) {
             
             switch (waveType) {

@@ -4,7 +4,7 @@
 class Control : public ControlModule {
 private:
     int frequency = 220;
-    bool signal = false;
+    bool isActive = false;
     Pin outputPin;
     NodeType type;
 
@@ -22,5 +22,6 @@ public:
     virtual void connect(Module* input, ed::PinId pin) override;
     virtual void disconnect(Module* module) override;
     int get() override;
+    bool active() override;
     // int chooseIn(ed::PinId pin) override;
 };
