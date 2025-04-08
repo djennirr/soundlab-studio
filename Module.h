@@ -62,7 +62,7 @@ public:
     virtual PinType getPinType(ed::PinId pinId) = 0;
     virtual ed::NodeId getNodeId() = 0;
     virtual void connect(Module* input, ed::PinId pin) = 0;
-    virtual void disconnect(Module* module) = 0;
+    virtual void disconnect(Module* module, ed::PinId pin) = 0;
 
     virtual json toJson() const {
         json data;

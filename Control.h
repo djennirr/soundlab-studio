@@ -20,7 +20,7 @@ public:
     PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
     virtual void connect(Module* input, ed::PinId pin) override;
-    virtual void disconnect(Module* module) override;
+    virtual void disconnect(Module* module, ed::PinId pin) override;
     int get() override;
     bool active() override;
     // int chooseIn(ed::PinId pin) override;

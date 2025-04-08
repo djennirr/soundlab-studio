@@ -61,6 +61,6 @@ void ControlADSR::connect(Module* input, ed::PinId pin) {
     return;
 }
 
-void ControlADSR::disconnect(Module* module) {
+void ControlADSR::disconnect(Module* module, ed::PinId pin) {
     return;
 }

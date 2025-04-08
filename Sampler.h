@@ -80,7 +80,7 @@ public:
     }
     PinType getPinType(ed::PinId pinId) override;
     void connect(Module *module, ed::PinId pin) override;
-    void disconnect(Module *module) override;
+    void disconnect(Module *module, ed::PinId pin) override;
 
     void addButton();
 };

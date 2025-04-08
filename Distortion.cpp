@@ -96,7 +96,7 @@ ed::NodeId Distortion::getNodeId() {
     return nodeId;
 }
 
-void Distortion::disconnect(Module* module) {
+void Distortion::disconnect(Module* module, ed::PinId pin) {
     if (dynamic_cast<AudioModule*>(module) == this->module) {
     this->module = nullptr;
     }

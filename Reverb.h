@@ -35,7 +35,7 @@ public:
     PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
     void connect(Module* input, ed::PinId pin) override;
-    void disconnect(Module* module) override;
+    void disconnect(Module* module, ed::PinId pin) override;
     // int chooseIn(ed::PinId pin) override;
     float softClip(float simple);
     float applyPhaseShift(float inputSample, float shiftFactor);

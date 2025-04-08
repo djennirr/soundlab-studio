@@ -45,7 +45,7 @@ public:
     PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
     void connect(Module* module, ed::PinId pin) override;
-    void disconnect(Module* module) override;
+    void disconnect(Module* module, ed::PinId pin) override;
     // int chooseIn(ed::PinId id) override;
     void fromJson(const json& data) override;
 };

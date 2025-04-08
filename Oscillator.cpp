@@ -233,7 +233,7 @@ void Oscillator::connect(Module* module, ed::PinId pin) {
         // std::cout << "Control";
     return;
 }
-void Oscillator::disconnect(Module* module) {
+void Oscillator::disconnect(Module* module, ed::PinId pin) {
     if (dynamic_cast<ControlModule*>(module) == this->inputModule) {
         this->inputModule = nullptr;
     }

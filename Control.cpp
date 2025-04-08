@@ -89,6 +89,6 @@ void Control::connect(Module* input, ed::PinId pin) {
     return;
 }
 
-void Control::disconnect(Module* module) {
+void Control::disconnect(Module* module, ed::PinId pin) {
     return;
 }

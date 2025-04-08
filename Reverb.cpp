@@ -200,7 +200,7 @@ ed::NodeId Reverb::getNodeId() {
 //     }
 // }
 
-void Reverb::disconnect(Module* module) {
+void Reverb::disconnect(Module* module, ed::PinId pin) {
     if (this->module == dynamic_cast<AudioModule*>(module)) {
         this->module = nullptr;
     }

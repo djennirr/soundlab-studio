@@ -112,7 +112,7 @@ void AudioOutput::connect(Module* input, ed::PinId pin) {
     this->start();
 }
 
-void AudioOutput::disconnect(Module* module) {
+void AudioOutput::disconnect(Module* module, ed::PinId pin) {
     if (inputModule == (AudioModule*)module) {
         inputModule = nullptr;
         stop();

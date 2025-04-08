@@ -190,4 +190,4 @@ PinType Sampler::getPinType(ed::PinId pinId) {
 }
 ed::NodeId Sampler::getNodeId() { return nodeId; }
 void Sampler::connect(Module *module, ed::PinId pin) { return; }
-void Sampler::disconnect(Module *module) { return; }
+void Sampler::disconnect(Module *module, ed::PinId pin) { return; }

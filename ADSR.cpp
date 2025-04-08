@@ -170,7 +170,7 @@ void ADSR::connect(Module* module, ed::PinId pin) {
     return;
 }
 
-void ADSR::disconnect(Module* module) {
+void ADSR::disconnect(Module* module, ed::PinId pin) {
     if (dynamic_cast<AudioModule*>(module) == this->audioInputModule) {
         this->audioInputModule = nullptr;
     } else if (dynamic_cast<ControlModule*>(module) == this->triggerInputModule) {

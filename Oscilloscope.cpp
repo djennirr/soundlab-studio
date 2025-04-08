@@ -122,7 +122,7 @@ void Oscilloscope::connect(Module *input, ed::PinId pin)
     return;
 }
 
-void Oscilloscope::disconnect(Module *module)
+void Oscilloscope::disconnect(Module *module, ed::PinId pin)
 {
     if (inputModule == dynamic_cast<AudioModule*>(module))
     {

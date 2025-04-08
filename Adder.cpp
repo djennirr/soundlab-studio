@@ -23,6 +23,24 @@ void Adder::process(AudioSample* stream, int length) {
     AudioSample stream1[1024] = {0};
     AudioSample stream2[1024] = {0};
 
+    if (module1 == module2 && (module1 || module2)) {
+        if (module1 != nullptr) {
+            module1->process(stream1, length);
+        }
+        else if (module2 != nullptr) {
+            module2->process(stream1, length);
+        }
+
+        for (int i = 0; i < length; i += 2) {  // Шаг на 2 для стерео
+        int left = stream1[i] + stream1[i];
+        stream[i] = static_cast<AudioSample>(std::min(left, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
+      
+        int right = stream1[i + 1] + stream2[i + 1];
+        stream[i + 1] = static_cast<AudioSample>(std::min(right, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
+        }
+        return;
+    }
+
     if (module1 != nullptr) {
         module1->process(stream1, length);
     }
@@ -98,11 +116,18 @@ void Adder::connect(Module* input, ed::PinId pin) {
     return;
 }
 
-void Adder::disconnect(Module* module) {
-    if (module1 == dynamic_cast<AudioModule*>(module)) {
-        module1 = nullptr;
-    } else if (module2 == dynamic_cast<AudioModule*>(module)) {
-        module2 = nullptr;
+void Adder::disconnect(Module* module, ed::PinId pin) {
+    // if (module1 == dynamic_cast<AudioModule*>(module)) {
+    //     module1 = nullptr;
+    // } else if (module2 == dynamic_cast<AudioModule*>(module)) {
+    //     module2 = nullptr;
+    // }
+    // return;
+
+    if (pin == input1Pin.Id) {
+        this->module1 = nullptr;
+    } else if(pin == input2Pin.Id) {
+        this->module2 = nullptr;
     }
     return;
     

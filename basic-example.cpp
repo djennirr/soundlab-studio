@@ -10,7 +10,6 @@
 #include "WaveType.h"
 #include "Distortion.h"
 #include "NoiseGenerator.h"
-#include "Reverb.h"
 #include "Sampler.h"
 #include "ADSR.h"
 #include "ControlADSR.h"
@@ -216,7 +215,7 @@ struct Example : public Application {
 
     void deleteConnection(Module* inputId, ed::PinId inputPin, Module* outputID, ed::PinId outputPin) {
 
-        outputID->disconnect(inputId);
+        outputID->disconnect(inputId, outputPin);
         // if(inputId->getPinKind(inputPin) == ed::PinKind::Output) {
         //     outputID->disconnect(inputId);
         // } else if (inputId->getPinKind(inputPin) == ed::PinKind::Input) {
@@ -230,7 +229,10 @@ struct Example : public Application {
         // Убираем ссылки на удаляемую ноду
         for (auto& module : modules) {
             if (module != nodeToDelete) {
-                module->disconnect(nodeToDelete);
+                std::vector<ed::PinId> pins = module->getPins();
+                for (auto& pin : pins) {
+                    module->disconnect(nodeToDelete, pin);   
+                }
             }
         }
 

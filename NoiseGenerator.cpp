@@ -104,7 +104,7 @@ void NoiseGenerator::connect(Module* module, ed::PinId pin) {
     return;
 }
 
-void NoiseGenerator::disconnect(Module* module) {
+void NoiseGenerator::disconnect(Module* module, ed::PinId pin) {
     return;
 }
 
