@@ -15,9 +15,8 @@ ADSR::ADSR() {
     decay = 0.5f;
     sustain = 0.5f;
     release = 0.5f;
-    startLevel = 1.0f;
-    peak = 3.0f;
-    currentValue = startLevel;
+    peak = 1.5f;
+    currentValue = 0.0f;
     state = State::IDLE;
     time = 0.0f;
     gate = false;
@@ -44,7 +43,7 @@ void ADSR::updateEnvelope() {
 
     switch (state) {
         case State::IDLE:
-            currentValue = startLevel; 
+            currentValue = 0.0f; 
             if (gate) {
                 state = State::ATTACK;
                 time = 0.0f;
@@ -53,7 +52,7 @@ void ADSR::updateEnvelope() {
 
         case State::ATTACK:
             if (gate) {
-                currentValue = startLevel + (peak - startLevel) * (time / attack);
+                currentValue = peak * (time / attack);
                 if (time >= attack) {
                     currentValue = peak;
                     state = State::DECAY;
@@ -87,9 +86,9 @@ void ADSR::updateEnvelope() {
             break;
 
         case State::RELEASE:
-            currentValue = sustain - (sustain - startLevel) * (time / release);
+        currentValue = sustain * (1.0f - std::min(1.0f, time / release));
             if (time >= release) {
-                currentValue = startLevel;
+                currentValue = 0.0f;
                 state = State::IDLE;
                 time = 0.0f;
             }
@@ -124,9 +123,7 @@ void ADSR::render() {
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("Release##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &release, 0.01f, 0.01f, 2.0f, "%.2f s");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Start##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &startLevel, 0.01f, 0.0f, 2.0f, "%.2f");
-        ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.05f, 0.0f, 5.0f, "%.2f");
+        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.01f, 0.0f, 2.0f, "%.2f");
 
         if (triggerInputModule != nullptr) {
             gate = triggerInputModule->active();
@@ -186,7 +183,7 @@ void ADSR::fromJson(const json& data) {
     sustain = data["sustain"].get<float>();
     release = data["release"].get<float>();
     peak = data["peak"].get<float>();
-    currentValue = 1.0f;
+    currentValue = 0.0f;
     state = State::IDLE;
     time = 0.0f;
     gate = false;
