@@ -137,11 +137,13 @@ std::vector<ed::PinId> ADSR::getPins() const {
 }
 
 ed::PinKind ADSR::getPinKind(ed::PinId pin) const {
-    if (audioInputPin.Id == pin || pin == triggerInputPin.Id) {
-        return ed::PinKind::Input;
-    } else if (pin == outputPin.Id) {
-        return ed::PinKind::Output;
-    }
+    // if (audioInputPin.Id == pin || pin == triggerInputPin.Id) {
+    //     return ed::PinKind::Input;
+    // } else if (pin == outputPin.Id) {
+    //     return ed::PinKind::Output;
+    // }
+
+    return audioInputPin.Id == pin || pin == triggerInputPin.Id ? ed::PinKind::Input : ed::PinKind::Output;
 }
 
 PinType ADSR::getPinType(ed::PinId pinId) {
