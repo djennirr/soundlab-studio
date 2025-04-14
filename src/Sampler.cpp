@@ -1,6 +1,11 @@
 #include "Sampler.h"
 #include "Module.h"
 #include "imgui_node_editor.h"
+#include <cstdlib>
+#include <string>
+#include <array>
+#include <memory>
+#include <iostream>
 
 Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
 {
@@ -103,6 +108,9 @@ void Sampler::process(AudioSample *stream, int len)
         case SampleType::CARTI:
             loadWAV(CARTI_sample);
             break;
+        case SampleType::USER:
+            loadWAV(CARTI_sample);
+            break;
         default:
             std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
             break;
@@ -125,6 +133,33 @@ void Sampler::process(AudioSample *stream, int len)
     }
 }
 
+std::string Sampler::uploadSample() {
+    #ifdef __APPLE__
+        const char* cmd = "osascript -e 'POSIX path of (choose file)'";
+    #elif __linux__
+        const char* cmd = "zenity --file-selection";
+    #else
+        return ""; // для плохих ос
+    #endif
+
+    std::array <char, 1024> buffer;
+    std::string result;
+
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) return "";
+
+    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+        result += buffer.data();
+    }
+    pclose(pipe);
+
+    if (!result.empty() && result.back() == '\n') {
+        result.pop_back();
+    }
+
+    return result;
+}
+
 void Sampler::render()
 {
     ed::BeginNode(nodeId);
@@ -145,11 +180,31 @@ void Sampler::render()
         do_popup = true;
     }
 
+    ImGui::SameLine(120.0F);
+
+    if (ImGui::Button(("Upload file##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+        std::string filepath = uploadSample();
+        if (!filepath.empty()) {
+        
+            if (filepath.size() > 4 && (filepath.substr(filepath.size() - 4) == ".wav" || 
+                                                filepath.substr(filepath.size() - 4) == ".WAV")) {
+                loadWAV(filepath);
+                sampleType = SampleType::USER;
+                isChanged = false;
+                std::cout << "Загружен пользовательский файл: " << filepath << std::endl;
+            } else {
+                std::cerr << "Неподдерживаемый формат файла" << std::endl;
+            }
+        }
+    }
+
     ImGui::SetNextItemWidth(150);
     ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
+
+
     ed::EndNode();
 
-    ed::Suspend(); // приостанавливает работу редакторов узла
+    ed::Suspend(); 
     std::string buttonLabel = std::string("popup_button") + "####<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
     if (do_popup)
     {

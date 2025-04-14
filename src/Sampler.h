@@ -55,7 +55,8 @@ private:
         KICK2,
         SNARE,
         VIBE,
-        CARTI
+        CARTI,
+        USER
     };
 
     inline void setSample(const std::string& sampleName, SampleType type) {
@@ -82,4 +83,5 @@ public:
     void disconnect(Module *module, ed::PinId pin) override;
 
     void addButton();
+    std::string uploadSample();
 };
