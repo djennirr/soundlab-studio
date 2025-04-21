@@ -20,6 +20,7 @@ ADSR::ADSR() {
     state = State::IDLE;
     time = 0.0f;
     gate = false;
+    releaseStartValue  = 0.0f;
 }
 
 void ADSR::process(AudioSample* stream, int length) {
@@ -28,6 +29,11 @@ void ADSR::process(AudioSample* stream, int length) {
     } else {
         memset(stream, 0, length * sizeof(AudioSample));
     }
+
+    if (triggerInputModule) {
+        gate = triggerInputModule->active();
+    }
+    updateEnvelope();
 
     for (int i = 0; i < length; ++i) {
         float sample = (static_cast<float>(stream[i]) - 32768.0f) / 32768.0f;
@@ -43,7 +49,7 @@ void ADSR::updateEnvelope() {
 
     switch (state) {
         case State::IDLE:
-            currentValue = 0.0f; 
+            currentValue = 0.0f;
             if (gate) {
                 state = State::ATTACK;
                 time = 0.0f;
@@ -59,6 +65,7 @@ void ADSR::updateEnvelope() {
                     time = 0.0f;
                 }
             } else {
+                releaseStartValue = currentValue;
                 state = State::RELEASE;
                 time = 0.0f;
             }
@@ -72,21 +79,23 @@ void ADSR::updateEnvelope() {
                     state = State::SUSTAIN;
                 }
             } else {
+                releaseStartValue = currentValue;
                 state = State::RELEASE;
-                time = 0.0f;
+                time  = 0.0f;
             }
             break;
 
         case State::SUSTAIN:
             currentValue = sustain;
             if (!gate) {
+                releaseStartValue = currentValue;
                 state = State::RELEASE;
                 time = 0.0f;
             }
             break;
 
         case State::RELEASE:
-        currentValue = sustain * (1.0f - std::min(1.0f, time / release));
+            currentValue = releaseStartValue * (1.0f - std::min(1.0f, time / release));
             if (time >= release) {
                 currentValue = 0.0f;
                 state = State::IDLE;
@@ -128,7 +137,6 @@ void ADSR::render() {
         if (triggerInputModule != nullptr) {
             gate = triggerInputModule->active();
         }
-        updateEnvelope();
     ed::EndNode();
 }
 
