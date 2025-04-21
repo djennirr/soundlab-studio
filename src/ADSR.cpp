@@ -37,67 +37,145 @@ void ADSR::process(AudioSample* stream, int length) {
     }
 }
 
+// void ADSR::updateEnvelope() {
+//     const float deltaTime = ImGui::GetIO().DeltaTime;
+//     time += deltaTime;
+
+//     switch (state) {
+//         case State::IDLE:
+//             currentValue = 0.0f; 
+//             if (gate) {
+//                 state = State::ATTACK;
+//                 time = 0.0f;
+//             }
+//             break;
+
+//         case State::ATTACK:
+//             if (gate) {
+//                 currentValue = peak * (time / attack);
+//                 if (time >= attack) {
+//                     currentValue = peak;
+//                     state = State::DECAY;
+//                     time = 0.0f;
+//                 }
+//             } else {
+//                 state = State::RELEASE;
+//                 time = 0.0f;
+//             }
+//             break;
+
+//         case State::DECAY:
+//             if (gate) {
+//                 currentValue = peak - (peak - sustain) * (time / decay);
+//                 if (time >= decay) {
+//                     currentValue = sustain;
+//                     state = State::SUSTAIN;
+//                 }
+//             } else {
+//                 state = State::RELEASE;
+//                 time = 0.0f;
+//             }
+//             break;
+
+//         case State::SUSTAIN:
+//             currentValue = sustain;
+//             if (!gate) {
+//                 state = State::RELEASE;
+//                 time = 0.0f;
+//             }
+//             break;
+
+//         case State::RELEASE:
+//         currentValue = sustain * (1.0f - std::min(1.0f, time / release));
+//             if (time >= release) {
+//                 currentValue = 0.0f;
+//                 state = State::IDLE;
+//                 time = 0.0f;
+//             }
+//             if (gate) {
+//                 state = State::ATTACK;
+//                 time = 0.0f;
+//             }
+//             break;
+//     }
+// }
+
 void ADSR::updateEnvelope() {
     const float deltaTime = ImGui::GetIO().DeltaTime;
     time += deltaTime;
 
+    // Защита от слишком малых значений, чтобы не было резких скачков
+    float minTime = 0.005f; // 5 мс
+    float a = std::max(attack, minTime);
+    float d = std::max(decay, minTime);
+    float r = std::max(release, minTime);
+
+    float targetValue = 0.0f;
+
     switch (state) {
         case State::IDLE:
-            currentValue = 0.0f; 
+            targetValue = 0.0f;
             if (gate) {
                 state = State::ATTACK;
                 time = 0.0f;
             }
             break;
 
-        case State::ATTACK:
-            if (gate) {
-                currentValue = peak * (time / attack);
-                if (time >= attack) {
-                    currentValue = peak;
-                    state = State::DECAY;
-                    time = 0.0f;
-                }
-            } else {
+        case State::ATTACK: {
+            float progress = std::min(time / a, 1.0f);
+            targetValue = peak * (1.0f - std::exp(-5.0f * progress)); // экспоненциальный фейд-ин
+            if (time >= a) {
+                state = State::DECAY;
+                time = 0.0f;
+            }
+            if (!gate) {
                 state = State::RELEASE;
                 time = 0.0f;
             }
             break;
+        }
 
-        case State::DECAY:
-            if (gate) {
-                currentValue = peak - (peak - sustain) * (time / decay);
-                if (time >= decay) {
-                    currentValue = sustain;
-                    state = State::SUSTAIN;
-                }
-            } else {
+        case State::DECAY: {
+            float progress = std::min(time / d, 1.0f);
+            targetValue = sustain + (peak - sustain) * (1.0f - progress); // плавное падение
+            if (time >= d) {
+                state = State::SUSTAIN;
+                time = 0.0f;
+            }
+            if (!gate) {
                 state = State::RELEASE;
                 time = 0.0f;
             }
             break;
+        }
 
         case State::SUSTAIN:
-            currentValue = sustain;
+            targetValue = sustain;
             if (!gate) {
                 state = State::RELEASE;
                 time = 0.0f;
             }
             break;
 
-        case State::RELEASE:
-        currentValue = sustain * (1.0f - std::min(1.0f, time / release));
-            if (time >= release) {
-                currentValue = 0.0f;
+        case State::RELEASE: {
+            float progress = std::min(time / r, 1.0f);
+            targetValue = sustain * (1.0f - progress); // плавное затухание
+            if (time >= r) {
                 state = State::IDLE;
                 time = 0.0f;
+                targetValue = 0.0f;
             }
             if (gate) {
                 state = State::ATTACK;
                 time = 0.0f;
             }
             break;
+        }
     }
+
+    // Плавное приближение к целевому значению — фильтр первого порядка
+    float smoothing = 0.995f; // чем ближе к 1 — тем плавнее
+    currentValue = smoothing * currentValue + (1.0f - smoothing) * targetValue;
 }
 
 void ADSR::render() {
