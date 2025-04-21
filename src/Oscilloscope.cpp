@@ -40,7 +40,9 @@ void Oscilloscope::process(AudioSample *stream, int length)
             // Приведение к диапазону [-1, 1] для 16-битного сигнала (0 - 65535)
             float sample = (static_cast<float>(stream[i]) - AMPLITUDE_F) / AMPLITUDE_F;
             waveformBuffer[bufferIndex] = sample;
+            std::cout << waveformBuffer[bufferIndex] << std::endl; 
             bufferIndex = (bufferIndex + 1) % bufferSize;
+
         }
     }
 }
@@ -60,27 +62,16 @@ void Oscilloscope::render()
     ImGui::Text("Out ->");
     ed::EndPin();
 
-    if (inputModule != nullptr) {
         ImGui::PlotLines("",                    // label
             waveformBuffer.data(), // array_of_values
             bufferSize,            // amount_of_values
             bufferIndex,           // first_index (сдвиг)
             nullptr,               // overlay_text
-            scale,      // min_scale
-            scale,      // max_scale
+            -1,      // min_scale
+            1,      // max_scale
             ImVec2(width, height)); // graph_size
-
-    } else if (inputModule == nullptr) {
+    if (inputModule == nullptr) {
         clearBuffer();
-        ImGui::PlotLines("",                    // label
-            waveformBuffer.data(), // array_of_values
-            bufferSize,            // amount_of_values
-            bufferIndex,           // first_index (сдвиг)
-            nullptr,               // overlay_text
-            scale,      // min_scale
-            scale,      // max_scale
-            ImVec2(width, height)); // graph_size
-
     }
     
     ed::EndNode();
@@ -93,15 +84,6 @@ std::vector<ed::PinId> Oscilloscope::getPins() const
 
 ed::PinKind Oscilloscope::getPinKind(ed::PinId pin) const
 {
-    // if (inputPin.Id == pin)
-    // {
-    //     return ed::PinKind::Input;
-    // }
-    // else
-    // {
-    //     return ed::PinKind::Output;
-    // }
-
     return inputPin.Id == pin ? ed::PinKind::Input : ed::PinKind::Output;
 }
 

@@ -5,6 +5,7 @@
 #include <vector>
 #include <imgui.h>
 #include <SDL2/SDL.h>
+#include <iostream>
 
 class Oscilloscope : public AudioModule {
 public:
@@ -32,10 +33,11 @@ private:
     int bufferSize = 1024; 
     int bufferIndex = 0;
     float amplitude = 32768.0f;
-    float scale = 3.402823466e+38F;
+    float MIN_SCALE = -1;
+    float MAX_SCALE = 1;
     //Для четкого выведения волны
     int updateTimer = 0;  
-    int updateInterval = 8; 
+    int updateInterval = 7; 
     float width = 300.0f;
     float height = 150.0f;
 };
