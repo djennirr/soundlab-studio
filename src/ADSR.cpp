@@ -1,6 +1,7 @@
 #include "ADSR.h"
 #include "imgui.h"
 #include <algorithm>
+#include <iostream>
 
 ADSR::ADSR() {
     nodeId = nextNodeId++;
@@ -21,6 +22,7 @@ ADSR::ADSR() {
     time = 0.0f;
     gate = false;
     releaseStartValue  = 0.0f;
+    attackStartValue  = 0.0f;
 }
 
 void ADSR::process(AudioSample* stream, int length) {
@@ -47,27 +49,35 @@ void ADSR::updateEnvelope() {
     const float deltaTime = ImGui::GetIO().DeltaTime;
     time += deltaTime;
 
+    std::cout << "UpdateEnvelope: state=" << static_cast<int>(state) << ", time=" << time 
+              << ", currentValue=" << currentValue << ", gate=" << gate << std::endl;
+
     switch (state) {
         case State::IDLE:
             currentValue = 0.0f;
             if (gate) {
                 state = State::ATTACK;
                 time = 0.0f;
+                std::cout << "Switch to ATTACK: time=" << time << ", currentValue=" << currentValue << std::endl;
             }
             break;
 
         case State::ATTACK:
             if (gate) {
-                currentValue = peak * (time / attack);
+                currentValue = attackStartValue + (peak - attackStartValue) * (time / attack);
                 if (time >= attack) {
                     currentValue = peak;
                     state = State::DECAY;
                     time = 0.0f;
+                    std::cout << "Switch to DECAY: time=" << time << ", currentValue=" << currentValue << std::endl;
                 }
             } else {
                 releaseStartValue = currentValue;
                 state = State::RELEASE;
                 time = 0.0f;
+                std::cout << "Switch to RELEASE from ATTACK: time=" << time 
+                << ", currentValue=" << currentValue << ", releaseStartValue=" << releaseStartValue << std::endl;
+
             }
             break;
 
@@ -77,11 +87,14 @@ void ADSR::updateEnvelope() {
                 if (time >= decay) {
                     currentValue = sustain;
                     state = State::SUSTAIN;
+                    std::cout << "Switch to SUSTAIN: time=" << time << ", currentValue=" << currentValue << std::endl;
                 }
             } else {
                 releaseStartValue = currentValue;
                 state = State::RELEASE;
                 time  = 0.0f;
+                std::cout << "Switch to RELEASE from DECAY: time=" << time 
+                << ", currentValue=" << currentValue << ", releaseStartValue=" << releaseStartValue << std::endl;
             }
             break;
 
@@ -91,6 +104,8 @@ void ADSR::updateEnvelope() {
                 releaseStartValue = currentValue;
                 state = State::RELEASE;
                 time = 0.0f;
+                std::cout << "Switch to RELEASE from SUSTAIN: time=" << time 
+                << ", currentValue=" << currentValue << ", releaseStartValue=" << releaseStartValue << std::endl;
             }
             break;
 
@@ -100,10 +115,13 @@ void ADSR::updateEnvelope() {
                 currentValue = 0.0f;
                 state = State::IDLE;
                 time = 0.0f;
+                std::cout << "Switch to IDLE: time=" << time << ", currentValue=" << currentValue << std::endl;
             }
             if (gate) {
                 state = State::ATTACK;
+                attackStartValue = currentValue;
                 time = 0.0f;
+                std::cout << "Switch to ATTACK from RELEASE: time=" << time << ", currentValue=" << currentValue << std::endl;
             }
             break;
     }
