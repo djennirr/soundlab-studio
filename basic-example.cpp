@@ -5,6 +5,7 @@
 #include "AudioOutput.h"
 #include "Oscillator.h"
 #include "Oscilloscope.h"
+#include "Spectroscope.h"
 #include "Adder.h"
 #include "WaveType.h"
 #include "Distortion.h"
@@ -538,6 +539,10 @@ void deleteNode(AudioModule* nodeToDelete) {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Oscilloscope")) {
                 node = new Oscilloscope();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Spectroscope")) {
+                node = new Spectroscope();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Noise Generator")) {
