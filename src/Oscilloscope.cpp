@@ -18,7 +18,6 @@ void Oscilloscope::process(AudioSample *stream, int length)
 {
     length = std::min(length, bufferSize);
 
-    AudioSample stream1[1024] = {0}; // 16-битный буфер
 
     if (inputModule != nullptr)
     {
@@ -27,20 +26,23 @@ void Oscilloscope::process(AudioSample *stream, int length)
     else 
     {
         clearBuffer();
-        memset(stream, 0, length * sizeof(AudioSample)); // Очистка 16-битного буфера
+        memset(stream, 0, length * sizeof(AudioSample));
     }
 
     updateTimer++;
     if (updateTimer >= updateInterval)
     {
         updateTimer = 0; // Сбрасываем счетчик
-
+        
+        auto mm = std::minmax_element(stream, stream + length);
+        AudioSample maxValue = *mm.second / 2; 
+        float amplitude = 1.0f - static_cast<float> (maxValue) / AMPLITUDE_F;
+        std::cout << amplitude << std::endl;
         for (int i = 0; i < length; i++)
         {
-            // Приведение к диапазону [-1, 1] для 16-битного сигнала (0 - 65535)
-            float sample = (static_cast<float>(stream[i]) - AMPLITUDE_F) / AMPLITUDE_F;
+            float sample = ((static_cast<float>(stream[i] - AMPLITUDE_F) / AMPLITUDE_F)) + amplitude;
+            
             waveformBuffer[bufferIndex] = sample;
-            std::cout << waveformBuffer[bufferIndex] << std::endl; 
             bufferIndex = (bufferIndex + 1) % bufferSize;
 
         }
@@ -61,19 +63,48 @@ void Oscilloscope::render()
     ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
+ImVec2 plotPos = ImGui::GetCursorScreenPos();
+    ImVec2 plotSize{ width, height };
 
-        ImGui::PlotLines("",                    // label
-            waveformBuffer.data(), // array_of_values
-            bufferSize,            // amount_of_values
-            bufferIndex,           // first_index (сдвиг)
-            nullptr,               // overlay_text
-            -1,      // min_scale
-            1,      // max_scale
-            ImVec2(width, height)); // graph_size
-    if (inputModule == nullptr) {
+    // собственно рисуем график
+    ImGui::PlotLines(
+        "",
+        waveformBuffer.data(),
+        bufferSize,
+        bufferIndex,
+        nullptr,
+        -1.0f,   // y-min
+        +1.0f,   // y-max
+        plotSize
+    );
+
+    if (inputModule == nullptr)
         clearBuffer();
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    ImU32 colLine = IM_COL32(200,200,200,150);
+    ImU32 colText = IM_COL32(220,220,220,200);
+
+        
+    for (int i = 0; i <= amountOfSpans; i++)
+    {
+        float t = float(i) / float(amountOfSpans);
+        float y = plotPos.y + plotSize.y * t;
+
+        float v = ImLerp(1.0f, -1.0f, t);
+
+        drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x,y),colLine);
+
+        char buf[16];
+        snprintf(buf, sizeof(buf), "%.2f", v);
+        ImVec2 textSize = ImGui::CalcTextSize(buf);
+        drawList->AddText(
+            ImVec2(plotPos.x - textSize.x - 8, y - textSize.y * 0.5f),
+            colText,
+            buf
+        );
     }
-    
+
     ed::EndNode();
 }
 

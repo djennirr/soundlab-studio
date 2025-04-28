@@ -1,11 +1,14 @@
 #pragma once
 
 #include "AudioModule.h" 
+#include <algorithm>
 #include "imgui_node_editor.h"
 #include <vector>
 #include <imgui.h>
 #include <SDL2/SDL.h>
 #include <iostream>
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui_internal.h"   //ImLerp
 
 class Oscilloscope : public AudioModule {
 public:
@@ -40,4 +43,5 @@ private:
     int updateInterval = 7; 
     float width = 300.0f;
     float height = 150.0f;
+    int amountOfSpans = 4;         
 };
