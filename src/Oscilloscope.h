@@ -43,5 +43,7 @@ private:
     int updateInterval = 7; 
     float width = 300.0f;
     float height = 150.0f;
+    float indentOut = 300.0f;
+    float indentName = 140.0f;
     int amountOfSpans = 4;         
 };

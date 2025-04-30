@@ -35,35 +35,45 @@ void Oscilloscope::process(AudioSample *stream, int length)
         updateTimer = 0; // Сбрасываем счетчик
         
         auto mm = std::minmax_element(stream, stream + length);
-        AudioSample maxValue = *mm.second / 2; 
+        if (mm.first == mm.second) {
+            for (int i = 0; i < length; i++) {
+                waveformBuffer[bufferIndex] = 0.5f;
+                bufferIndex = (bufferIndex + 1) % bufferSize;
+            }
+        }
+        else {
+            AudioSample maxValue = *mm.second / 2; 
         float amplitude = 1.0f - static_cast<float> (maxValue) / AMPLITUDE_F;
-        std::cout << amplitude << std::endl;
         for (int i = 0; i < length; i++)
         {
             float sample = ((static_cast<float>(stream[i] - AMPLITUDE_F) / AMPLITUDE_F)) + amplitude;
-            
+            std::cout << stream[i] << std::endl;
             waveformBuffer[bufferIndex] = sample;
             bufferIndex = (bufferIndex + 1) % bufferSize;
-
         }
+        }
+        
     }
 }
 
 void Oscilloscope::render()
 {
     ed::BeginNode(nodeId);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 90.f) * 0.5f); // для выводы имени модуля по середине(числа выбраны чисто имперически)
-    ImGui::Text("Oscilloscope");
-
+    
     ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
+    ImGui::SameLine(indentName);
+    //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + indentName); // для выводы имени модуля по середине(числа выбраны чисто имперически)
+    ImGui::Text("Oscilloscope");
 
-    ImGui::SameLine(255.0F);
+    ImGui::SameLine(indentOut);
     ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
-ImVec2 plotPos = ImGui::GetCursorScreenPos();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 40.0f); // для выводы имени модуля по середине(числа выбраны чисто имперически)
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 7.0f); // для выводы имени модуля по середине(числа выбраны чисто имперически)
+    ImVec2 plotPos = ImGui::GetCursorScreenPos();
     ImVec2 plotSize{ width, height };
 
     // собственно рисуем график
@@ -80,10 +90,12 @@ ImVec2 plotPos = ImGui::GetCursorScreenPos();
 
     if (inputModule == nullptr)
         clearBuffer();
-
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + indentName - 30.0f); // для выводы имени модуля по середине(числа выбраны чисто имперически)
+    ImGui::Text("~~SoundLabStudio~~");
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    ImU32 colLine = IM_COL32(200,200,200,150);
-    ImU32 colText = IM_COL32(220,220,220,200);
+    ImU32 colLine = IM_COL32(100, 150, 255, 255);  // Голубовато-синий
+    ImU32 colLineForAxis = IM_COL32(200, 200, 200, 100);  // Голубовато-синий
+    ImU32 colText = IM_COL32(70, 130, 155, 255);  // Ярко-синий
 
         
     for (int i = 0; i <= amountOfSpans; i++)
@@ -93,7 +105,8 @@ ImVec2 plotPos = ImGui::GetCursorScreenPos();
 
         float v = ImLerp(1.0f, -1.0f, t);
 
-        drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x,y),colLine);
+        if (i == 2)  drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x + 300,y),colLineForAxis);
+        else drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x,y),colLine);
 
         char buf[16];
         snprintf(buf, sizeof(buf), "%.2f", v);
