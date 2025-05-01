@@ -35,14 +35,7 @@ void Oscilloscope::process(AudioSample *stream, int length)
         updateTimer = 0; // Сбрасываем счетчик
         
         auto mm = std::minmax_element(stream, stream + length);
-        if (mm.first == mm.second) {
-            for (int i = 0; i < length; i++) {
-                waveformBuffer[bufferIndex] = 0.5f;
-                bufferIndex = (bufferIndex + 1) % bufferSize;
-            }
-        }
-        else {
-            AudioSample maxValue = *mm.second / 2; 
+        AudioSample maxValue = *mm.second / 2; 
         float amplitude = 1.0f - static_cast<float> (maxValue) / AMPLITUDE_F;
         for (int i = 0; i < length; i++)
         {
@@ -51,8 +44,6 @@ void Oscilloscope::process(AudioSample *stream, int length)
             waveformBuffer[bufferIndex] = sample;
             bufferIndex = (bufferIndex + 1) % bufferSize;
         }
-        }
-        
     }
 }
 
@@ -105,7 +96,7 @@ void Oscilloscope::render()
 
         float v = ImLerp(1.0f, -1.0f, t);
 
-        if (i == 2)  drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x + 300,y),colLineForAxis);
+        if (i == 2)  drawList->AddLine(ImVec2(plotPos.x, y),ImVec2(plotPos.x + 295,y),colLineForAxis);
         else drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x,y),colLine);
 
         char buf[16];
