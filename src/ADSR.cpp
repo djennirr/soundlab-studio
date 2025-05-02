@@ -16,13 +16,13 @@ ADSR::ADSR() {
     decay = 0.5f;
     sustain = 0.5f;
     release = 0.5f;
-    peak = 1.5f;
+    peak = 1.0f;
     currentValue = 0.0f;
     state = State::IDLE;
     time = 0.0f;
     gate = false;
     releaseStartValue  = 0.0f;
-    attackStartValue  = 0.0f;
+    lastValue = 0.0f;
 }
 
 void ADSR::process(AudioSample* stream, int length) {
@@ -37,12 +37,17 @@ void ADSR::process(AudioSample* stream, int length) {
     }
     updateEnvelope();
 
+    float step = (currentValue - lastValue) / length;
+    float interpolatedValue = lastValue;
+
     for (int i = 0; i < length; ++i) {
         float sample = (static_cast<float>(stream[i]) - 32768.0f) / 32768.0f;
-        sample *= currentValue;
+        sample *= interpolatedValue;
         sample = std::tanh(sample);
         stream[i] = static_cast<AudioSample>((sample * 32768.0f) + 32768.0f);
+        interpolatedValue += step;
     }
+    lastValue = currentValue;
 }
 
 void ADSR::updateEnvelope() {
@@ -64,7 +69,7 @@ void ADSR::updateEnvelope() {
 
         case State::ATTACK:
             if (gate) {
-                currentValue = attackStartValue + (peak - attackStartValue) * (time / attack);
+                currentValue = peak * (time / attack);
                 if (time >= attack) {
                     currentValue = peak;
                     state = State::DECAY;
@@ -77,7 +82,6 @@ void ADSR::updateEnvelope() {
                 time = 0.0f;
                 std::cout << "Switch to RELEASE from ATTACK: time=" << time 
                 << ", currentValue=" << currentValue << ", releaseStartValue=" << releaseStartValue << std::endl;
-
             }
             break;
 
@@ -119,7 +123,6 @@ void ADSR::updateEnvelope() {
             }
             if (gate) {
                 state = State::ATTACK;
-                attackStartValue = currentValue;
                 time = 0.0f;
                 std::cout << "Switch to ATTACK from RELEASE: time=" << time << ", currentValue=" << currentValue << std::endl;
             }
@@ -150,7 +153,7 @@ void ADSR::render() {
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("Release##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &release, 0.01f, 0.01f, 2.0f, "%.2f s");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.01f, 0.0f, 2.0f, "%.2f");
+        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.01f, 0.0f, 1.0f, "%.2f");
 
         if (triggerInputModule != nullptr) {
             gate = triggerInputModule->active();

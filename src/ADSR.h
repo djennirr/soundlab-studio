@@ -27,10 +27,10 @@ private:
     float peak;
     float currentValue;
     float releaseStartValue;
-    float attackStartValue;
     State state;
     float time;
     bool gate;
+    float lastValue;
 
     void updateEnvelope();
 
