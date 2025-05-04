@@ -46,7 +46,6 @@ void Sequencer::advanceSample() {
     }
 }
 
-
 void Sequencer::render() {
     ed::BeginNode(nodeId);
     ImGui::Text("Sequencer");
@@ -61,19 +60,36 @@ void Sequencer::render() {
     ImGui::Text("Output ->");
     ed::EndPin();
 
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+
     for (int row = 0; row < NUM_ROWS; row++) {
         ImGui::Text("Row %d", row);
         ImGui::SameLine();
 
         for (int step = 0; step < NUM_STEPS; step++) {
             std::string label = std::string(sequence[row][step] ? "X" : "O") + "##" + std::to_string(row) + "_" + std::to_string(step);
+            bool isActive = sequence[row][step];
             bool isCurrentStep = (step == currentStep && active());
+
+            if (isActive) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+            }
             if (isCurrentStep) {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             }
+
             if (ImGui::Button(label.c_str(), ImVec2(20, 20))) {
-                sequence[row][step] = !sequence[row][step];
+                if (!sequence[row][step]) {
+                    for (int r = 0; r < NUM_ROWS; r++) {
+                        sequence[r][step] = (r == row);
+                    }
+                } else {
+                    sequence[row][step] = false;
+                }
             }
+            ImGui::PopStyleColor(isActive ? 1 : 1);
             if (isCurrentStep) {
                 ImGui::PopStyleColor();
             }
@@ -81,6 +97,8 @@ void Sequencer::render() {
         }
         ImGui::NewLine();
     }
+    ImGui::PopStyleVar(); 
+
     ed::EndNode();
 }
 
