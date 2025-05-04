@@ -140,6 +140,10 @@ struct Example : public Application {
                 Control* control = new Control();
                 control->fromJson(moduleJson);
                 module = control;
+            } else if (type == NodeType::Sequencer) {
+                Sequencer* seq = new Sequencer();
+                seq->fromJson(moduleJson);
+                module = seq;
             }
     
             if (!module) continue;

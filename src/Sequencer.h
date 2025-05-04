@@ -17,8 +17,13 @@ private:
     std::vector<int> triggerRemainingSamples;
     std::vector<int> frequencies;
 
-private:
     void advanceSample(); 
+    
+    json toJson() const override {
+        json data = Module::toJson();
+        data["interval"] = interval;
+        return data;
+    }
 
 public:
     Sequencer();
@@ -32,4 +37,5 @@ public:
     void disconnect(Module* module, ed::PinId pin) override;
     int get() override;
     bool active() override;
+    void fromJson(const json& data) override;
 };

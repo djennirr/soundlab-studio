@@ -137,4 +137,8 @@ void Sequencer::disconnect(Module* module, ed::PinId pin) {
     return;
 }
 
-//from json
+void Sequencer::fromJson(const json& data) {
+    ControlModule::fromJson(data);
+    interval = data["interval"].get<int>();
+    outputPin.Id = ed::PinId(data["pins"][0].get<int>());
+}
