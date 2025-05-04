@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(basic-interaction-example)
+project(main)
 
 set(IMGUI_NODE_EDITOR_ROOT_DIR "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor" CACHE PATH "Path to ImGui Node Editor")
 
@@ -20,34 +20,35 @@ find_package(SDL2 REQUIRED)
 add_subdirectory(libs/imgui-node-editor/examples/application)
 add_subdirectory(libs/json)
 
-add_executable(basic-interaction-example 
-    ${CMAKE_SOURCE_DIR}/basic-example.cpp
-    ${CMAKE_SOURCE_DIR}/AudioOutput.cpp  # Добавьте ваш файл
-    ${CMAKE_SOURCE_DIR}/Oscillator.cpp
-    ${CMAKE_SOURCE_DIR}/Oscilloscope.cpp  
-    ${CMAKE_SOURCE_DIR}/AudioModule.cpp
-    ${CMAKE_SOURCE_DIR}/Adder.cpp
-    ${CMAKE_SOURCE_DIR}/Reverb.cpp
-    ${CMAKE_SOURCE_DIR}/Distortion.cpp
-    ${CMAKE_SOURCE_DIR}/NoiseGenerator.cpp
-    ${CMAKE_SOURCE_DIR}/Sampler.cpp
+add_executable(main
+    ${CMAKE_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/AudioOutput.cpp
+    ${CMAKE_SOURCE_DIR}/src/Oscillator.cpp
+    ${CMAKE_SOURCE_DIR}/src/Oscilloscope.cpp  
+    ${CMAKE_SOURCE_DIR}/src/Module.cpp
+    ${CMAKE_SOURCE_DIR}/src/Adder.cpp
+    ${CMAKE_SOURCE_DIR}/src/Reverb.cpp
+    ${CMAKE_SOURCE_DIR}/src/Distortion.cpp
+    ${CMAKE_SOURCE_DIR}/src/NoiseGenerator.cpp
+    ${CMAKE_SOURCE_DIR}/src/Sampler.cpp
+    ${CMAKE_SOURCE_DIR}/src/Control.cpp
+    ${CMAKE_SOURCE_DIR}/src/ADSR.cpp
 )
 
-target_link_libraries(basic-interaction-example PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
+target_link_libraries(main PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
 
-add_custom_command(TARGET basic-interaction-example POST_BUILD
+add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor/examples/data"
-        $<TARGET_FILE_DIR:basic-interaction-example>/data
+        $<TARGET_FILE_DIR:main>/data
 )
 
-# Для воспроизведения семплов
-add_custom_command(TARGET basic-interaction-example POST_BUILD
+add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/samples"
-        $<TARGET_FILE_DIR:basic-interaction-example>/samples
+        $<TARGET_FILE_DIR:main>/../samples
 )
 
-set_target_properties(basic-interaction-example PROPERTIES
+set_target_properties(main PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
