@@ -41,7 +41,6 @@ private:
 
     SDL_AudioSpec audioSpec;
     SampleType sampleType;
-    ed::NodeId nodeId;
     Pin inputPin, outputPin;
 
     const std::vector<SampleType> sampleTypes = {
