@@ -13,6 +13,7 @@
 #include "src/Sampler.h"
 #include "src/ADSR.h"
 #include "src/Control.h"
+#include "src/Sequencer.h"
 #include <vector>
 #include <algorithm>
 #include "imgui_node_editor_internal.h"
@@ -574,6 +575,10 @@ struct Example : public Application {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("ADSR")) {
                 node = new ADSR();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Sequencer")) {
+                node = new Sequencer();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
