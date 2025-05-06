@@ -51,8 +51,7 @@ void Sequencer::render() {
     ImGui::Text("Sequencer");
 
     ImGui::PushItemWidth(100);
-    std::string intervalLabel = "Step Interval (samples)" + std::to_string(nodeId.Get());
-    ImGui::SliderInt(intervalLabel.c_str(), &interval, 1, 100);
+    ImGui::SliderInt(("Interval##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &interval, 1, 100);
     ImGui::PopItemWidth();
 
     ImGui::SameLine(26.6f * NUM_STEPS);
