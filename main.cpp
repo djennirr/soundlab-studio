@@ -2,6 +2,8 @@
 #include <imgui_node_editor.h>
 #include <application.h>
 #include <cmath>
+#include "src/Reverb.h"
+#include "src/Spectroscope.h"
 #include "src/Module.h"
 #include "src/AudioOutput.h"
 #include "src/Oscillator.h"
@@ -583,7 +585,7 @@ struct Example : public Application {
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Filter")) {
-                node = new Filter(0);
+                node = new Filter(20500);
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

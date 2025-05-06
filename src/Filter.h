@@ -15,9 +15,6 @@ class Filter : public AudioModule{
         AudioModule* module1;
         Pin input1Pin;
         Pin outputPin;
-        // float mixFactor1;
-        // float mixFactor2;
-        int maxLength; // Максимальная длина буфера
         float b0 = 0.0f, b1 = 0.0f, b2 = 0.0f, a1 = 0.0f, a2 = 0.0f;
         float x1 = 0.0f, x2 = 0.0f, y1 = 0.0f, y2 = 0.0f; // Состояния фильтра
         float prevCutoff = -1.0f;  // Инициализация значением, которое не может быть у cutoff

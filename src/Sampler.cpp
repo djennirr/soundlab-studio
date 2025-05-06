@@ -106,6 +106,8 @@ void Sampler::process(AudioSample *stream, int len)
             break;
         case SampleType::USER:
             loadWAV(CARTI_sample);
+        case SampleType::TLOU:
+            loadWAV(TLOU_sample);
             break;
         default:
             std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
@@ -114,7 +116,8 @@ void Sampler::process(AudioSample *stream, int len)
         isChanged = false;
     }
 
-    for (int i = 0; i < len; i += 2) // 2 байта на канал (стерео)
+    // std::cout << len << "\n";
+    for (int i = 0; i < len; i += 1) // 2 байта на канал (стерео)
     {
         if (position >= audioData.size())
             position = 0;
@@ -123,7 +126,7 @@ void Sampler::process(AudioSample *stream, int len)
         AudioSample sample = static_cast<AudioSample>(scaled);
 
         stream[i] = sample;     // левый канал
-        stream[i + 1] = sample; // правый канал
+        // stream[i + 1] = sample; // правый канал
 
         position++;
     }

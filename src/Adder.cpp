@@ -18,10 +18,10 @@ Adder::Adder()  {
 }
 
 void Adder::process(AudioSample* stream, int length) {
-    length = std::min(length, 1024); // Максимальная длина
+    length = std::min(length, 512); // Максимальная длина
 
-    AudioSample stream1[1024] = {0};
-    AudioSample stream2[1024] = {0};
+    AudioSample stream1[512] = {0};
+    AudioSample stream2[512] = {0};
 
     if (module1 == module2 && (module1 || module2)) {
         if (module1 != nullptr) {
@@ -31,12 +31,12 @@ void Adder::process(AudioSample* stream, int length) {
             module2->process(stream1, length);
         }
 
-        for (int i = 0; i < length; i += 2) {  // Шаг на 2 для стерео
+        for (int i = 0; i < length; i += 1) {  // Шаг на 2 для стерео
         int left = stream1[i] + stream1[i];
         stream[i] = static_cast<AudioSample>(std::min(left, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
       
-        int right = stream1[i + 1] + stream2[i + 1];
-        stream[i + 1] = static_cast<AudioSample>(std::min(right, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
+        // int right = stream1[i + 1] + stream2[i + 1];
+        // stream[i + 1] = static_cast<AudioSample>(std::min(right, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
         }
         return;
     }
@@ -48,12 +48,12 @@ void Adder::process(AudioSample* stream, int length) {
         module2->process(stream2, length);
     }
 
-    for (int i = 0; i < length; i += 2) {  // Шаг на 2 для стерео
+    for (int i = 0; i < length; i += 1) {  // Шаг на 2 для стерео
         int left = stream1[i] + stream2[i];
         stream[i] = static_cast<AudioSample>(std::min(left, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
       
-        int right = stream1[i + 1] + stream2[i + 1];
-        stream[i + 1] = static_cast<AudioSample>(std::min(right, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
+        // int right = stream1[i + 1] + stream2[i + 1];
+        // stream[i + 1] = static_cast<AudioSample>(std::min(right, (AMPLITUDE_I*2 - 1))); // Ограничиваем в пределах [0, 65535]
     }
 }
 

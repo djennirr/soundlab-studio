@@ -47,7 +47,7 @@ add_custom_command(TARGET main POST_BUILD
 add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/samples"
-        $<TARGET_FILE_DIR:main>/../samples
+        $<TARGET_FILE_DIR:main>/samples
 )
 
 set_target_properties(main PROPERTIES

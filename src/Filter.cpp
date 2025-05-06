@@ -7,7 +7,8 @@
 #include <valarray>
 #include <algorithm> // Для std::clamp
 
-Filter::Filter(float cut, float res) : cutoff(cut), resonance(res), maxLength(512) {
+
+Filter::Filter(float cut, float res) : cutoff(cut), resonance(res) {
     module1 = nullptr;
     nodeId = nextNodeId++;
     input1Pin.Id = nextPinId++;
@@ -61,7 +62,7 @@ void Filter::process(AudioSample* stream, int length) {
     if (cutoff != prevCutoff || resonance != prevResonance) {
         updateCoefficients();
         prevCutoff = cutoff;
-        prevResonance = resonance;
+        // prevResonance = resonance;
     }
 }
 
