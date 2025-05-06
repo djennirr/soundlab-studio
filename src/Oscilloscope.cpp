@@ -18,7 +18,7 @@ void Oscilloscope::process(AudioSample *stream, int length)
 {
     length = std::min(length, bufferSize);
 
-    AudioSample stream1[1024] = {0}; // 16-битный буфер
+    AudioSample stream1[512] = {0}; // 16-битный буфер
 
     if (inputModule != nullptr)
     {

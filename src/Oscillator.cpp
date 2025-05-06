@@ -168,9 +168,9 @@ ed::NodeId Oscillator::getNodeId() {
 }
 
 void Oscillator::generateSineWave(AudioSample* stream, int length) {
-    for (int i = 0; i < length; i += 2) {
+    for (int i = 0; i < length; i += 1) {
         stream[i] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
-        stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
+        // stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
         phase += (frequency * 2.0 * M_PI) / SAMPLE_RATE;
     }
 }
@@ -180,13 +180,13 @@ void Oscillator::generateSquareWave(AudioSample* stream, int length) {
     const AudioSample highValue = (AMPLITUDE_I*2 - 1);
     const AudioSample lowValue = 0;
 
-    for (int i = 0; i < length; i += 2) {
+    for (int i = 0; i < length; i += 1) {
         if (phase < period / 2) {
             stream[i] = static_cast<AudioSample>(highValue * volume);
-            stream[i + 1] = static_cast<AudioSample>(highValue * volume);
+            // stream[i + 1] = static_cast<AudioSample>(highValue * volume);
         } else {
             stream[i] = static_cast<AudioSample>(lowValue * volume);
-            stream[i + 1] = static_cast<AudioSample>(lowValue * volume);
+            // stream[i + 1] = static_cast<AudioSample>(lowValue * volume);
         }
         
         phase += 1.0;
@@ -199,9 +199,9 @@ void Oscillator::generateSquareWave(AudioSample* stream, int length) {
 void Oscillator::generateSawtoothWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
 
-    for (int i = 0; i < length; i += 2) {
+    for (int i = 0; i < length; i += 1) {
         stream[i] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
-        stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
+        // stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
 
         phase += 1.0;
         if (phase >= period) {
@@ -211,15 +211,19 @@ void Oscillator::generateSawtoothWave(AudioSample* stream, int length) {
 }
 
 void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
-    
-    const double period = 44100 / frequency;
+    const double period = SAMPLE_RATE / frequency;
 
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < length; i += 1) {
+        double value;
         if (phase < period / 2) {
-            stream[i] = static_cast<AudioSample>((((AMPLITUDE_I*2 - 1) * phase) / (period / 2)) * volume);
+            value = ((AMPLITUDE_I * 2 - 1) * phase) / (period / 2);
         } else {
-            stream[i] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) - ((AMPLITUDE_I*2 - 1) * (phase - (period / 2)) / (period / 2))) * volume);
+            value = ((AMPLITUDE_I * 2 - 1) - ((AMPLITUDE_I * 2 - 1) * (phase - (period / 2)) / (period / 2)));
         }
+        value *= volume;
+
+        stream[i] = static_cast<AudioSample>(value);     // Левый канал
+        // stream[i + 1] = static_cast<AudioSample>(value); // Правый канал
 
         phase += 1.0;
         if (phase >= period) {

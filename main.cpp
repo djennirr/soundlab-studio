@@ -2,6 +2,8 @@
 #include <imgui_node_editor.h>
 #include <application.h>
 #include <cmath>
+#include "src/Reverb.h"
+#include "src/Spectroscope.h"
 #include "src/Module.h"
 #include "src/AudioOutput.h"
 #include "src/Oscillator.h"
@@ -13,6 +15,7 @@
 #include "src/Sampler.h"
 #include "src/ADSR.h"
 #include "src/Control.h"
+#include "src/Filter.h"
 #include <vector>
 #include <algorithm>
 #include "imgui_node_editor_internal.h"
@@ -574,6 +577,18 @@ struct Example : public Application {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("ADSR")) {
                 node = new ADSR();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Filter")) {
+                node = new Filter(300);
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Spectroscope")) {
+                node = new Spectroscope();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Reverb")) {
+                node = new Reverb();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

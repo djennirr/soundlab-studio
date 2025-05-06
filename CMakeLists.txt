@@ -33,6 +33,9 @@ add_executable(main
     ${CMAKE_SOURCE_DIR}/src/Sampler.cpp
     ${CMAKE_SOURCE_DIR}/src/Control.cpp
     ${CMAKE_SOURCE_DIR}/src/ADSR.cpp
+    ${CMAKE_SOURCE_DIR}/src/Filter.cpp
+    ${CMAKE_SOURCE_DIR}/src/Spectroscope.cpp
+    ${CMAKE_SOURCE_DIR}/src/Reverb.cpp
 )
 
 target_link_libraries(main PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
@@ -46,7 +49,7 @@ add_custom_command(TARGET main POST_BUILD
 add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/samples"
-        $<TARGET_FILE_DIR:main>/../samples
+        $<TARGET_FILE_DIR:main>/samples
 )
 
 set_target_properties(main PROPERTIES
