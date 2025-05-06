@@ -51,10 +51,11 @@ void Sequencer::render() {
     ImGui::Text("Sequencer");
 
     ImGui::PushItemWidth(100);
-    ImGui::SliderInt("Step Interval (samples)", &interval, 1, 100);
+    std::string intervalLabel = "Step Interval (samples)" + std::to_string(nodeId.Get());
+    ImGui::SliderInt(intervalLabel.c_str(), &interval, 1, 100);
     ImGui::PopItemWidth();
 
-    ImGui::SameLine(425.0f);
+    ImGui::SameLine(26.6f * NUM_STEPS);
 
     ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Output ->");
@@ -67,7 +68,10 @@ void Sequencer::render() {
         ImGui::SameLine();
 
         for (int step = 0; step < NUM_STEPS; step++) {
-            std::string label = std::string(sequence[row][step] ? "X" : "O") + "##" + std::to_string(row) + "_" + std::to_string(step);
+            std::string label = std::string(sequence[row][step] ? "X" : "O") + "##" + 
+                               std::to_string(nodeId.Get()) + "_" + 
+                               std::to_string(row) + "_" + 
+                               std::to_string(step);
             bool isActive = sequence[row][step];
             bool isCurrentStep = (step == currentStep && active());
 
@@ -81,12 +85,13 @@ void Sequencer::render() {
             }
 
             if (ImGui::Button(label.c_str(), ImVec2(20, 20))) {
-                if (!sequence[row][step]) {
+                sequence[row][step] = !sequence[row][step];
+                if (sequence[row][step]) {
                     for (int r = 0; r < NUM_ROWS; r++) {
-                        sequence[r][step] = (r == row);
+                        if (r != row) {
+                            sequence[r][step] = false;
+                        }
                     }
-                } else {
-                    sequence[row][step] = false;
                 }
             }
             ImGui::PopStyleColor(isActive ? 1 : 1);
@@ -97,7 +102,7 @@ void Sequencer::render() {
         }
         ImGui::NewLine();
     }
-    ImGui::PopStyleVar(); 
+    ImGui::PopStyleVar();
 
     ed::EndNode();
 }

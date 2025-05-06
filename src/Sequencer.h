@@ -6,7 +6,7 @@
 
 class Sequencer : public ControlModule {
 private:
-    static const int NUM_ROWS = 8;
+    static const int NUM_ROWS = 8; // 12
     static const int NUM_STEPS = 16;
     Pin outputPin;
     std::vector<std::vector<bool>> sequence;
