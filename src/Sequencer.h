@@ -6,8 +6,10 @@
 
 class Sequencer : public ControlModule {
 private:
-    static const int NUM_ROWS = 8; // 12
-    static const int NUM_STEPS = 16;
+    int numRows = 8;
+    int numSteps = 16;
+    const int maxRows = 24;
+    const int maxSteps = 24;
     Pin outputPin;
     std::vector<std::vector<bool>> sequence;
     int currentStep = 0;
@@ -16,11 +18,16 @@ private:
     int triggerDuration = 441;
     std::vector<int> triggerRemainingSamples;
     std::vector<int> frequencies;
+    std::vector<std::string> noteNames;
 
-    void advanceSample(); 
+    void advanceSample();
+    void resizeSequence();
+    void generateFrequencies();
     
     json toJson() const override {
         json data = Module::toJson();
+        data["numRows"] = numRows;
+        data["numSteps"] = numSteps;
         data["interval"] = interval;
         return data;
     }

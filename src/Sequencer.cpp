@@ -10,14 +10,13 @@ Sequencer::Sequencer() {
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::ControlSignal;
 
-    sequence = std::vector<std::vector<bool>>(NUM_ROWS, std::vector<bool>(NUM_STEPS, false));
-    triggerRemainingSamples = std::vector<int>(NUM_ROWS, 0);
-    frequencies = {261, 293, 329, 349, 392, 440, 493, 523};
+    resizeSequence();
+    generateFrequencies();
 }
 
 int Sequencer::get() {
     advanceSample();
-    for (int row = 0; row < NUM_ROWS; row++) {
+    for (int row = 0; row < numRows; row++) {
         if (triggerRemainingSamples[row] > 0) {
             return frequencies[row];
         }
@@ -25,12 +24,47 @@ int Sequencer::get() {
     return 0;
 }
 
+void Sequencer::resizeSequence() {
+    std::vector<std::vector<bool>> oldSequence = sequence;
+    int oldRows = sequence.size();
+    int oldSteps = oldRows > 0 ? sequence[0].size() : 0;
+
+    sequence.resize(numRows);
+    for (auto& row : sequence) {
+        row.resize(numSteps, false);
+    }
+    triggerRemainingSamples.resize(numRows, 0);
+
+    for (int row = 0; row < std::min(oldRows, numRows); row++) {
+        for (int step = 0; step < std::min(oldSteps, numSteps); step++) {
+            sequence[row][step] = oldSequence[row][step];
+        }
+    }
+}
+
+void Sequencer::generateFrequencies() {
+    frequencies.clear();
+    noteNames.clear();
+
+    std::string notes[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    int startMidiNote = 48;
+    for (int i = 0; i < numRows; i++) {
+        int midiNote = startMidiNote + i;
+        float freq = 440.0f * pow(2.0f, (midiNote - 69) / 12.0f);
+        frequencies.push_back(static_cast<int>(freq));
+
+        int octave = (midiNote / 12) - 1;
+        std::string note = notes[midiNote % 12] + std::to_string(octave);
+        noteNames.push_back(note);
+    }
+}
+
 void Sequencer::advanceSample() {
     sampleCount++;
     if (interval < 1) interval = 10;
     if (sampleCount % interval == 0) {
-        currentStep = (currentStep + 1) % NUM_STEPS;
-        for (int row = 0; row < NUM_ROWS; row++) {
+        currentStep = (currentStep + 1) % numSteps;
+        for (int row = 0; row < numRows; row++) {
             if (sequence[row][currentStep]) {
                 triggerRemainingSamples[row] = triggerDuration;
             } else {
@@ -39,7 +73,7 @@ void Sequencer::advanceSample() {
         }
     }
 
-    for (int row = 0; row < NUM_ROWS; row++) {
+    for (int row = 0; row < numRows; row++) {
         if (triggerRemainingSamples[row] > 0) {
             triggerRemainingSamples[row]--;
         }
@@ -51,22 +85,33 @@ void Sequencer::render() {
     ImGui::Text("Sequencer");
 
     ImGui::PushItemWidth(100);
-    ImGui::SliderInt(("Interval##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &interval, 1, 100);
+    ImGui::SliderInt(("Interval##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &interval, 1, 100); 
+    ImGui::PopItemWidth();
+   
+    ImGui::SameLine(175);
+    ImGui::PushItemWidth(100);
+
+    if (ImGui::SliderInt(("Rows##" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &numRows, 1, maxRows)) {
+        resizeSequence();
+        generateFrequencies();
+    }
     ImGui::PopItemWidth();
 
-    ImGui::SameLine(26.6f * NUM_STEPS);
-
-    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
-    ImGui::Text("Output ->");
-    ed::EndPin();
+    ImGui::SameLine(350);
+    ImGui::PushItemWidth(100);
+    if (ImGui::SliderInt(("Steps##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &numSteps, 1, maxSteps)) {
+        resizeSequence();
+    }
+    ImGui::PopItemWidth();
 
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 
-    for (int row = 0; row < NUM_ROWS; row++) {
-        ImGui::Text("Row %d", row);
-        ImGui::SameLine();
+    for (int row = 0; row < numRows; row++) {
+        ImGui::Text("%s", noteNames[row].c_str());
 
-        for (int step = 0; step < NUM_STEPS; step++) {
+        ImGui::SameLine(40);
+
+        for (int step = 0; step < numSteps; step++) {
             std::string label = std::string(sequence[row][step] ? "X" : "O") + "##" + 
                                std::to_string(nodeId.Get()) + "_" + 
                                std::to_string(row) + "_" + 
@@ -86,7 +131,7 @@ void Sequencer::render() {
             if (ImGui::Button(label.c_str(), ImVec2(20, 20))) {
                 sequence[row][step] = !sequence[row][step];
                 if (sequence[row][step]) {
-                    for (int r = 0; r < NUM_ROWS; r++) {
+                    for (int r = 0; r < numRows; r++) {
                         if (r != row) {
                             sequence[r][step] = false;
                         }
@@ -103,11 +148,17 @@ void Sequencer::render() {
     }
     ImGui::PopStyleVar();
 
+    ImGui::NewLine();
+    ImGui::SameLine(std::max(430.0f, 26.6f * numSteps));
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
+    ImGui::Text("Output ->");
+    ed::EndPin();
+
     ed::EndNode();
 }
 
 bool Sequencer::active() {
-    for (int row = 0; row < NUM_ROWS; row++) {
+    for (int row = 0; row < numRows; row++) {
         if (triggerRemainingSamples[row] > 0) {
             return true;
         }
@@ -144,5 +195,9 @@ void Sequencer::disconnect(Module* module, ed::PinId pin) {
 void Sequencer::fromJson(const json& data) {
     ControlModule::fromJson(data);
     interval = data["interval"].get<int>();
+    numRows = data["numRows"].get<int>();
+    numSteps = data["numSteps"].get<int>();
     outputPin.Id = ed::PinId(data["pins"][0].get<int>());
+    resizeSequence();
+    generateFrequencies();
 }
