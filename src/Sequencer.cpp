@@ -4,6 +4,7 @@
 #include "imgui_node_editor.h"
 #include <iostream>
 #include <vector>
+#include <random>
 
 Sequencer::Sequencer() {
     nodeId = nextNodeId++;
@@ -80,9 +81,27 @@ void Sequencer::advanceSample() {
     }
 }
 
+void Sequencer::randomizeSequence() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> rowDis(0, numRows - 1);
+
+    for (int step = 0; step < numSteps; step++) {
+        int activeRow = rowDis(gen);
+        for (int row = 0; row < numRows; row++) {
+            sequence[row][step] = (row == activeRow);
+        }
+    }
+}
+
 void Sequencer::render() {
     ed::BeginNode(nodeId);
     ImGui::Text("Sequencer");
+
+    ImGui::SameLine(80);
+    if (ImGui::Button(("Randomize##" + std::to_string(static_cast<int>(nodeId.Get()))).c_str())) {
+        randomizeSequence();
+    }
 
     ImGui::PushItemWidth(100);
     ImGui::SliderInt(("Interval##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &interval, 1, 100); 

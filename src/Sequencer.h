@@ -23,6 +23,7 @@ private:
     void advanceSample();
     void resizeSequence();
     void generateFrequencies();
+    void randomizeSequence(); 
     
     json toJson() const override {
         json data = Module::toJson();
