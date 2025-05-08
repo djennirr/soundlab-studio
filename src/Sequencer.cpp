@@ -218,5 +218,18 @@ void Sequencer::fromJson(const json& data) {
     numSteps = data["numSteps"].get<int>();
     outputPin.Id = ed::PinId(data["pins"][0].get<int>());
     resizeSequence();
+    if (data.contains("sequence") && data["sequence"].is_array()) {
+        const auto& sequenceJson = data["sequence"];
+        for (size_t row = 0; row < std::min(sequence.size(), sequenceJson.size()); ++row) {
+            if (sequenceJson[row].is_array()) {
+                const auto& rowJson = sequenceJson[row];
+                for (size_t step = 0; step < std::min(sequence[row].size(), rowJson.size()); ++step) {
+                    if (rowJson[step].is_boolean()) {
+                        sequence[row][step] = rowJson[step].get<bool>();
+                    }
+                }
+            }
+        }
+    }
     generateFrequencies();
 }

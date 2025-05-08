@@ -30,6 +30,15 @@ private:
         data["numRows"] = numRows;
         data["numSteps"] = numSteps;
         data["interval"] = interval;
+        json sequenceJson = json::array();
+        for (const auto& row : sequence) {
+            json rowJson = json::array();
+            for (bool value : row) {
+                rowJson.push_back(value);
+            }
+            sequenceJson.push_back(rowJson);
+        }
+        data["sequence"] = sequenceJson;
         return data;
     }
 
