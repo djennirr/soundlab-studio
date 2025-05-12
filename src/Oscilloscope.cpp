@@ -47,7 +47,6 @@ void Oscilloscope::process(AudioSample *stream, int length)
         for (int i = 0; i < length; i++)
         {
             float sample = ((static_cast<float>(stream[i] - AMPLITUDE_F) / AMPLITUDE_F)) + amplitude;
-            std::cout << stream[i] << std::endl;
             waveformBuffer[bufferIndex] = sample;
             bufferIndex = (bufferIndex + 1) % bufferSize;
         }
