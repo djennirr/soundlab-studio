@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioModule.h"
+#include "ControlModule.h"
 #include "Module.h"
 #include "SampleType.h"
 #include "imgui_node_editor.h"
@@ -34,6 +35,9 @@ private:
     bool isChanged; // флаг для отслеживания изменил ли пользователь сэмпл
     void loadWAV(const std::string &filename);
     size_t position = 0;
+
+    ControlModule* inputModule = nullptr;
+    bool isSignalActive = true;
 
     std::vector<AudioSample> audioData;
     std::vector<AudioSample> audioDataLeft;

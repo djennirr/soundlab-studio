@@ -111,19 +111,32 @@ void Sampler::process(AudioSample *stream, int len)
         }
         isChanged = false;
     }
+    if (inputModule == nullptr) {
+        if (isSignalActive) {
+            for (int i = 0; i < len; i += 2) // 2 байта на канал (стерео)
+            {
+                if (position >= audioData.size())
+                    position = 0;
 
-    for (int i = 0; i < len; i += 2) // 2 байта на канал (стерео)
-    {
-        if (position >= audioData.size())
-            position = 0;
+                float scaled = audioData[position] * volume;
+                AudioSample sample = static_cast<AudioSample>(scaled);
 
-        float scaled = audioData[position] * volume;
-        AudioSample sample = static_cast<AudioSample>(scaled);
+                stream[i] = sample;     // левый канал
+                stream[i + 1] = sample; // правый канал
 
-        stream[i] = sample;     // левый канал
-        stream[i + 1] = sample; // правый канал
+                position++;
+            }
+        } else {
+            memset(stream, 0, length * sizeof(AudioSample));
+        }
+    } else {
+        int signal = inputModule->get();
+        if (isSignalActive) {
+            
 
-        position++;
+        } else {
+            memset(stream, 0, length * sizeof(AudioSample));
+        }
     }
 }
 
@@ -195,6 +208,17 @@ PinType Sampler::getPinType(ed::PinId pinId) {
 
 ed::NodeId Sampler::getNodeId() { return nodeId; }
 
+void Sampler::connect(Module *module, ed::PinId pin) {
+    this->inputModule = dynamic_cast<ControlModule*>(module);
+    return;    
+}
+void Sampler::disconnect(Module *module, ed::PinId pin) {
+    if (dynamic_cast<ControlModule*>(module) == this->inputModule) {
+        this->inputModule = nullptr;
+    }
+    return;
+}
+
 void Sampler::fromJson(const json& data) {
     AudioModule::fromJson(data);
     
@@ -245,5 +269,3 @@ void Sampler::fromJson(const json& data) {
             break;
     }
 }
-void Sampler::connect(Module *module, ed::PinId pin) { return; }
-void Sampler::disconnect(Module *module, ed::PinId pin) { return; }
