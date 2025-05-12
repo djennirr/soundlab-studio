@@ -33,6 +33,7 @@ add_executable(main
     ${CMAKE_SOURCE_DIR}/src/Sampler.cpp
     ${CMAKE_SOURCE_DIR}/src/Control.cpp
     ${CMAKE_SOURCE_DIR}/src/ADSR.cpp
+    ${CMAKE_SOURCE_DIR}/src/Filter.cpp
 )
 
 target_link_libraries(main PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
