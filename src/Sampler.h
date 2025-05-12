@@ -84,4 +84,5 @@ public:
     void disconnect(Module *module, ed::PinId pin) override;
     void addButton();
     void fromJson(const json& data) override;
+    std::string uploadSample();
 };

@@ -273,12 +273,6 @@ void Sampler::fromJson(const json& data) {
         case SampleType::ELECTRO:
             popup_text = "ELECTRO";
             break;
-        case SampleType::KICK:
-            popup_text = "KICK";
-            break;
-        case SampleType::KICK2:
-            popup_text = "KICK2";
-            break;
         case SampleType::SNARE:
             popup_text = "SNARE";
             break;
