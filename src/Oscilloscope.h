@@ -33,7 +33,7 @@ private:
     Pin inputPin;
     Pin outputPin;
     std::vector<float> waveformBuffer;
-    int bufferSize = 1024; 
+    int bufferSize = 512; 
     int bufferIndex = 0;
     float amplitude = 32768.0f;
     float MIN_SCALE = -1;
