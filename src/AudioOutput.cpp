@@ -12,7 +12,7 @@ AudioOutput::AudioOutput() {
         SDL_AudioSpec wavSpec;
         wavSpec.freq = 44100;
         wavSpec.format = AUDIOFORMAT;
-        wavSpec.channels = 2;
+        wavSpec.channels = 1;
         wavSpec.samples = 512;
         wavSpec.size = 512;
         wavSpec.userdata = this;
