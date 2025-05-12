@@ -2,6 +2,7 @@
 
 #include "AudioModule.h"
 #include <SDL2/SDL.h>
+#include "Module.h"
 #include "imgui_node_editor.h"
 
 class Adder : public AudioModule{
@@ -14,7 +15,7 @@ class Adder : public AudioModule{
 
     public:
         Adder();
-        void process(Uint16* stream, int length) override;
+        void process(AudioSample* stream, int length) override;
         void render() override;
         std::vector<ed::PinId> getPins() const override;
         ed::PinKind getPinKind(ed::PinId pin) const override;

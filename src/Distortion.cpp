@@ -27,7 +27,7 @@ void Distortion::process(AudioSample* stream, int length) {
 
     for (int i = 0; i < length; i++) {
         // Нормализуем входной сигнал (-1.0 to 1.0)
-        float input = (stream[i] - AMPLITUDE_I) / AMPLITUDE_F;
+        float input = (stream[i]) / AMPLITUDE_F;
 
         // Применяем жесткое обрезание (hard clipping)
         float clipped = input * drive;
@@ -43,7 +43,7 @@ void Distortion::process(AudioSample* stream, int length) {
         // Смешиваем оригинальный и искажённый сигнал
         float output = mix * softClipped + (1.0f - mix) * input;
 
-        stream[i] = static_cast<AudioSample>((output * AMPLITUDE_F) + AMPLITUDE_F);
+        stream[i] = static_cast<AudioSample>((output * AMPLITUDE_F));
     }
 }
 

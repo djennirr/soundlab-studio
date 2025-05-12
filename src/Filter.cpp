@@ -42,7 +42,7 @@ void Filter::process(AudioSample* stream, int length) {
     // Обработка каждого сэмпла во временной области
     for (int i = 0; i < length; ++i) {
         // Конвертация в float [-1, 1]
-        float input = (stream[i] - 32768.0f) / 32768.0f;
+        float input = (stream[i]) / 32768.0f;
         
         // Фильтрация
         float output = b0 * input + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
@@ -55,7 +55,7 @@ void Filter::process(AudioSample* stream, int length) {
         
         // Ограничение и конвертация обратно в 16-bit
         output = std::clamp(output, -1.0f, 1.0f);
-        stream[i] = static_cast<AudioSample>(output * 32767.0f + 32768.0f);
+        stream[i] = static_cast<AudioSample>(output * 32767.0f);
     }
     
     // Обновляем коэффициенты если параметры изменились

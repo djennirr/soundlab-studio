@@ -65,7 +65,7 @@ float Reverb::processSample(float input) {
         line.pos = (line.pos + 1) % line.buffer.size();
     }
 
-    output *= 0.125f; // Normalize for 8 delay lines
+    output *= 0.125f;
     return input * (1.0f - mix) + output * mix;
 }
 
@@ -83,10 +83,10 @@ void Reverb::process(AudioSample* stream, int length) {
     }
 
     for (int i = 0; i < length; i++) {
-        float input = (stream[i] - 32768.0f) / 32768.0f;
+        float input = (stream[i]) / 32767.0f;
         float output = processSample(input);
         output = std::clamp(output, -1.0f, 1.0f);
-        stream[i] = static_cast<AudioSample>((output * 32768.0f) + 32768.0f);
+        stream[i] = static_cast<AudioSample>((output * 32767.0f));
     }
 
     // Debugging log
@@ -111,10 +111,13 @@ void Reverb::render() {
     ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
-
+    ImGui::SetNextItemWidth(150.0f);
     ImGui::SliderFloat("Decay", &decayTime, 0.1f, 5.0f, "%.1f s");
+    ImGui::SetNextItemWidth(150.0f);
     ImGui::SliderFloat("Damping", &damping, 0.0f, 1.0f, "%.2f");
+    ImGui::SetNextItemWidth(150.0f);
     ImGui::SliderFloat("Mix", &mix, 0.0f, 1.0f, "%.2f");
+    ImGui::SetNextItemWidth(150.0f);
     ImGui::SliderFloat("PreDelay", &preDelay, 0.0f, 0.1f, "%.3f s");
 
     // Reinitialize delay lines if preDelay changes significantly
