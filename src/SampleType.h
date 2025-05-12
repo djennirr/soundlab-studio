@@ -14,7 +14,8 @@ enum SampleType {
     COOL_DRUMS,
     CARTI,
     USER,
-    TLOU
+    TLOU,
+    SMESHARIKI
 };
 
 // Функция для преобразования enum в строку
@@ -32,6 +33,7 @@ inline std::string SampleTypeToString(SampleType type) {
         case CARTI:       return "CARTI";
         case USER:        return "USER";
         case TLOU:       return "TLOU";
+        case SMESHARIKI: return "SMESHARIKI";
         default:          return "UNKNOWN";
     }
 }

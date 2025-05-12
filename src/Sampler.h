@@ -26,6 +26,7 @@ class Sampler : public AudioModule
     const std::string COOL_DRUMS_sample = "samples/drum-loop.wav";
     const std::string CARTI_sample = "samples/vamp-anthem.wav";
     const std::string TLOU_sample = "samples/tlou.wav";
+    const std::string SMESHARIKI_sample = "samples/smeshariki.wav";
 
 private:
     std::string popup_text = "DRUMS"; // Было: char popup_text[20]
@@ -53,7 +54,8 @@ private:
         VIBE,
         CARTI,
         USER,
-        TLOU
+        TLOU,
+        SMESHARIKI
     };
 
     inline void setSample(const std::string& sampleName, SampleType type) {

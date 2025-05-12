@@ -107,6 +107,9 @@ void Sampler::process(AudioSample *stream, int len)
         case SampleType::TLOU:
             loadWAV(TLOU_sample);
             break;
+        case SampleType::SMESHARIKI:
+            loadWAV(SMESHARIKI_sample);
+            break;
         default:
             std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
             break;
