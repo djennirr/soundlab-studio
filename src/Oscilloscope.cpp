@@ -55,21 +55,37 @@ void Oscilloscope::process(AudioSample *stream, int length)
     }
 }
 
+void Oscilloscope::ChangeDrawAxisesState() {
+    drawAxises = !drawAxises;
+}
+
 void Oscilloscope::render()
 {
     ed::BeginNode(nodeId);
     
+    //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + indentName - 7); // для выводы имени модуля по середине(числа выбраны чисто имперически)
+    ImGui::Text("Oscilloscope");
+
     ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
+
     ImGui::SameLine(indentName);
-    //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + indentName); // для выводы имени модуля по середине(числа выбраны чисто имперически)
-    ImGui::Text("Oscilloscope");
+    std::string buttonName = AxesOnStr;
+    if (!drawAxises) 
+        buttonName = AxesOffStr;
+        std::string buttonLabel = buttonName + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+        if (ImGui::Button(buttonLabel.c_str())) {
+            ChangeDrawAxisesState();
+        }
 
     ImGui::SameLine(indentOut);
     ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
+
+
+
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 40.0f); // для выводы имени модуля по середине(числа выбраны чисто имперически)
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 7.0f); // для выводы имени модуля по середине(числа выбраны чисто имперически)
     ImVec2 plotPos = ImGui::GetCursorScreenPos();
@@ -104,7 +120,9 @@ void Oscilloscope::render()
 
         float v = ImLerp(1.0f, -1.0f, t);
 
-        if (i == 2)  drawList->AddLine(ImVec2(plotPos.x + 5, y),ImVec2(plotPos.x + 295,y),colLineForAxis);
+        if ( ((i == extraNegativeAxis || i == extraPositiveAxis) && drawAxises) || i == mainAxis) {
+            drawList->AddLine(ImVec2(plotPos.x + 5, y),ImVec2(plotPos.x + 295,y),colLineForAxis);
+        } 
         drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x,y),colLine);
 
         char buf[16];

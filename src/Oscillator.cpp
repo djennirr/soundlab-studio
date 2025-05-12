@@ -169,9 +169,14 @@ ed::NodeId Oscillator::getNodeId() {
 
 void Oscillator::generateSineWave(AudioSample* stream, int length) {
     for (int i = 0; i < length; i += 2) {
-        stream[i] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
+        if (this->frequency == 0) {
+            stream[i] = stream[i+1] = 0;
+        }
+        else {
+            stream[i] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
         stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
         phase += (frequency * 2.0 * M_PI) / SAMPLE_RATE;
+        }
     }
 }
 
@@ -181,14 +186,18 @@ void Oscillator::generateSquareWave(AudioSample* stream, int length) {
     const AudioSample lowValue = 0;
 
     for (int i = 0; i < length; i += 2) {
-        if (phase < period / 2) {
-            stream[i] = static_cast<AudioSample>(highValue * volume);
-            stream[i + 1] = static_cast<AudioSample>(highValue * volume);
-        } else {
-            stream[i] = static_cast<AudioSample>(lowValue * volume);
-            stream[i + 1] = static_cast<AudioSample>(lowValue * volume);
+        if (this->frequency == 0) {
+            stream[i] = stream[i+1] = 0;
         }
-        
+        else {
+            if (phase < period / 2) {
+                stream[i] = static_cast<AudioSample>(highValue * volume);
+                stream[i + 1] = static_cast<AudioSample>(highValue * volume);
+            } else {
+                stream[i] = static_cast<AudioSample>(lowValue * volume);
+                stream[i + 1] = static_cast<AudioSample>(lowValue * volume);
+            }
+        }
         phase += 1.0;
         if (phase >= period) {
             phase -= period;

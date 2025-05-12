@@ -27,6 +27,7 @@ public:
     // int chooseIn(ed::PinId pin) override;
     void clearBuffer();
     void fromJson(const json& data) override;
+    void ChangeDrawAxisesState();
     
 private:
     AudioModule* inputModule;
@@ -38,6 +39,10 @@ private:
     float amplitude = 32768.0f;
     float MIN_SCALE = -1;
     float MAX_SCALE = 1;
+    bool drawAxises = false;
+    int mainAxis = 2;
+    int extraPositiveAxis = 1;
+    int extraNegativeAxis = 3;
     //Для четкого выведения волны
     int updateTimer = 0;  
     int updateInterval = 7; 
@@ -45,5 +50,7 @@ private:
     float height = 150.0f;
     float indentOut = 300.0f;
     float indentName = 140.0f;
+    std::string AxesOnStr = "Erase Axes";
+    std::string AxesOffStr = "Add Axes";
     int amountOfSpans = 4;         
 };
