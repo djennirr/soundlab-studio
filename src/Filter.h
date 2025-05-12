@@ -24,6 +24,12 @@ class Filter : public AudioModule{
         float prevResonance = -1.0f;
         void updateCoefficients();
 
+        json toJson() const override {
+            json data = Module::toJson();
+            data["cutoff"] = cutoff;
+            return data;
+        }
+
     public:
         Filter(float cut, float res = 1.0f);
         //void DFT(Uint8 *inStream, double *real, double *imag, int length);
@@ -39,4 +45,5 @@ class Filter : public AudioModule{
         void connect(Module* module, ed::PinId pin) override;
         ed::NodeId getNodeId() override;
         void disconnect(Module* module, ed::PinId pin) override;
+        void fromJson(const json& data) override;
 };

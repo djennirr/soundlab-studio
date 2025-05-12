@@ -123,3 +123,10 @@ void Filter::disconnect(Module* module, ed::PinId pin) {
         this->module1 = nullptr;
     }
 }
+
+void Filter::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    cutoff = data["cutoff"].get<float>();
+    input1Pin.Id = ed::PinId(data["pins"][0].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][1].get<int>());
+}

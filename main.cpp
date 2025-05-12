@@ -140,7 +140,12 @@ struct Example : public Application {
                 Control* control = new Control();
                 control->fromJson(moduleJson);
                 module = control;
+            } else if (type == NodeType::Filter) {
+                Filter* filter = new Filter(0, 1);
+                filter->fromJson(moduleJson);
+                module = filter;
             }
+    
     
             if (!module) continue;
     
