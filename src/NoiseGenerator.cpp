@@ -1,5 +1,6 @@
 #include "NoiseGenerator.h"
 #include "AudioModule.h"
+#include "Module.h"
 #include "imgui_node_editor.h"
 #include <cmath>
 #include <cstring>
@@ -111,7 +112,7 @@ void NoiseGenerator::disconnect(Module* module, ed::PinId pin) {
 void NoiseGenerator::generateWhiteNoise(AudioSample* stream, int length) {
     for (int i = 0; i < length; ++i) {
         float sample = whiteNoise(generator) * amplitude;
-        stream[i] = static_cast<AudioSample>(std::clamp((sample * (AMPLITUDE_F - 1)) + (AMPLITUDE_F - 1), 0.0f, (AMPLITUDE_F*2 - 1)));
+        stream[i] = static_cast<AudioSample>(std::clamp((sample * (AMPLITUDE_F - 1)), (-AMPLITUDE_F), (AMPLITUDE_F - 1)));
     }
 }
 
@@ -129,7 +130,7 @@ void NoiseGenerator::generatePinkNoise(AudioSample* stream, int length) {
         b6 = white * 0.115926f;
 
         float sample = pink * amplitude;
-        stream[i] = static_cast<AudioSample>(std::clamp((sample * (AMPLITUDE_F - 1)) + (AMPLITUDE_F - 1), 0.0f, (AMPLITUDE_F*2 - 1)));
+        stream[i] = static_cast<AudioSample>(std::clamp((sample * (AMPLITUDE_F - 1)), -AMPLITUDE_F, (AMPLITUDE_F - 1)));
     }
 }
 
@@ -141,7 +142,7 @@ void NoiseGenerator::generateBrownNoise(AudioSample* stream, int length) {
         brown = std::clamp(brown, -1.0f, 1.0f);  // Ограничиваем значение
 
         float sample = brown * amplitude;
-        stream[i] = static_cast<AudioSample>(std::clamp((sample * (AMPLITUDE_F - 1)) + (AMPLITUDE_F - 1), 0.0f, (AMPLITUDE_F*2 - 1)));
+        stream[i] = static_cast<AudioSample>(std::clamp((sample * (AMPLITUDE_F - 1)), -AMPLITUDE_F, (AMPLITUDE_F - 1)));
     }
 }
 

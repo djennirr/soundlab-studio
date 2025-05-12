@@ -57,7 +57,7 @@ void Spectroscope::process(AudioSample* stream, int length) {
     // Конвертация в float и подготовка данных для FFT
     CArray data(fftSize);
     for (int i = 0; i < fftSize; i++) {
-        data[i] = Complex((stream[i] - 32768) / 32768.0, 0.0); // Нормировка на [-1, 1]
+        data[i] = Complex((stream[i]) / 32768.0, 0.0); // Нормировка на [-1, 1]
     }
 
     // Применение оконной функции (Ханна)

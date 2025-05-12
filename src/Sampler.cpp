@@ -54,8 +54,6 @@ void Sampler::loadWAV(const std::string &filename)
     {
         audioData[i] = ((int)src[2 * i] + (int)src[2 * i + 1]) / 2; // Смешиваем стерео → моно
 
-        // int16 (-32768..32767) → Uint16 (0..65535)
-        audioData[i] += AMPLITUDE;
     }
 
     SDL_FreeWAV(buffer);

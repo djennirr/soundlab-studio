@@ -38,7 +38,7 @@ void Oscilloscope::process(AudioSample *stream, int length)
         for (int i = 0; i < length; i++)
         {
             // Приведение к диапазону [-1, 1] для 16-битного сигнала (0 - 65535)
-            float sample = (static_cast<float>(stream[i]) - AMPLITUDE_F) / AMPLITUDE_F;
+            float sample = static_cast<float>(stream[i]) / AMPLITUDE_F;
             waveformBuffer[bufferIndex] = sample;
             bufferIndex = (bufferIndex + 1) % bufferSize;
         }

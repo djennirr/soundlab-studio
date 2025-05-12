@@ -47,10 +47,10 @@ void ADSR::process(AudioSample* stream, int length) {
     float interpolatedValue = lastValue;
 
     for (int i = 0; i < length; ++i) {
-        float sample = (static_cast<float>(stream[i]) - 32768.0f) / 32768.0f;
+        float sample = (static_cast<float>(stream[i])) / 32768.0f;
         sample *= interpolatedValue;
         sample = std::tanh(sample);
-        stream[i] = static_cast<AudioSample>((sample * 32768.0f) + 32768.0f);
+        stream[i] = static_cast<AudioSample>((sample * 32768.0f));
         interpolatedValue += step;
     }
     lastValue = currentValue;

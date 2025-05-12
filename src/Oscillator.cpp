@@ -169,7 +169,7 @@ ed::NodeId Oscillator::getNodeId() {
 
 void Oscillator::generateSineWave(AudioSample* stream, int length) {
     for (int i = 0; i < length; i += 1) {
-        stream[i] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
+        stream[i] = static_cast<AudioSample>((AMPLITUDE * sin(phase)) * volume);
         // stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE * sin(phase)) + 32768) * volume);
         phase += (frequency * 2.0 * M_PI) / SAMPLE_RATE;
     }
@@ -177,7 +177,7 @@ void Oscillator::generateSineWave(AudioSample* stream, int length) {
 
 void Oscillator::generateSquareWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
-    const AudioSample highValue = (AMPLITUDE_I*2 - 1);
+    const AudioSample highValue = (AMPLITUDE_I - 1);
     const AudioSample lowValue = 0;
 
     for (int i = 0; i < length; i += 1) {
@@ -200,7 +200,7 @@ void Oscillator::generateSawtoothWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i += 1) {
-        stream[i] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
+        stream[i] = static_cast<AudioSample>(((AMPLITUDE_I - 1) * phase) / period * volume);
         // stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
 
         phase += 1.0;
@@ -216,9 +216,9 @@ void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
     for (int i = 0; i < length; i += 1) {
         double value;
         if (phase < period / 2) {
-            value = ((AMPLITUDE_I * 2 - 1) * phase) / (period / 2);
+            value = ((AMPLITUDE_I - 1) * phase) / (period / 2);
         } else {
-            value = ((AMPLITUDE_I * 2 - 1) - ((AMPLITUDE_I * 2 - 1) * (phase - (period / 2)) / (period / 2)));
+            value = ((AMPLITUDE_I - 1) - ((AMPLITUDE_I - 1) * (phase - (period / 2)) / (period / 2)));
         }
         value *= volume;
 
