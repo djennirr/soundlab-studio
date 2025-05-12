@@ -87,6 +87,10 @@ struct Example : public Application {
             if (module->getNodeType() == NodeType::AudioOutput) {
                 continue;
             } else {
+                auto pins = module->getPins();
+                for (auto pin : pins) {
+                    audiooutput->disconnect(module, pin);
+                }
                 delete module;
             }
         }
@@ -123,6 +127,10 @@ struct Example : public Application {
                 Oscilloscope* oscilloscope = new Oscilloscope();
                 oscilloscope->fromJson(moduleJson);
                 module = oscilloscope;
+            } else if (type == NodeType::Sampler) {
+                Sampler* sampler = new Sampler();
+                sampler->fromJson(moduleJson);
+                module = sampler;
             } else if (type == NodeType::ADSR) {
                 ADSR* adsr = new ADSR();
                 adsr->fromJson(moduleJson);

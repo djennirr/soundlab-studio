@@ -1,6 +1,13 @@
 #include "ADSR.h"
 #include "imgui.h"
 #include <algorithm>
+#include <iostream>
+
+#ifdef DEBUG
+    #define DEBUG_LOG(msg) std::cout << msg << std::endl
+#else
+    #define DEBUG_LOG(msg) do {} while (0)
+#endif
 
 ADSR::ADSR() {
     nodeId = nextNodeId++;
@@ -15,11 +22,13 @@ ADSR::ADSR() {
     decay = 0.5f;
     sustain = 0.5f;
     release = 0.5f;
-    peak = 1.5f;
+    peak = 1.0f;
     currentValue = 0.0f;
     state = State::IDLE;
     time = 0.0f;
     gate = false;
+    releaseStartValue = 0.0f;
+    lastValue = 0.0f;
 }
 
 void ADSR::process(AudioSample* stream, int length) {
@@ -29,24 +38,38 @@ void ADSR::process(AudioSample* stream, int length) {
         memset(stream, 0, length * sizeof(AudioSample));
     }
 
+    if (triggerInputModule) {
+        gate = triggerInputModule->active();
+    }
+    updateEnvelope();
+
+    float step = (currentValue - lastValue) / length;
+    float interpolatedValue = lastValue;
+
     for (int i = 0; i < length; ++i) {
         float sample = (static_cast<float>(stream[i]) - 32768.0f) / 32768.0f;
-        sample *= currentValue;
+        sample *= interpolatedValue;
         sample = std::tanh(sample);
         stream[i] = static_cast<AudioSample>((sample * 32768.0f) + 32768.0f);
+        interpolatedValue += step;
     }
+    lastValue = currentValue;
 }
 
 void ADSR::updateEnvelope() {
     const float deltaTime = ImGui::GetIO().DeltaTime;
     time += deltaTime;
 
+    DEBUG_LOG("UpdateEnvelope: state=" << static_cast<int>(state) << ", time=" << time 
+              << ", currentValue=" << currentValue << ", gate=" << gate);
+
     switch (state) {
         case State::IDLE:
-            currentValue = 0.0f; 
+            currentValue = 0.0f;
             if (gate) {
                 state = State::ATTACK;
                 time = 0.0f;
+                DEBUG_LOG("Switch to ATTACK: time=" << time << ", currentValue=" << currentValue);
             }
             break;
 
@@ -57,10 +80,14 @@ void ADSR::updateEnvelope() {
                     currentValue = peak;
                     state = State::DECAY;
                     time = 0.0f;
+                    DEBUG_LOG("Switch to DECAY: time=" << time << ", currentValue=" << currentValue);
                 }
             } else {
+                releaseStartValue = currentValue;
                 state = State::RELEASE;
                 time = 0.0f;
+                DEBUG_LOG("Switch to RELEASE from ATTACK: time=" << time 
+                          << ", currentValue=" << currentValue << ", releaseStartValue=" << releaseStartValue);
             }
             break;
 
@@ -70,31 +97,40 @@ void ADSR::updateEnvelope() {
                 if (time >= decay) {
                     currentValue = sustain;
                     state = State::SUSTAIN;
+                    DEBUG_LOG("Switch to SUSTAIN: time=" << time << ", currentValue=" << currentValue);
                 }
             } else {
+                releaseStartValue = currentValue;
                 state = State::RELEASE;
                 time = 0.0f;
+                DEBUG_LOG("Switch to RELEASE from DECAY: time=" << time 
+                          << ", currentValue=" << currentValue << ", releaseStartValue=" << releaseStartValue);
             }
             break;
 
         case State::SUSTAIN:
             currentValue = sustain;
             if (!gate) {
+                releaseStartValue = currentValue;
                 state = State::RELEASE;
                 time = 0.0f;
+                DEBUG_LOG("Switch to RELEASE from SUSTAIN: time=" << time 
+                          << ", currentValue=" << currentValue << ", releaseStartValue=" << releaseStartValue);
             }
             break;
 
         case State::RELEASE:
-        currentValue = sustain * (1.0f - std::min(1.0f, time / release));
+            currentValue = releaseStartValue * (1.0f - std::min(1.0f, time / release));
             if (time >= release) {
                 currentValue = 0.0f;
                 state = State::IDLE;
                 time = 0.0f;
+                DEBUG_LOG("Switch to IDLE: time=" << time << ", currentValue=" << currentValue);
             }
             if (gate) {
                 state = State::ATTACK;
                 time = 0.0f;
+                DEBUG_LOG("Switch to ATTACK from RELEASE: time=" << time << ", currentValue=" << currentValue);
             }
             break;
     }
@@ -123,12 +159,11 @@ void ADSR::render() {
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat(("Release##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &release, 0.01f, 0.01f, 2.0f, "%.2f s");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.01f, 0.0f, 2.0f, "%.2f");
+        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.01f, 0.0f, 1.0f, "%.2f");
 
         if (triggerInputModule != nullptr) {
             gate = triggerInputModule->active();
         }
-        updateEnvelope();
     ed::EndNode();
 }
 
@@ -137,12 +172,6 @@ std::vector<ed::PinId> ADSR::getPins() const {
 }
 
 ed::PinKind ADSR::getPinKind(ed::PinId pin) const {
-    // if (audioInputPin.Id == pin || pin == triggerInputPin.Id) {
-    //     return ed::PinKind::Input;
-    // } else if (pin == outputPin.Id) {
-    //     return ed::PinKind::Output;
-    // }
-
     return audioInputPin.Id == pin || pin == triggerInputPin.Id ? ed::PinKind::Input : ed::PinKind::Output;
 }
 

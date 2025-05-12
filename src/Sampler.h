@@ -33,13 +33,12 @@ private:
     void loadWAV(const std::string &filename);
     size_t position = 0;
 
-    std::vector<Uint16> audioData;
-    std::vector<Uint16> audioDataLeft;
-    std::vector<Uint16> audioDataRight;
+    std::vector<AudioSample> audioData;
+    std::vector<AudioSample> audioDataLeft;
+    std::vector<AudioSample> audioDataRight;
 
     SDL_AudioSpec audioSpec;
     SampleType sampleType;
-    ed::NodeId nodeId;
     Pin inputPin, outputPin;
 
     const std::vector<SampleType> sampleTypes = {
@@ -61,6 +60,12 @@ private:
         isChanged = true;
     }
 
+    json toJson() const override {
+        json data = AudioModule::toJson();
+        data["volume"] = volume;
+        data["sampleType"] = static_cast<int>(sampleType);
+        return data;
+    }
 public:
     Sampler(float volume = 1.0f);
 
@@ -77,7 +82,6 @@ public:
     PinType getPinType(ed::PinId pinId) override;
     void connect(Module *module, ed::PinId pin) override;
     void disconnect(Module *module, ed::PinId pin) override;
-
     void addButton();
-    std::string uploadSample();
+    void fromJson(const json& data) override;
 };

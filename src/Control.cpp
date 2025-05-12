@@ -2,6 +2,7 @@
 #include "Module.h"
 #include "imgui.h"
 #include "imgui_node_editor.h"
+#include <iostream>
 #include <vector>
 
 
@@ -48,12 +49,30 @@ void Control::render() {
             {ImGuiKey_O, 415},
             {ImGuiKey_P, 440},
             {ImGuiKey_F1, 466},
-            {ImGuiKey_F3, 493}
+            {ImGuiKey_F3, 493},
+
+            // {ImGuiKey_A, 130},
+            // {ImGuiKey_S, 138},
+            // {ImGuiKey_D, 146},
+            // {ImGuiKey_F, 155},
+            // {ImGuiKey_G, 164},
+            // {ImGuiKey_H, 174},
+            // {ImGuiKey_J, 185},
+            // {ImGuiKey_K, 196},
+            // {ImGuiKey_L, 207},
+            // {ImGuiKey_4, 220},
+            // {ImGuiKey_KeyPadDecimal, 233},
+            // {ImGuiKey_F2, 246}
         };
 
 
         bool anyKeyDown = false;
-
+        //кнопку нажатую высвечивает (номер)
+        // for (int key = 0; key < ImGuiKey_COUNT; ++key) {
+        //     if (ImGui::IsKeyDown(static_cast<ImGuiKey>(key))) {
+        //         ImGui::Text("Key down: %d", key);
+        //     }
+        // }
         for (const auto& [key, frequency] : key_frequency) {
             ImGuiKey fixedKey = static_cast<ImGuiKey>(key - 3);
 

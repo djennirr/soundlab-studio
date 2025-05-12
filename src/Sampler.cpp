@@ -7,6 +7,8 @@
 #include <memory>
 #include <iostream>
 
+# define portable_strcpy    strcpy
+
 Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
 {
     nodeId = ed::NodeId(nextNodeId++);
@@ -229,7 +231,9 @@ void Sampler::render()
 }
 
 std::vector<ed::PinId> Sampler::getPins() const { return {inputPin.Id, outputPin.Id}; }
+
 ed::PinKind Sampler::getPinKind(ed::PinId pin) const { return pin == outputPin.Id ? ed::PinKind::Output : ed::PinKind::Input; }
+
 PinType Sampler::getPinType(ed::PinId pinId) {
     if (inputPin.Id == pinId) {
         return inputPin.pinType;
@@ -237,6 +241,58 @@ PinType Sampler::getPinType(ed::PinId pinId) {
         return outputPin.pinType;
     }
 }
+
 ed::NodeId Sampler::getNodeId() { return nodeId; }
+
+void Sampler::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    
+    volume = data["volume"];
+    sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
+    isChanged = true;
+
+    inputPin.Id = ed::PinId(data["pins"][0].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][1].get<int>());
+
+    switch (sampleType) {
+        case SampleType::DRUMS:
+            popup_text = "DRUMS";
+            break;
+        case SampleType::ADULT:
+            popup_text = "ADULT";
+            break;
+        case SampleType::ALIEN:
+            popup_text = "ALIEN";
+            break;
+        case SampleType::CEREMONIAL:
+            popup_text = "CEREMONIAL";
+            break;
+        case SampleType::CHILD:
+            popup_text = "CHILD";
+            break;
+        case SampleType::ELECTRO:
+            popup_text = "ELECTRO";
+            break;
+        case SampleType::KICK:
+            popup_text = "KICK";
+            break;
+        case SampleType::KICK2:
+            popup_text = "KICK2";
+            break;
+        case SampleType::SNARE:
+            popup_text = "SNARE";
+            break;
+        case SampleType::VIBE:
+            popup_text = "VIBE";
+            break;
+        case SampleType::COOL_DRUMS:
+            popup_text = "COOL_DRUMS";
+            break;
+        default:
+            popup_text = "UNKNOWN";
+            std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
+            break;
+    }
+}
 void Sampler::connect(Module *module, ed::PinId pin) { return; }
 void Sampler::disconnect(Module *module, ed::PinId pin) { return; }

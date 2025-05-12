@@ -26,9 +26,11 @@ private:
     float release;
     float peak;
     float currentValue;
+    float releaseStartValue;
     State state;
     float time;
     bool gate;
+    float lastValue;
 
     void updateEnvelope();
 
