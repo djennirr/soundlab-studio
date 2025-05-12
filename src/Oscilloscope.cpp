@@ -105,8 +105,8 @@ void Oscilloscope::render()
 
         float v = ImLerp(1.0f, -1.0f, t);
 
-        if (i == 2)  drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x + 300,y),colLineForAxis);
-        else drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x,y),colLine);
+        if (i == 2)  drawList->AddLine(ImVec2(plotPos.x + 5, y),ImVec2(plotPos.x + 295,y),colLineForAxis);
+        drawList->AddLine(ImVec2(plotPos.x - 5, y),ImVec2(plotPos.x,y),colLine);
 
         char buf[16];
         snprintf(buf, sizeof(buf), "%.2f", v);

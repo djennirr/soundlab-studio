@@ -90,12 +90,6 @@ void Sampler::process(AudioSample *stream, int len)
         case SampleType::SNARE:
             loadWAV(SNARE_sample);
             break;
-        case SampleType::KICK:
-            loadWAV(KICK_sample);
-            break;
-        case SampleType::KICK2:
-            loadWAV(KICK2_sample);
-            break;
         case SampleType::ALIEN:
             loadWAV(ALIEN_sample);
             break;
