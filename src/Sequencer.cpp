@@ -25,6 +25,13 @@ int Sequencer::get() {
     return 0;
 }
 
+int signalchik = 0;
+
+int Sequencer::getSig() {
+    advanceSample();
+    return signalchik;
+}
+
 void Sequencer::resizeSequence() {
     std::vector<std::vector<bool>> oldSequence = sequence;
     int oldRows = sequence.size();
@@ -65,6 +72,7 @@ void Sequencer::advanceSample() {
     if (interval < 1) interval = 10;
     if (sampleCount % interval == 0) {
         currentStep = (currentStep + 1) % numSteps;
+        signalchik = !signalchik;
         for (int row = 0; row < numRows; row++) {
             if (sequence[row][currentStep]) {
                 triggerRemainingSamples[row] = triggerDuration;

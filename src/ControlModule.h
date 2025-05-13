@@ -6,5 +6,6 @@
 class ControlModule : public Module {
     public:
         virtual int get() = 0;
+        virtual int getSig() = 0;
         virtual bool active() = 0;
 };
