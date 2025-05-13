@@ -60,6 +60,7 @@ void Sampler::loadWAV(const std::string &filename)
 
     SDL_FreeWAV(buffer);
     audioSpec = wavSpec;
+    position = 0.0f;
 }
 
 void Sampler::process(AudioSample *stream, int len)
@@ -119,19 +120,22 @@ void Sampler::process(AudioSample *stream, int len)
                     position = 0;
                 }
 
-                float scaled = audioData[position] * volume;
-                AudioSample sample = static_cast<AudioSample>(scaled);
-
-                stream[i] = sample;
-                stream[i + 1] = sample;
-
-                position++;
+        // Линейная интерполяция для плавного звучания
+        int posInt = static_cast<int>(position);
+        float frac = position - posInt;
+        int nextPos = (posInt + 1) % audioData.size();
+        
+        float sample = audioData[posInt] * (1.0f - frac) + 
+                      audioData[nextPos] * frac;
+        
+        stream[i] = static_cast<AudioSample>(sample * volume);
+        position += pitch; // Изменяем шаг воспроизведения
             }
         } else {
             memset(stream, 0, len * sizeof(AudioSample));
         }
     } else {
-        int signal = inputModule->get();
+        int signal = inputModule->get(); // получили значение от секвенсера
         if (isSignalActive) {
             if (signal > 0 && (lastSignal == 0 || signal != lastSignal)) {
                 position = 0;
@@ -150,8 +154,8 @@ void Sampler::process(AudioSample *stream, int len)
 
                 stream[i] = sample;
                 stream[i + 1] = sample;
-
-                position++;
+                pitch = signal / SEQUENCER_QUOTIENT;
+                position += pitch; 
             }
         } else {
             memset(stream, 0, len * sizeof(AudioSample));
@@ -182,7 +186,13 @@ void Sampler::render()
 
     ImGui::SetNextItemWidth(150);
     ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
+
+    ImGui::SetNextItemWidth(150);
+    ImGui::SliderFloat(("Pitch##<" + std::to_string(nodeId.Get()) + ">").c_str(), 
+                      &pitch, 0.5f, 2.0f, "%.2f");
+
     ed::EndNode();
+
 
     ed::Suspend(); // приостанавливает работу редакторов узла
     std::string buttonLabel = std::string("popup_button") + "####<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";

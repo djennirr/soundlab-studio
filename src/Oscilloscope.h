@@ -39,3 +39,4 @@ private:
     float width = 300.0f;
     float height = 150.0f;
 };
+  
