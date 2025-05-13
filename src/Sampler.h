@@ -38,6 +38,7 @@ private:
 
     ControlModule* inputModule = nullptr;
     bool isSignalActive = true;
+    int lastSignal = 0;
 
     std::vector<AudioSample> audioData;
     std::vector<AudioSample> audioDataLeft;

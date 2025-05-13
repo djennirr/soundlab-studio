@@ -66,7 +66,6 @@ void Sampler::process(AudioSample *stream, int len)
 {
     if (isChanged)
     {
-
         switch (sampleType)
         {
         case SampleType::DRUMS:
@@ -110,33 +109,54 @@ void Sampler::process(AudioSample *stream, int len)
             break;
         }
         isChanged = false;
+        position = 0;
     }
+
     if (inputModule == nullptr) {
         if (isSignalActive) {
-            for (int i = 0; i < len; i += 2) // 2 байта на канал (стерео)
-            {
-                if (position >= audioData.size())
+            for (int i = 0; i < len; i += 2) {
+                if (position >= audioData.size()) {
                     position = 0;
+                }
 
                 float scaled = audioData[position] * volume;
                 AudioSample sample = static_cast<AudioSample>(scaled);
 
-                stream[i] = sample;     // левый канал
-                stream[i + 1] = sample; // правый канал
+                stream[i] = sample;
+                stream[i + 1] = sample;
 
                 position++;
             }
         } else {
-            memset(stream, 0, length * sizeof(AudioSample));
+            memset(stream, 0, len * sizeof(AudioSample));
         }
     } else {
         int signal = inputModule->get();
         if (isSignalActive) {
-            
+            if (signal > 0 && (lastSignal == 0 || signal != lastSignal)) {
+                position = 0;
+            }
 
+            for (int i = 0; i < len; i += 2) {
+                if (position >= audioData.size()) {
+                    stream[i] = AMPLITUDE;
+                    stream[i + 1] = AMPLITUDE;
+                    position = audioData.size();
+                    continue;
+                }
+
+                float scaled = audioData[position] * volume;
+                AudioSample sample = static_cast<AudioSample>(scaled);
+
+                stream[i] = sample;
+                stream[i + 1] = sample;
+
+                position++;
+            }
         } else {
-            memset(stream, 0, length * sizeof(AudioSample));
+            memset(stream, 0, len * sizeof(AudioSample));
         }
+        lastSignal = signal;
     }
 }
 
