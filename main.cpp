@@ -21,6 +21,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include "themes/themes.h"
 
 namespace fs = std::filesystem;
 static std::vector<std::string> jsonFiles;
@@ -269,6 +270,7 @@ struct Example : public Application {
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
         m_Context = ed::CreateEditor(&config);
+        ApplyTheme(0);
     }
 
     void OnStop() override {
@@ -363,6 +365,26 @@ struct Example : public Application {
 
             ImGui::EndPopup();
         }
+
+        ImGui::SameLine();
+        ImGui::Text("Theme:");
+        ImGui::SameLine();
+        ImGui::PushItemWidth(150.0f);
+        if (ImGui::BeginCombo("##ThemeSelector", GetThemeName(m_CurrentThemeIndex))) {
+            for (int i = 0; i < GetThemeCount(); i++) {
+                bool isSelected = (m_CurrentThemeIndex == i);
+                if (ImGui::Selectable(GetThemeName(i), isSelected)) {
+                    m_CurrentThemeIndex = i;
+                    ApplyTheme(m_CurrentThemeIndex);
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+        ImGui::Separator();
 
         // ImGui::End();
 
@@ -603,6 +625,7 @@ struct Example : public Application {
     ImVector<LinkInfo> m_Links;
     ImVector<Module*> modules;
     int m_NextLinkId = 2000;
+    int m_CurrentThemeIndex = 0;
 };
 
 int Main(int argc, char** argv) {

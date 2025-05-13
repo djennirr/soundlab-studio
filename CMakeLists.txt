@@ -22,6 +22,7 @@ add_subdirectory(libs/json)
 
 add_executable(main
     ${CMAKE_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/themes/themes.cpp
     ${CMAKE_SOURCE_DIR}/src/AudioOutput.cpp
     ${CMAKE_SOURCE_DIR}/src/Oscillator.cpp
     ${CMAKE_SOURCE_DIR}/src/Oscilloscope.cpp  
