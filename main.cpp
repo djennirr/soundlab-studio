@@ -587,6 +587,10 @@ struct Example : public Application {
                 node = new Filter(20500);
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Reverb")) {
+                node = new Reverb();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }
 
             ImGui::EndPopup();
