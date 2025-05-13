@@ -3,7 +3,6 @@
 #include <application.h>
 #include <cmath>
 #include "src/Reverb.h"
-#include "src/Spectroscope.h"
 #include "src/Module.h"
 #include "src/AudioOutput.h"
 #include "src/Oscillator.h"
