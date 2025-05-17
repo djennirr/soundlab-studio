@@ -42,7 +42,7 @@ add_executable(main
 target_link_libraries(main PRIVATE
     imgui
     imgui_node_editor
-    SDL2_LIBRARY
+    ${SDL2_LIBRARY}
     application
     nlohmann_json::nlohmann_json
 )
