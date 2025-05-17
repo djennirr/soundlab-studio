@@ -89,14 +89,6 @@ void Reverb::process(AudioSample* stream, int length) {
         stream[i] = static_cast<AudioSample>((output * 32767.0f));
     }
 
-    // Debugging log
-    std::ofstream log("reverb_log.txt", std::ios::app);
-    log << "Input: ";
-    for (int i = 0; i < std::min(10, length); i++) {
-        log << stream[i] << " ";
-    }
-    log << "\n";
-    log.close();
 }
 
 void Reverb::render() {
@@ -118,7 +110,7 @@ void Reverb::render() {
     ImGui::SetNextItemWidth(150.0f);
     ImGui::SliderFloat("Mix", &mix, 0.0f, 1.0f, "%.2f");
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat("PreDelay", &preDelay, 0.0f, 0.1f, "%.3f s");
+    ImGui::SliderFloat("PreDelay", &preDelay, 0.001f, 0.1f, "%.3f s");
 
     // Reinitialize delay lines if preDelay changes significantly
     static float lastPreDelay = preDelay;

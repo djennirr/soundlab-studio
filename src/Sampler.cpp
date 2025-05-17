@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <string>
 #include <array>
-#include <memory>
 #include <iostream>
 
 # define portable_strcpy    strcpy

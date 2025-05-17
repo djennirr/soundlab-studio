@@ -4,18 +4,19 @@ project(main)
 
 set(IMGUI_NODE_EDITOR_ROOT_DIR "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor" CACHE PATH "Path to ImGui Node Editor")
 
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 list(APPEND CMAKE_MODULE_PATH "${IMGUI_NODE_EDITOR_ROOT_DIR}/misc/cmake-modules")
 
-set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/libs/SDL2")
+# Указываем путь к SDL2
+set(SDL2_LIBRARY "${CMAKE_SOURCE_DIR}/libs/SDL2/libSDL2.dylib")
+
+include_directories("${CMAKE_SOURCE_DIR}/libs")
 
 
 find_package(imgui REQUIRED)
 find_package(imgui_node_editor REQUIRED)
-find_package(SDL2 REQUIRED)
 
 add_subdirectory(libs/imgui-node-editor/examples/application)
 add_subdirectory(libs/json)
@@ -38,8 +39,13 @@ add_executable(main
     ${CMAKE_SOURCE_DIR}/src/Reverb.cpp
 )
 
-target_link_libraries(main PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
-
+target_link_libraries(main PRIVATE
+    imgui
+    imgui_node_editor
+    SDL2_LIBRARY
+    application
+    nlohmann_json::nlohmann_json
+)
 add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor/examples/data"
@@ -50,6 +56,12 @@ add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/samples"
         $<TARGET_FILE_DIR:main>/samples
+)
+
+add_custom_command(TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${SDL2_LIBRARY}"
+        $<TARGET_FILE_DIR:main>
 )
 
 set_target_properties(main PROPERTIES
