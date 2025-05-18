@@ -17,8 +17,8 @@
 #elif BIT == 16
     #define AMPLITUDE_I 32768
     #define AMPLITUDE_F 32768.0f
-    #define AUDIOFORMAT AUDIO_U16
-    typedef Uint16 AudioSample;
+    #define AUDIOFORMAT AUDIO_S16
+    typedef Sint16 AudioSample;
 
 #else
     #error "Unsupported bitnost'"
@@ -38,7 +38,8 @@ enum class NodeType {
     Control,
     Sampler,
     ADSR,
-    Sequencer, 
+    Filter,
+    Sequencer
 };
 
 enum class PinType {

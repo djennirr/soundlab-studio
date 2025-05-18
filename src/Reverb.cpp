@@ -1,91 +1,72 @@
 #include "Reverb.h"
-#include "AudioModule.h"
-#include "imgui_node_editor.h"
-#include <SDL2/SDL.h>
+#include <cmath>
+#include <algorithm>
+#include <fstream>
 
-// беда беда
+constexpr int SAMPLE_RATE = 44100;
+
 Reverb::Reverb() {
     module = nullptr;
     nodeId = nextNodeId++;
-    inputPin.Id = nextNodeId++;
+    inputPin.Id = nextPinId++;
     inputPin.pinType = PinType::AudioSignal;
-    outputPin.Id = nextNodeId++;
+    outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
 
-    delayBuffer.resize(bufferSize, 0.0f);
-    delayIndex = 0;
-    decayFactor = 0.6f; // Степень затухания эха
-    mixFactor = 0.4f;    // Соотношение входного и обработанного сигнала
-    smoothFactor = 0.2f;
-    limiterThreshold = 0.9f;
+    decayTime = 2.0f;  // Seconds
+    damping = 0.5f;    // High-frequency damping
+    preDelay = 0.05f;  // Seconds
+    mix = 0.3f;        // Wet/dry mix
 
-    delayBuffers.resize(8, std::vector<float>(bufferSize, 0.0f)); // 8 линий задержки
-    delayIndices = {0, bufferSize / 3, bufferSize / 5, bufferSize / 7, bufferSize / 11, bufferSize / 13, bufferSize / 17, bufferSize / 19}; // Разные задержки
-
-    // Устанавливаем различные уровни затухания для каждой линии
-    decayFactors = {0.6f, 0.5f, 0.4f, 0.3f, 0.25f, 0.2f, 0.15f, 0.1f}; // Уменьшаем затухание для каждой линии
-
-    mixFactor = 0.5f; // Соотношение сухого и обработанного сигнала
-    preDelay = 20; // Пред-задержка в сэмплах (примерно 10-20 мс)
-    
+    initDelayLines();
 }
 
+void Reverb::initDelayLines() {
+    const std::vector<float> delays = {
+        0.0297f, 0.0371f, 0.0411f, 0.0437f,
+        0.0533f, 0.0677f, 0.0731f, 0.0791f
+    };
 
+    delayLines.clear();
+    for (auto delay : delays) {
+        DelayLine line;
+        line.delay = static_cast<int>(delay * SAMPLE_RATE);
+        line.buffer.resize(line.delay, 0.0f);
+        line.pos = 0;
+        line.filterState = 0.0f;
+        line.decay = 0.0f; // Will be set in process
+        delayLines.push_back(line);
+    }
 
-float Reverb::applyPhaseShift(float inputSample, float shiftFactor) {
-    return inputSample * (1.0f + shiftFactor * sin(inputSample));
+    preDelayBuffer.resize(static_cast<int>(preDelay * SAMPLE_RATE), 0.0f);
+    preDelayPos = 0;
 }
 
-float Reverb::softClip(float sample) {
-    if (sample > limiterThreshold)
-        return limiterThreshold + (sample - limiterThreshold) * 0.1f; // Плавное ограничение
-    if (sample < -limiterThreshold)
-        return -limiterThreshold + (sample + limiterThreshold) * 0.1f;
-    return sample;
+float Reverb::lowPassFilter(float input, float& state, float damping) {
+    float cutoff = 1000.0f + 19000.0f * (1.0f - damping);
+    float rc = 1.0f / (2.0f * M_PI * cutoff);
+    float alpha = 1.0f / (1.0f + rc * SAMPLE_RATE);
+    state = input * alpha + state * (1.0f - alpha);
+    return state;
 }
 
+float Reverb::processSample(float input) {
+    float preDelayed = preDelayBuffer[preDelayPos];
+    preDelayBuffer[preDelayPos] = input;
+    preDelayPos = (preDelayPos + 1) % preDelayBuffer.size();
 
+    float output = 0.0f;
+    for (auto& line : delayLines) {
+        float delayed = line.buffer[line.pos];
+        delayed = lowPassFilter(delayed, line.filterState, damping);
+        output += delayed;
+        float feedback = preDelayed + delayed * line.decay;
+        line.buffer[line.pos] = feedback;
+        line.pos = (line.pos + 1) % line.buffer.size();
+    }
 
-// void Reverb::process(AudioSample* stream, int length) {
-//     if (module) {
-//         module->process(stream, length);
-
-//         for (int i = 0; i < length; i++) {
-//             // Преобразуем в диапазон -1.0f .. 1.0f
-//             float inputSample = static_cast<float>(stream[i]) / 32767.5f - 1.0f;
-
-//             // Интерполируем между текущим и предыдущим значением (смягчение)
-//             int prevIndex = (delayIndex - 1 + bufferSize) % bufferSize;
-//             float delayedSample = (delayBuffer[delayIndex] + delayBuffer[prevIndex]) * 0.5f;
-//             float smoothedSample = (delayedSample * smoothFactor) + (delayBuffer[delayIndex] * (1.0f - smoothFactor));
-
-//             // Затухание и запись в буфер
-//             delayBuffer[delayIndex] = inputSample + smoothedSample * decayFactor;
-
-//             // Микшируем с сухим сигналом
-//             float outputSample = softClip((inputSample * (1.0f - mixFactor)) + (smoothedSample * mixFactor));
-
-//             // Увеличиваем индекс
-//             delayIndex = (delayIndex + 1) % bufferSize;
-
-//             // Преобразуем обратно в AudioSample
-//             stream[i] = static_cast<AudioSample>(std::clamp((outputSample * 32767.5f) + 32767.5f, 0.0f, 65535.0f));
-//         }
-//     } else {
-//         memset(stream, 0, length * sizeof(AudioSample));
-//     }
-// }
-
-
-
-
-float Reverb::lowPassFilter(float currentSample, float previousSample, float cutoffFrequency, float sampleRate) {
-    // Вычисляем коэффициент фильтрации
-    float tau = 1.0f / (2.0f * M_PI * cutoffFrequency);
-    float alpha = tau / (tau + (1.0f / sampleRate));
-    
-    // Применяем фильтрацию
-    return (1.0f - alpha) * previousSample + alpha * currentSample;
+    output *= 0.125f;
+    return input * (1.0f - mix) + output * mix;
 }
 
 void Reverb::process(AudioSample* stream, int length) {
@@ -96,90 +77,68 @@ void Reverb::process(AudioSample* stream, int length) {
 
     module->process(stream, length);
 
-    std::vector<float> delayedSamples(8, 0.0f);
-    float previousSample = 0.0f;
-    float sampleRate = 44100.0f; // Примерная частота дискретизации (укажите свою)
+    float decayPerSecond = 1.0f / decayTime;
+    for (auto& line : delayLines) {
+        line.decay = powf(10.0f, -decayPerSecond * line.buffer.size() / SAMPLE_RATE);
+    }
 
     for (int i = 0; i < length; i++) {
-        // Преобразуем 16-битный сэмпл в диапазон -1.0f .. 1.0f
-        float inputSample = static_cast<float>(stream[i]) / 32767.5f - 1.0f;
-
-        float sum = 0.0f;
-        for (size_t j = 0; j < delayBuffers.size(); j++) {
-            int index = delayIndices[j];
-            
-            // Применяем low-pass фильтрацию для каждого задержанного сигнала
-            delayedSamples[j] = lowPassFilter(delayBuffers[j][index], previousSample, 500.0f, sampleRate);
-
-            // Применяем фазовый сдвиг (или другое искажение)
-            delayedSamples[j] = applyPhaseShift(delayedSamples[j], 0.1f);
-
-            sum += delayedSamples[j] * decayFactors[j];
-
-            // Запись в буфер с затуханием
-            delayBuffers[j][index] = inputSample + delayedSamples[j] * decayFactors[j];
-
-            // Обновляем индекс с циклическим сдвигом
-            delayIndices[j] = (delayIndices[j] + 1) % bufferSize;
-        }
-
-        // Микшируем сухой и обработанный сигнал
-        float outputSample = (inputSample * (1.0f - mixFactor)) + (sum * mixFactor);
-
-        // Ограничение уровня
-        outputSample = std::clamp(outputSample, -1.0f, 1.0f);
-
-        // Преобразуем обратно в 16-битный диапазон (0 - 65535)
-        stream[i] = static_cast<AudioSample>(std::clamp((outputSample + 1.0f) * 32767.5f, 0.0f, 65535.0f));
-
-        previousSample = outputSample;  // Обновляем предыдущий сэмпл для следующего вызова low-pass
+        float input = (stream[i]) / 32767.0f;
+        float output = processSample(input);
+        output = std::clamp(output, -1.0f, 1.0f);
+        stream[i] = static_cast<AudioSample>((output * 32767.0f));
     }
+
+    // Debugging log
+    std::ofstream log("reverb_log.txt", std::ios::app);
+    log << "Input: ";
+    for (int i = 0; i < std::min(10, length); i++) {
+        log << stream[i] << " ";
+    }
+    log << "\n";
+    log.close();
 }
 
 void Reverb::render() {
     ed::BeginNode(nodeId);
-
     ImGui::Text("Reverb");
+
     ed::BeginPin(inputPin.Id, ed::PinKind::Input);
-        ImGui::Text("-> In");
+    ImGui::Text("-> In");
     ed::EndPin();
 
-    ImGui::SameLine();
-
+    ImGui::SameLine(255.0f);
     ed::BeginPin(outputPin.Id, ed::PinKind::Output);
-        ImGui::Text("Out ->");
+    ImGui::Text("Out ->");
     ed::EndPin();
-    // ImGui::SetNextItemWidth(80.0f);
-    // ImGui::SliderFloat("Decay", &decayFactor, 0.0f, 1.0f, "%.2f");
-    // ImGui::DragFloat(("decay##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->decayFactor, 0.01F, 0.0f, 1.0f, "%.2f");
-    // ImGui::SetNextItemWidth(80.0f);
-    // ImGui::DragFloat(("mix##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->mixFactor, 0.01F, 0.0f, 1.0f, "%.2f");
-    // ImGui::SetNextItemWidth(80.0f);
-    // ImGui::DragFloat(("smooth##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->smoothFactor, 0.01F, 0.0f, 1.0f, "%.2f");
-    // ImGui::SetNextItemWidth(80.0f);
-    // ImGui::DragFloat(("limiter##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->limiterThreshold, 0.01F, 0.5f, 1.0f, "%.2f");
+    ImGui::SetNextItemWidth(150.0f);
+    ImGui::SliderFloat("Decay", &decayTime, 0.1f, 5.0f, "%.1f s");
+    ImGui::SetNextItemWidth(150.0f);
+    ImGui::SliderFloat("Damping", &damping, 0.0f, 1.0f, "%.2f");
+    ImGui::SetNextItemWidth(150.0f);
+    ImGui::SliderFloat("Mix", &mix, 0.0f, 1.0f, "%.2f");
+    ImGui::SetNextItemWidth(150.0f);
+    ImGui::SliderFloat("PreDelay", &preDelay, 0.0f, 0.1f, "%.3f s");
+
+    // Reinitialize delay lines if preDelay changes significantly
+    static float lastPreDelay = preDelay;
+    if (std::abs(preDelay - lastPreDelay) > 0.001f) {
+        initDelayLines();
+        lastPreDelay = preDelay;
+    }
+
     ed::EndNode();
 }
 
 std::vector<ed::PinId> Reverb::getPins() const {
-        return { inputPin.Id, outputPin.Id };
+    return {inputPin.Id, outputPin.Id};
 }
-
 
 ed::PinKind Reverb::getPinKind(ed::PinId pin) const {
-
     if (pin == inputPin.Id) {
         return ed::PinKind::Input;
-    } else {
-        return ed::PinKind::Output;
     }
-}
-
-void Reverb::connect(Module* input, ed::PinId pin) {
-    if (pin == inputPin.Id) {
-        this->module = dynamic_cast<AudioModule*>(input);
-    }
-    return;
+    return ed::PinKind::Output;
 }
 
 PinType Reverb::getPinType(ed::PinId pinId) {
@@ -188,21 +147,27 @@ PinType Reverb::getPinType(ed::PinId pinId) {
     } else if (outputPin.Id == pinId) {
         return outputPin.pinType;
     }
+    return PinType::AudioSignal;
 }
 
 ed::NodeId Reverb::getNodeId() {
     return nodeId;
 }
 
-// int Reverb::chooseIn(ed::PinId pin) {
-//     if (pin == inputPinId) {
-//         return 1;
-//     }
-// }
+void Reverb::connect(Module* input, ed::PinId pin) {
+    if (pin == inputPin.Id) {
+        module = dynamic_cast<AudioModule*>(input);
+    }
+}
 
 void Reverb::disconnect(Module* module, ed::PinId pin) {
     if (this->module == dynamic_cast<AudioModule*>(module)) {
         this->module = nullptr;
     }
-    return;
+}
+
+void Reverb::fromJson(const json& data) {
+    AudioModule::fromJson(data);
+    inputPin.Id = ed::PinId(data["pins"][0].get<int>());
+    outputPin.Id = ed::PinId(data["pins"][1].get<int>());
 }

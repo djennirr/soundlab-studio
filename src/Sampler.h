@@ -23,12 +23,12 @@ class Sampler : public AudioModule
     const std::string ADULT_sample = "samples/adult.wav";
     const std::string VIBE_sample = "samples/vibe.wav";
     const std::string SNARE_sample = "samples/snare.wav";
-    const std::string KICK_sample = "samples/kick.wav";
-    const std::string KICK2_sample = "samples/kick2.wav";
     const std::string ALIEN_sample = "samples/alien.wav";
     const std::string ELECTRO_sample = "samples/electro140bpm.wav";
     const std::string COOL_DRUMS_sample = "samples/drum-loop.wav";
     const std::string CARTI_sample = "samples/vamp-anthem.wav";
+    const std::string TLOU_sample = "samples/tlou.wav";
+    const std::string SMESHARIKI_sample = "samples/smeshariki.wav";
 
 private:
     std::string popup_text = "DRUMS"; // Было: char popup_text[20]
@@ -57,11 +57,12 @@ private:
         CEREMONIAL,
         CHILD,
         ELECTRO,
-        KICK,
-        KICK2,
         SNARE,
         VIBE,
-        CARTI
+        CARTI,
+        USER,
+        TLOU,
+        SMESHARIKI
     };
 
     inline void setSample(const std::string& sampleName, SampleType type) {
@@ -94,4 +95,5 @@ public:
     void disconnect(Module *module, ed::PinId pin) override;
     void addButton();
     void fromJson(const json& data) override;
+    std::string uploadSample();
 };

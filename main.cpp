@@ -2,6 +2,7 @@
 #include <imgui_node_editor.h>
 #include <application.h>
 #include <cmath>
+#include "src/Reverb.h"
 #include "src/Module.h"
 #include "src/AudioOutput.h"
 #include "src/Oscillator.h"
@@ -13,6 +14,7 @@
 #include "src/Sampler.h"
 #include "src/ADSR.h"
 #include "src/Control.h"
+#include "src/Filter.h"
 #include "src/Sequencer.h"
 #include <vector>
 #include <algorithm>
@@ -21,6 +23,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include "themes/themes.h"
 
 namespace fs = std::filesystem;
 static std::vector<std::string> jsonFiles;
@@ -140,11 +143,16 @@ struct Example : public Application {
                 Control* control = new Control();
                 control->fromJson(moduleJson);
                 module = control;
+            } else if (type == NodeType::Filter) {
+                Filter* filter = new Filter(0, 1);
+                filter->fromJson(moduleJson);
+                module = filter;
             } else if (type == NodeType::Sequencer) {
                 Sequencer* seq = new Sequencer();
                 seq->fromJson(moduleJson);
                 module = seq;
             }
+    
     
             if (!module) continue;
     
@@ -268,6 +276,7 @@ struct Example : public Application {
         ed::Config config;
         config.SettingsFile = "BasicInteraction.json";
         m_Context = ed::CreateEditor(&config);
+        ApplyTheme(0);
     }
 
     void OnStop() override {
@@ -362,6 +371,26 @@ struct Example : public Application {
 
             ImGui::EndPopup();
         }
+
+        ImGui::SameLine();
+        ImGui::Text("Theme:");
+        ImGui::SameLine();
+        ImGui::PushItemWidth(150.0f);
+        if (ImGui::BeginCombo("##ThemeSelector", GetThemeName(m_CurrentThemeIndex))) {
+            for (int i = 0; i < GetThemeCount(); i++) {
+                bool isSelected = (m_CurrentThemeIndex == i);
+                if (ImGui::Selectable(GetThemeName(i), isSelected)) {
+                    m_CurrentThemeIndex = i;
+                    ApplyTheme(m_CurrentThemeIndex);
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+        ImGui::Separator();
 
         // ImGui::End();
 
@@ -581,6 +610,14 @@ struct Example : public Application {
                 node = new ADSR();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Filter")) {
+                node = new Filter(20500);
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Reverb")) {
+                node = new Reverb();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Sequencer")) {
                 node = new Sequencer();
                 modules.push_back(node);
@@ -602,6 +639,7 @@ struct Example : public Application {
     ImVector<LinkInfo> m_Links;
     ImVector<Module*> modules;
     int m_NextLinkId = 2000;
+    int m_CurrentThemeIndex = 0;
 };
 
 int Main(int argc, char** argv) {

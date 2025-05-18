@@ -22,6 +22,7 @@ add_subdirectory(libs/json)
 
 add_executable(main
     ${CMAKE_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/themes/themes.cpp
     ${CMAKE_SOURCE_DIR}/src/AudioOutput.cpp
     ${CMAKE_SOURCE_DIR}/src/Oscillator.cpp
     ${CMAKE_SOURCE_DIR}/src/Oscilloscope.cpp  
@@ -33,6 +34,7 @@ add_executable(main
     ${CMAKE_SOURCE_DIR}/src/Sampler.cpp
     ${CMAKE_SOURCE_DIR}/src/Control.cpp
     ${CMAKE_SOURCE_DIR}/src/ADSR.cpp
+    ${CMAKE_SOURCE_DIR}/src/Filter.cpp
     ${CMAKE_SOURCE_DIR}/src/Sequencer.cpp
 )
 
@@ -47,7 +49,7 @@ add_custom_command(TARGET main POST_BUILD
 add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/samples"
-        $<TARGET_FILE_DIR:main>/../samples
+        $<TARGET_FILE_DIR:main>/samples
 )
 
 set_target_properties(main PROPERTIES

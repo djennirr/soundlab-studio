@@ -1,6 +1,11 @@
 #include "Sampler.h"
 #include "Module.h"
 #include "imgui_node_editor.h"
+#include <cstdlib>
+#include <string>
+#include <array>
+#include <memory>
+#include <iostream>
 
 # define portable_strcpy    strcpy
 
@@ -54,8 +59,6 @@ void Sampler::loadWAV(const std::string &filename)
     {
         audioData[i] = ((int)src[2 * i] + (int)src[2 * i + 1]) / 2; // Смешиваем стерео → моно
 
-        // int16 (-32768..32767) → Uint16 (0..65535)
-        audioData[i] += AMPLITUDE;
     }
 
     SDL_FreeWAV(buffer);
@@ -87,12 +90,6 @@ void Sampler::process(AudioSample *stream, int len)
         case SampleType::SNARE:
             loadWAV(SNARE_sample);
             break;
-        case SampleType::KICK:
-            loadWAV(KICK_sample);
-            break;
-        case SampleType::KICK2:
-            loadWAV(KICK2_sample);
-            break;
         case SampleType::ALIEN:
             loadWAV(ALIEN_sample);
             break;
@@ -105,6 +102,14 @@ void Sampler::process(AudioSample *stream, int len)
         case SampleType::CARTI:
             loadWAV(CARTI_sample);
             break;
+        case SampleType::USER:
+            loadWAV(CARTI_sample);
+        case SampleType::TLOU:
+            loadWAV(TLOU_sample);
+            break;
+        case SampleType::SMESHARIKI:
+            loadWAV(SMESHARIKI_sample);
+            break;
         default:
             std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
             break;
@@ -115,7 +120,7 @@ void Sampler::process(AudioSample *stream, int len)
 
     if (inputModule == nullptr) {
         if (isSignalActive) {
-            for (int i = 0; i < len; i += 2) {
+            for (int i = 0; i < len; i++) {
                 if (position >= audioData.size()) {
                     position = 0;
                 }
@@ -129,7 +134,6 @@ void Sampler::process(AudioSample *stream, int len)
                       audioData[nextPos] * frac;
         
         stream[i] = static_cast<AudioSample>(sample * volume);
-        stream[i + 1] = sample;
         position += pitch; // Изменяем шаг воспроизведения
             }
         } else {
@@ -143,7 +147,7 @@ void Sampler::process(AudioSample *stream, int len)
                 position = 0;
             }
 
-            for (int i = 0; i < len; i += 2) {
+            for (int i = 0; i < len; i++) {
                 if (position >= audioData.size()) {
                     stream[i] = AMPLITUDE;
                     stream[i + 1] = AMPLITUDE;
@@ -155,7 +159,6 @@ void Sampler::process(AudioSample *stream, int len)
                 AudioSample sample = static_cast<AudioSample>(scaled);
 
                 stream[i] = sample;
-                stream[i + 1] = sample;
                 pitch = freq / SEQUENCER_QUOTIENT;
                 position += pitch; 
             }
@@ -164,6 +167,33 @@ void Sampler::process(AudioSample *stream, int len)
         }
         lastSignal = signal;
     }
+}
+
+std::string Sampler::uploadSample() {
+    #ifdef __APPLE__
+        const char* cmd = "osascript -e 'POSIX path of (choose file)'";
+    #elif __linux__
+        const char* cmd = "zenity --file-selection";
+    #else
+        return ""; // для плохих ос
+    #endif
+
+    std::array <char, 1024> buffer;
+    std::string result;
+
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) return "";
+
+    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+        result += buffer.data();
+    }
+    pclose(pipe);
+
+    if (!result.empty() && result.back() == '\n') {
+        result.pop_back();
+    }
+
+    return result;
 }
 
 void Sampler::render()
@@ -186,6 +216,24 @@ void Sampler::render()
         do_popup = true;
     }
 
+    ImGui::SameLine(120.0F);
+
+    if (ImGui::Button(("Upload file##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+        std::string filepath = uploadSample();
+        if (!filepath.empty()) {
+        
+            if (filepath.size() > 4 && (filepath.substr(filepath.size() - 4) == ".wav" || 
+                                                filepath.substr(filepath.size() - 4) == ".WAV")) {
+                loadWAV(filepath);
+                sampleType = SampleType::USER;
+                isChanged = false;
+                std::cout << "Загружен пользовательский файл: " << filepath << std::endl;
+            } else {
+                std::cerr << "Неподдерживаемый формат файла" << std::endl;
+            }
+        }
+    }
+
     ImGui::SetNextItemWidth(150);
     ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
 
@@ -197,6 +245,7 @@ void Sampler::render()
 
 
     ed::Suspend(); // приостанавливает работу редакторов узла
+
     std::string buttonLabel = std::string("popup_button") + "####<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
     if (do_popup)
     {
@@ -279,12 +328,6 @@ void Sampler::fromJson(const json& data) {
             break;
         case SampleType::ELECTRO:
             popup_text = "ELECTRO";
-            break;
-        case SampleType::KICK:
-            popup_text = "KICK";
-            break;
-        case SampleType::KICK2:
-            popup_text = "KICK2";
             break;
         case SampleType::SNARE:
             popup_text = "SNARE";

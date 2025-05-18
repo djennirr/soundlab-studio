@@ -27,7 +27,7 @@ void Distortion::process(AudioSample* stream, int length) {
 
     for (int i = 0; i < length; i++) {
         // Нормализуем входной сигнал (-1.0 to 1.0)
-        float input = (stream[i] - AMPLITUDE_I) / AMPLITUDE_F;
+        float input = (stream[i]) / AMPLITUDE_F;
 
         // Применяем жесткое обрезание (hard clipping)
         float clipped = input * drive;
@@ -42,8 +42,8 @@ void Distortion::process(AudioSample* stream, int length) {
         //мы юзаем soft clipping
         // Смешиваем оригинальный и искажённый сигнал
         float output = mix * softClipped + (1.0f - mix) * input;
-
-        stream[i] = static_cast<AudioSample>((output * AMPLITUDE_F) + AMPLITUDE_F);
+        output = std::clamp(output, -1.0f, 1.0f);
+        stream[i] = static_cast<AudioSample>((output * AMPLITUDE_F));
     }
 }
 
@@ -62,7 +62,7 @@ void Distortion::render() {
     ImGui::SetNextItemWidth(150.0f);
     ImGui::DragFloat(("Drive##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->drive, 0.1f, 0.0f, 10.0f);
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::DragFloat(("Mix##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->mix, 0.01f, 0.0f, 1.0f);
+    ImGui::DragFloat(("Mix##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->mix, 0.01f, 0.0f, 0.990f);
 
     ed::EndNode();
 }
