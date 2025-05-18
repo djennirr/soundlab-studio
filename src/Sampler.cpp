@@ -131,9 +131,10 @@ void Sampler::process(AudioSample *stream, int len)
             memset(stream, 0, len * sizeof(AudioSample));
         }
     } else {
-        int signal = inputModule->getSig();
-        if (isSignalActive) {
-            if (signal != lastSignal) {
+        bool signal = inputModule->active();
+        int freq = inputModule->get();
+        if (freq != 0) {
+            if (signal != lastSignal ) {
                 position = 0;
             }
 

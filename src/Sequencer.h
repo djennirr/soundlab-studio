@@ -53,7 +53,7 @@ public:
     void connect(Module* input, ed::PinId pin) override;
     void disconnect(Module* module, ed::PinId pin) override;
     int get() override;
-    int getSig() override;
     bool active() override;
     void fromJson(const json& data) override;
+    bool trigger();
 };

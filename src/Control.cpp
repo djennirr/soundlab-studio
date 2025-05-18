@@ -116,7 +116,3 @@ void Control::fromJson(const json& data) {
     ControlModule::fromJson(data);
     outputPin.Id = ed::PinId(data["pins"][0].get<int>());
 }
-
-int Control::getSig() {
-    return 0;
-}

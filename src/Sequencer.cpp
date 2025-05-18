@@ -27,7 +27,7 @@ int Sequencer::get() {
 
 int signalchik = 0;
 
-int Sequencer::getSig() {
+bool Sequencer::active() {
     advanceSample();
     return signalchik;
 }
@@ -144,7 +144,7 @@ void Sequencer::render() {
                                std::to_string(row) + "_" + 
                                std::to_string(step);
             bool isActive = sequence[row][step];
-            bool isCurrentStep = (step == currentStep && active());
+            bool isCurrentStep = (step == currentStep && trigger());
 
             if (isActive) {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
@@ -184,7 +184,7 @@ void Sequencer::render() {
     ed::EndNode();
 }
 
-bool Sequencer::active() {
+bool Sequencer::trigger() {
     for (int row = 0; row < numRows; row++) {
         if (triggerRemainingSamples[row] > 0) {
             return true;
