@@ -118,7 +118,7 @@ void Reverb::render() {
     ImGui::SetNextItemWidth(150.0f);
     ImGui::SliderFloat("Mix", &mix, 0.0f, 1.0f, "%.2f");
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat("PreDelay", &preDelay, 0.0f, 0.1f, "%.3f s");
+    ImGui::SliderFloat("PreDelay", &preDelay, 0.001f, 0.1f, "%.3f s");
 
     // Reinitialize delay lines if preDelay changes significantly
     static float lastPreDelay = preDelay;
