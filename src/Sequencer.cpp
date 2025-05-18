@@ -27,6 +27,7 @@ int Sequencer::get() {
 
 
 bool Sequencer::active() {
+    if (get() == 0) return 0;
     // advanceSample();
     if (!signalchik) {
         signalchik = 1;
