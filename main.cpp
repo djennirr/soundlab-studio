@@ -15,6 +15,7 @@
 #include "src/ADSR.h"
 #include "src/Control.h"
 #include "src/Filter.h"
+#include "src/Sequencer.h"
 #include <vector>
 #include <algorithm>
 #include "imgui_node_editor_internal.h"
@@ -146,6 +147,10 @@ struct Example : public Application {
                 Filter* filter = new Filter(0, 1);
                 filter->fromJson(moduleJson);
                 module = filter;
+            } else if (type == NodeType::Sequencer) {
+                Sequencer* seq = new Sequencer();
+                seq->fromJson(moduleJson);
+                module = seq;
             }
     
     
@@ -611,6 +616,10 @@ struct Example : public Application {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Reverb")) {
                 node = new Reverb();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Sequencer")) {
+                node = new Sequencer();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             }

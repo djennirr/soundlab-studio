@@ -38,8 +38,8 @@ enum class NodeType {
     Control,
     Sampler,
     ADSR,
-    ControlADSR,
-    Filter
+    Filter,
+    Sequencer
 };
 
 enum class PinType {

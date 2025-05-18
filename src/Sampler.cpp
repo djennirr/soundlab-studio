@@ -63,13 +63,13 @@ void Sampler::loadWAV(const std::string &filename)
 
     SDL_FreeWAV(buffer);
     audioSpec = wavSpec;
+    position = 0.0f;
 }
 
 void Sampler::process(AudioSample *stream, int len)
 {
     if (isChanged)
     {
-
         switch (sampleType)
         {
         case SampleType::DRUMS:
@@ -115,21 +115,57 @@ void Sampler::process(AudioSample *stream, int len)
             break;
         }
         isChanged = false;
+        position = 0;
     }
 
-    // std::cout << len << "\n";
-    for (int i = 0; i < len; i += 1) // 2 байта на канал (стерео)
-    {
-        if (position >= audioData.size())
-            position = 0;
+    if (inputModule == nullptr) {
+        if (isSignalActive) {
+            for (int i = 0; i < len; i++) {
+                if (position >= audioData.size()) {
+                    position = 0;
+                }
 
-        float scaled = audioData[position] * volume;
-        AudioSample sample = static_cast<AudioSample>(scaled);
 
-        stream[i] = sample;     // левый канал
-        // stream[i + 1] = sample; // правый канал
+        int posInt = static_cast<int>(position);
+        float frac = position - posInt;
+        int nextPos = (posInt + 1) % audioData.size();
+        
+        float sample = audioData[posInt] * (1.0f - frac) + 
+                      audioData[nextPos] * frac;
+        
+        stream[i] = static_cast<AudioSample>(sample * volume);
+        position += pitch; // Изменяем шаг воспроизведения
+            }
+        } else {
+            memset(stream, 0, len * sizeof(AudioSample));
+        }
+    } else {
+        bool signal = inputModule->active();
+        int freq = inputModule->get();
+        if (freq != 0) {
+            if (signal == 0) {
+                position = 0;
+            }
 
-        position++;
+            for (int i = 0; i < len; i++) {
+                if (position >= audioData.size()) {
+                    stream[i] = AMPLITUDE;
+                    stream[i + 1] = AMPLITUDE;
+                    position = audioData.size();
+                    continue;
+                }
+
+                float scaled = audioData[position] * volume;
+                AudioSample sample = static_cast<AudioSample>(scaled);
+
+                stream[i] = sample;
+                pitch = freq / SEQUENCER_QUOTIENT;
+                position += pitch; 
+            }
+        } else {
+            memset(stream, 0, len * sizeof(AudioSample));
+        }
+        lastSignal = signal;
     }
 }
 
@@ -201,10 +237,15 @@ void Sampler::render()
     ImGui::SetNextItemWidth(150);
     ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
 
+    ImGui::SetNextItemWidth(150);
+    ImGui::SliderFloat(("Pitch##<" + std::to_string(nodeId.Get()) + ">").c_str(), 
+                      &pitch, 0.5f, 2.0f, "%.2f");
 
     ed::EndNode();
 
-    ed::Suspend(); 
+
+    ed::Suspend(); // приостанавливает работу редакторов узла
+
     std::string buttonLabel = std::string("popup_button") + "####<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
     if (do_popup)
     {
@@ -247,6 +288,17 @@ PinType Sampler::getPinType(ed::PinId pinId) {
 }
 
 ed::NodeId Sampler::getNodeId() { return nodeId; }
+
+void Sampler::connect(Module *module, ed::PinId pin) {
+    this->inputModule = dynamic_cast<ControlModule*>(module);
+    return;    
+}
+void Sampler::disconnect(Module *module, ed::PinId pin) {
+    if (dynamic_cast<ControlModule*>(module) == this->inputModule) {
+        this->inputModule = nullptr;
+    }
+    return;
+}
 
 void Sampler::fromJson(const json& data) {
     AudioModule::fromJson(data);
@@ -292,5 +344,3 @@ void Sampler::fromJson(const json& data) {
             break;
     }
 }
-void Sampler::connect(Module *module, ed::PinId pin) { return; }
-void Sampler::disconnect(Module *module, ed::PinId pin) { return; }

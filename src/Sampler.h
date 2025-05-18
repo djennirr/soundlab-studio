@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioModule.h"
+#include "ControlModule.h"
 #include "Module.h"
 #include "SampleType.h"
 #include "imgui_node_editor.h"
@@ -15,6 +16,7 @@ class Sampler : public AudioModule
     const int AMPLITUDE = 32768;
     const int MAX_VALUE = 65535;
     const int STEREO_CHANNELS = 2;
+    const float SEQUENCER_QUOTIENT = 246.5f;
     const std::string CEREMONIAL_sample = "samples/sample-3s.wav";
     const std::string DRUMS_sample = "samples/sample-12s.wav";
     const std::string CHILD_sample = "samples/sample-15s.wav";
@@ -33,7 +35,12 @@ private:
     float volume;
     bool isChanged; // флаг для отслеживания изменил ли пользователь сэмпл
     void loadWAV(const std::string &filename);
-    size_t position = 0;
+    float position = 0;
+    float pitch = 1.0f;
+
+    ControlModule* inputModule = nullptr;
+    bool isSignalActive = true;
+    int lastSignal = 0;
 
     std::vector<AudioSample> audioData;
     std::vector<AudioSample> audioDataLeft;

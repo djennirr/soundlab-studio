@@ -54,3 +54,4 @@ private:
     std::string AxesOffStr = "Add Axes";
     int amountOfSpans = 4;         
 };
+  
