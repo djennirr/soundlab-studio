@@ -19,7 +19,7 @@ private:
     std::vector<int> triggerRemainingSamples;
     std::vector<int> frequencies;
     std::vector<std::string> noteNames;
-
+    int signalchik = 0;
     void advanceSample();
     void resizeSequence();
     void generateFrequencies();

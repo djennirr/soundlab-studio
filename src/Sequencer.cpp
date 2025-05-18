@@ -16,7 +16,7 @@ Sequencer::Sequencer() {
 }
 
 int Sequencer::get() {
-    advanceSample();
+    // advanceSample();
     for (int row = 0; row < numRows; row++) {
         if (triggerRemainingSamples[row] > 0) {
             return frequencies[row];
@@ -25,10 +25,9 @@ int Sequencer::get() {
     return 0;
 }
 
-int signalchik = 0;
 
 bool Sequencer::active() {
-    advanceSample();
+    // advanceSample();
     if (!signalchik) {
         signalchik = 1;
         return 0;
@@ -107,6 +106,7 @@ void Sequencer::randomizeSequence() {
 }
 
 void Sequencer::render() {
+    advanceSample();
     ed::BeginNode(nodeId);
     ImGui::Text("Sequencer");
 
