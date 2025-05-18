@@ -32,8 +32,8 @@ inline std::string SampleTypeToString(SampleType type) {
         case COOL_DRUMS:  return "COOL_DRUMS";
         case CARTI:       return "CARTI";
         case USER:        return "USER";
-        case TLOU:       return "TLOU";
-        case SMESHARIKI: return "SMESHARIKI";
+        case TLOU:        return "TLOU";
+        case SMESHARIKI:  return "SMESHARIKI";
         default:          return "UNKNOWN";
     }
 }

@@ -304,6 +304,7 @@ void Sampler::fromJson(const json& data) {
     AudioModule::fromJson(data);
     
     volume = data["volume"];
+    pitch = data["pitch"];
     sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
     isChanged = true;
 
@@ -337,6 +338,18 @@ void Sampler::fromJson(const json& data) {
             break;
         case SampleType::COOL_DRUMS:
             popup_text = "COOL_DRUMS";
+            break;
+        case SampleType::CARTI:
+            popup_text = "CARTI";
+            break;
+        case SampleType::TLOU:
+            popup_text = "TLOU";
+            break;
+        case SampleType::SMESHARIKI:
+            popup_text = "SMESHARIKI";
+            break;
+        case SampleType::USER:
+            popup_text = "USER";
             break;
         default:
             popup_text = "UNKNOWN";

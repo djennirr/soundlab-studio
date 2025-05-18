@@ -74,6 +74,7 @@ private:
     json toJson() const override {
         json data = AudioModule::toJson();
         data["volume"] = volume;
+        data["pitch"] = pitch;
         data["sampleType"] = static_cast<int>(sampleType);
         return data;
     }
