@@ -120,7 +120,7 @@ void Sampler::process(AudioSample *stream, int len)
                     position = 0;
                 }
 
-        // Линейная интерполяция для плавного звучания
+
         int posInt = static_cast<int>(position);
         float frac = position - posInt;
         int nextPos = (posInt + 1) % audioData.size();
@@ -129,6 +129,7 @@ void Sampler::process(AudioSample *stream, int len)
                       audioData[nextPos] * frac;
         
         stream[i] = static_cast<AudioSample>(sample * volume);
+        stream[i + 1] = sample;
         position += pitch; // Изменяем шаг воспроизведения
             }
         } else {
