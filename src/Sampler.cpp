@@ -134,7 +134,7 @@ void Sampler::process(AudioSample *stream, int len)
         bool signal = inputModule->active();
         int freq = inputModule->get();
         if (freq != 0) {
-            if (signal != lastSignal ) {
+            if (signal == 0) {
                 position = 0;
             }
 

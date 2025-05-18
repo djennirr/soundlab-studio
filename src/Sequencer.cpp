@@ -29,7 +29,11 @@ int signalchik = 0;
 
 bool Sequencer::active() {
     advanceSample();
-    return signalchik;
+    if (!signalchik) {
+        signalchik = 1;
+        return 0;
+    }
+    return 1;
 }
 
 void Sequencer::resizeSequence() {
@@ -72,7 +76,7 @@ void Sequencer::advanceSample() {
     if (interval < 1) interval = 10;
     if (sampleCount % interval == 0) {
         currentStep = (currentStep + 1) % numSteps;
-        signalchik = !signalchik;
+        signalchik = 0;
         for (int row = 0; row < numRows; row++) {
             if (sequence[row][currentStep]) {
                 triggerRemainingSamples[row] = triggerDuration;
