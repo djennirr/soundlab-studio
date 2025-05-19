@@ -1,25 +1,25 @@
-cmake_minimum_required(VERSION 3.12)
-
+cmake_minimum_required(VERSION 3.15)
 project(main)
 
-set(IMGUI_NODE_EDITOR_ROOT_DIR "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor" CACHE PATH "Path to ImGui Node Editor")
-
-
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED YES)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Подключаем CMake-модули ImGui Node Editor
+set(IMGUI_NODE_EDITOR_ROOT_DIR "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor" CACHE PATH "Path to ImGui Node Editor")
 list(APPEND CMAKE_MODULE_PATH "${IMGUI_NODE_EDITOR_ROOT_DIR}/misc/cmake-modules")
 
-set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/libs/SDL2")
-
-
+# Поиск локальных библиотек
 find_package(imgui REQUIRED)
 find_package(imgui_node_editor REQUIRED)
-find_package(SDL2 REQUIRED)
 
+# SDL2 — из Conan
+find_package(SDL2 REQUIRED CONFIG)
+
+# Подключаем локальные библиотеки
 add_subdirectory(libs/imgui-node-editor/examples/application)
 add_subdirectory(libs/json)
 
+# Основной исполняемый файл
 add_executable(main
     ${CMAKE_SOURCE_DIR}/main.cpp
     ${CMAKE_SOURCE_DIR}/themes/themes.cpp
@@ -38,8 +38,16 @@ add_executable(main
     ${CMAKE_SOURCE_DIR}/src/Sequencer.cpp
 )
 
-target_link_libraries(main PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
+# Линкуем библиотеки
+target_link_libraries(main PRIVATE
+    imgui
+    imgui_node_editor
+    SDL2::SDL2
+    application
+    nlohmann_json::nlohmann_json
+)
 
+# Копирование ресурсов
 add_custom_command(TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/libs/imgui-node-editor/examples/data"
@@ -52,6 +60,7 @@ add_custom_command(TARGET main POST_BUILD
         $<TARGET_FILE_DIR:main>/samples
 )
 
+# Папка вывода
 set_target_properties(main PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
