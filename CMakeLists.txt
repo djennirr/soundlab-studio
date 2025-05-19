@@ -13,8 +13,7 @@ find_package(imgui REQUIRED)
 find_package(imgui_node_editor REQUIRED)
 
 # SDL2 — из Conan
-find_package(SDL2 REQUIRED CONFIG)
-
+find_package(SDL2 REQUIRED)
 # Подключаем локальные библиотеки
 add_subdirectory(libs/imgui-node-editor/examples/application)
 add_subdirectory(libs/json)

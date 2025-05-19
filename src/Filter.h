@@ -2,7 +2,7 @@
 
 #include "AudioModule.h"
 #include "WaveType.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "Oscillator.h"
 #include "imgui_node_editor.h"
 

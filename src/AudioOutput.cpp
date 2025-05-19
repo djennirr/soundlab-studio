@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "AudioOutput.h"
 #include "AudioModule.h"
 #include "imgui_node_editor.h"

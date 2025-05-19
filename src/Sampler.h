@@ -5,7 +5,7 @@
 #include "Module.h"
 #include "SampleType.h"
 #include "imgui_node_editor.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <cmath>
 #include <vector>
 #include <string>

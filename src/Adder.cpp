@@ -2,7 +2,7 @@
 #include "AudioModule.h"
 #include "Module.h"
 #include "imgui_node_editor.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <algorithm>
 #include <vector>
 

@@ -5,7 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include <algorithm>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <vector>
 
 # define portable_strcpy    strcpy

@@ -5,7 +5,7 @@
 #include "imgui_node_editor.h"
 #include <vector>
 #include <imgui.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui_internal.h"   //ImLerp

@@ -10,7 +10,9 @@ class MainProjectConan(ConanFile):
     generators = "CMakeToolchain", "CMakeDeps"
 
     requires = [
-        "sdl/2.28.3"
+        "sdl/2.28.3",
+        "glfw/3.4",
+        "opengl/system"
     ]
 
     default_options = {

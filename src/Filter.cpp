@@ -1,6 +1,6 @@
 #include "Filter.h"
 #include "Module.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include <cmath>
 #include <complex>

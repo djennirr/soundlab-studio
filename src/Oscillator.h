@@ -4,7 +4,7 @@
 #include "ControlModule.h"
 #include "WaveType.h"
 #include "imgui_node_editor.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 const int AMPLITUDE = 32768;
 const int SAMPLE_RATE = 44100;

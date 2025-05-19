@@ -1,7 +1,7 @@
 #include "Distortion.h"
 #include <cmath>
 #include <vector>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "AudioModule.h"
 #include "imgui_node_editor.h"
 #include <algorithm>
