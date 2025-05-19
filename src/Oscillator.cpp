@@ -179,7 +179,7 @@ void Oscillator::generateSineWave(AudioSample* stream, int length) {
 void Oscillator::generateSquareWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
     const AudioSample highValue = (AMPLITUDE_I - 1);
-    const AudioSample lowValue = 0;
+    const AudioSample lowValue = -AMPLITUDE_I;
 
     for (int i = 0; i < length; i += 1) {
         if (phase < period / 2) {
@@ -200,7 +200,7 @@ void Oscillator::generateSawtoothWave(AudioSample* stream, int length) {
     const double period = SAMPLE_RATE / frequency;
 
     for (int i = 0; i < length; i += 1) {
-        stream[i] = static_cast<AudioSample>(((AMPLITUDE_I - 1) * phase) / period * volume);
+        stream[i] = static_cast<AudioSample>(((2.0 * AMPLITUDE_I) * phase / period - AMPLITUDE_I) * volume);
         // stream[i + 1] = static_cast<AudioSample>(((AMPLITUDE_I*2 - 1) * phase) / period * volume);
 
         phase += 1.0;
