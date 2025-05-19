@@ -11,7 +11,6 @@ class MainProjectConan(ConanFile):
 
     requires = [
         "sdl/2.28.3"
-        # json убрали, ты его подключаешь локально
     ]
 
     default_options = {
@@ -22,7 +21,7 @@ class MainProjectConan(ConanFile):
         cmake_layout(self)
 
     def generate(self):
-        pass  # Conan автоматически сгенерирует CMakeToolchain и CMakeDeps
+        pass  
 
     def build(self):
         cmake = CMake(self)
