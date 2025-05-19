@@ -30,8 +30,6 @@ class Filter : public AudioModule{
 
     public:
         Filter(float cut, float res = 1.0f);
-        //void DFT(Uint8 *inStream, double *real, double *imag, int length);
-        //void IDFT(double *real, double *imag, Uint8 *outStream, int length);
         void process(AudioSample *stream, int length) override;
         void render() override;
         std::vector<ed::PinId> getPins() const override;

@@ -84,9 +84,9 @@ void Filter::render() {
     ImGui::Text("Out ->");
     ed::EndPin();
 
-    std::string buttonName = "lowpass";
+    std::string buttonName = "lowpass##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
     if (not(isLowPass)){
-        buttonName = "highpass";
+        buttonName = "highpass##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
     }
     if (ImGui::Button(buttonName.c_str())){
         isLowPass = not(isLowPass);
