@@ -78,11 +78,7 @@ void Filter::render() {
     ImGui::Text("-> In");
     ed::EndPin();
 
-    ImGui::SameLine(170.0F);
-
-    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
-    ImGui::Text("Out ->");
-    ed::EndPin();
+    ImGui::SameLine(70.0F);
 
     std::string buttonName = "lowpass##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
     if (not(isLowPass)){
@@ -92,7 +88,13 @@ void Filter::render() {
         isLowPass = not(isLowPass);
     }
 
-    ImGui::SetNextItemWidth(150.0f);
+    ImGui::SameLine(170.0F);
+
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
+    ImGui::Text("Out ->");
+    ed::EndPin();
+
+    ImGui::SetNextItemWidth(170.0f);
     ImGui::SliderFloat(("cutoff##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->cutoff, 20.0f, 20500.0f, "%.0f Hz", ImGuiSliderFlags_Logarithmic);
 
     // ImGui::SetNextItemWidth(150.0f);
