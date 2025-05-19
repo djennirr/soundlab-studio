@@ -215,14 +215,14 @@ void Oscillator::generateTriangleWave(AudioSample* stream, int length) {
 
     for (int i = 0; i < length; i += 1) {
         double value;
-        if (phase < period / 2) {
-            value = ((AMPLITUDE_I - 1) * phase) / (period / 2);
-        } else {
-            value = ((AMPLITUDE_I - 1) - ((AMPLITUDE_I - 1) * (phase - (period / 2)) / (period / 2)));
-        }
-        value *= volume;
+if (phase < period / 2) {
+    value = (2.0 * AMPLITUDE_I * phase) / (period / 2) - AMPLITUDE_I;
+} else {
+    value = (2.0 * AMPLITUDE_I * (1.0 - (phase - period / 2) / (period / 2))) - AMPLITUDE_I;
+}
+value *= volume;
+stream[i] = static_cast<AudioSample>(value);
 
-        stream[i] = static_cast<AudioSample>(value);     // Левый канал
         // stream[i + 1] = static_cast<AudioSample>(value); // Правый канал
 
         phase += 1.0;
