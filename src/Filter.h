@@ -12,6 +12,7 @@ class Filter : public AudioModule{
         float cutoff;
         float resonanceWidth;
         float resonance;
+        bool isLowPass = true;
         AudioModule* module1;
         Pin input1Pin;
         Pin outputPin;
