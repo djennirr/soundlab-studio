@@ -30,6 +30,15 @@ private:
     float lowPassFilter(float input, float& state, float damping);
     float processSample(float input);
 
+    json toJson() const override {
+        json data = Module::toJson();
+        data["decayTime"] = decayTime;
+        data["damping"] = damping;
+        data["mix"] = mix;
+        data["preDelay"] = preDelay;
+        return data;
+    }
+
 public:
     Reverb();
     void process(AudioSample* stream, int length) override;
@@ -39,7 +48,7 @@ public:
     PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;
     NodeType getNodeType() const override {
-        return NodeType::Adder;
+        return NodeType::Reverb;
     }
     void connect(Module* input, ed::PinId pin) override;
     void disconnect(Module* module, ed::PinId pin) override;

@@ -168,6 +168,10 @@ void Reverb::disconnect(Module* module, ed::PinId pin) {
 
 void Reverb::fromJson(const json& data) {
     AudioModule::fromJson(data);
+    decayTime = data["decayTime"].get<float>();
+    damping = data["damping"].get<float>();
+    mix = data["mix"].get<float>();
+    preDelay = data["preDelay"].get<float>();
     inputPin.Id = ed::PinId(data["pins"][0].get<int>());
     outputPin.Id = ed::PinId(data["pins"][1].get<int>());
 }

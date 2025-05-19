@@ -39,7 +39,8 @@ enum class NodeType {
     Sampler,
     ADSR,
     Filter,
-    Sequencer
+    Sequencer,
+    Reverb
 };
 
 enum class PinType {

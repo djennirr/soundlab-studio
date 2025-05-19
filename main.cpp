@@ -151,6 +151,10 @@ struct Example : public Application {
                 Sequencer* seq = new Sequencer();
                 seq->fromJson(moduleJson);
                 module = seq;
+            } else if (type == NodeType::Reverb) {
+                Reverb* reverb = new Reverb();
+                reverb->fromJson(moduleJson);
+                module = reverb;
             }
     
     
