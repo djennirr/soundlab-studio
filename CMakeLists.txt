@@ -32,7 +32,7 @@ add_executable(main
     ${CMAKE_SOURCE_DIR}/src/Distortion.cpp
     ${CMAKE_SOURCE_DIR}/src/NoiseGenerator.cpp
     ${CMAKE_SOURCE_DIR}/src/Sampler.cpp
-    ${CMAKE_SOURCE_DIR}/src/Control.cpp
+    ${CMAKE_SOURCE_DIR}/src/Piano.cpp
     ${CMAKE_SOURCE_DIR}/src/ADSR.cpp
     ${CMAKE_SOURCE_DIR}/src/Filter.cpp
     ${CMAKE_SOURCE_DIR}/src/Sequencer.cpp

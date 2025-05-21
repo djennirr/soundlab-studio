@@ -1,7 +1,7 @@
 
 #include "ControlModule.h"
 #include "imgui_node_editor.h"
-class Control : public ControlModule {
+class Piano : public ControlModule {
 private:
     int frequency = 220;
     bool isActive = false;
@@ -10,12 +10,12 @@ private:
 
 
 public:
-    Control();
+    Piano();
     void render() override;
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
     NodeType getNodeType() const override {
-        return NodeType::Control;
+        return NodeType::Piano;
     }
     PinType getPinType(ed::PinId pinId) override;
     ed::NodeId getNodeId() override;

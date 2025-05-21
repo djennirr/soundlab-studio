@@ -199,26 +199,31 @@ std::string Sampler::uploadSample() {
 void Sampler::render()
 {
     ed::BeginNode(nodeId);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
     ImGui::Text("Sampler");
     ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
-    ImGui::SameLine(180);
-    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
-    ImGui::Text("Out ->");
-    ed::EndPin();
-
+    ImGui::SameLine(70);
     ImGui::AlignTextToFramePadding();
     std::string buttonLabelOpenPopup = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
     if (ImGui::Button(buttonLabelOpenPopup.c_str()))
     {
         do_popup = true;
     }
+    
+    ImGui::SameLine(190);
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
+    ImGui::Text("Out ->");
+    ed::EndPin();
 
-    ImGui::SameLine(120.0F);
+    
+    if (ImGui::Button(("Restart##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+        position = 0;
+    }
 
-    if (ImGui::Button(("Upload file##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+    ImGui::SameLine(175);
+
+    if (ImGui::Button(("Upload##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
         std::string filepath = uploadSample();
         if (!filepath.empty()) {
         
@@ -234,12 +239,13 @@ void Sampler::render()
         }
     }
 
-    ImGui::SetNextItemWidth(150);
+    
+
+    ImGui::SetNextItemWidth(180);
     ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
 
-    ImGui::SetNextItemWidth(150);
-    ImGui::SliderFloat(("Pitch##<" + std::to_string(nodeId.Get()) + ">").c_str(), 
-                      &pitch, 0.5f, 2.0f, "%.2f");
+    ImGui::SetNextItemWidth(180);
+    ImGui::DragFloat(("pitch##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->pitch, 0.005F, 0.5F, 2.0F, "%.2f");
 
     ed::EndNode();
 
