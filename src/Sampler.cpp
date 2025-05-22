@@ -126,20 +126,20 @@ void Sampler::process(AudioSample *stream, int len)
                 }
 
 
-        int posInt = static_cast<int>(position);
-        float frac = position - posInt;
-        int nextPos = (posInt + 1) % audioData.size();
-        
-        float sample = audioData[posInt] * (1.0f - frac) + 
-                      audioData[nextPos] * frac;
-        
-        stream[i] = static_cast<AudioSample>(sample * volume);
-        position += pitch; // Изменяем шаг воспроизведения
+            int posInt = static_cast<int>(position);
+            float frac = position - posInt;
+            int nextPos = (posInt + 1) % audioData.size();
+            
+            float sample = audioData[posInt] * (1.0f - frac) + 
+                        audioData[nextPos] * frac;
+            
+            stream[i] = static_cast<AudioSample>(sample * volume);
+            position += pitch; // Изменяем шаг воспроизведения
             }
         } else {
             memset(stream, 0, len * sizeof(AudioSample));
         }
-    } else {
+    } else if (inputModule->getNodeType() == NodeType::Sequencer) {
         bool signal = inputModule->active();
         int freq = inputModule->get();
         if (freq != 0) {
@@ -149,9 +149,7 @@ void Sampler::process(AudioSample *stream, int len)
 
             for (int i = 0; i < len; i++) {
                 if (position >= audioData.size()) {
-                    stream[i] = AMPLITUDE;
-                    stream[i + 1] = AMPLITUDE;
-                    position = audioData.size();
+                    position = 0;
                     continue;
                 }
 
@@ -166,6 +164,23 @@ void Sampler::process(AudioSample *stream, int len)
             memset(stream, 0, len * sizeof(AudioSample));
         }
         lastSignal = signal;
+    } else if (inputModule->getNodeType() == NodeType::Piano){
+        int freq = inputModule->get();
+        for (int i = 0; i < len; i++) {
+                if (position >= audioData.size()) {
+                    position = 0;
+                    continue;
+                }
+
+                float scaled = audioData[position] * volume;
+                AudioSample sample = static_cast<AudioSample>(scaled);
+
+                stream[i] = sample;
+                pitch = freq / 340.0f;
+                
+                position += pitch; 
+            }
+
     }
 }
 
@@ -296,11 +311,11 @@ PinType Sampler::getPinType(ed::PinId pinId) {
 ed::NodeId Sampler::getNodeId() { return nodeId; }
 
 void Sampler::connect(Module *module, ed::PinId pin) {
-    this->inputModule = dynamic_cast<ControlModule*>(module);
+    this->inputModule = static_cast<ControlModule*>(module);
     return;    
 }
 void Sampler::disconnect(Module *module, ed::PinId pin) {
-    if (dynamic_cast<ControlModule*>(module) == this->inputModule) {
+    if (static_cast<ControlModule*>(module) == this->inputModule) {
         this->inputModule = nullptr;
     }
     return;
