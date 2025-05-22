@@ -31,14 +31,16 @@ public:
     void DFT(AudioSample *inStream, double *real, double *imag, int length);
     
 private:
-    mutable std::mutex bufferMutex;  
     void fft(CArray& x);
     AudioModule* inputModule;
     Pin inputPin;
     Pin outputPin;
+    std::vector<AudioSample> overlapBuffer; // Буфер для хранения сэмплов между окнами
+    int overlapSize = 256;                  // 50% от fftSize (512)
+    static constexpr int fftSize = 512;     // Размер FFT (должен быть степенью 2)
+    static constexpr float smoothingFactor = 0.8f; // Коэффициент сглаживания
+    std::vector<float> smoothedAmplitudes;  // Сглаженные амплитуды
     std::vector<float> waveformBuffer;
-    int bufferSize = 256; 
-    int bufferIndex = 0;
     //Для четкого выведения волны
     int updateTimer = 0;  
     int updateInterval = 8; 

@@ -11,7 +11,9 @@ Spectroscope::Spectroscope() {
     inputPin.pinType = PinType::AudioSignal;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
-    waveformBuffer.resize(256);
+    overlapBuffer.reserve(fftSize * 2);
+    smoothedAmplitudes.resize(fftSize / 2, 0.0f);
+    waveformBuffer.resize(fftSize / 2);
     clearBuffer();
 }
 
@@ -37,60 +39,55 @@ void Spectroscope::fft(CArray& x) {
 }
 
 void Spectroscope::process(AudioSample* stream, int length) {
-    const int fftSize = 512; // Размер FFT равен размеру буфера
     if (!inputModule) {
         memset(stream, 0, length * sizeof(AudioSample));
         return;
     }
-    if (length != fftSize) {
-        clearBuffer();
-        return;
-    }
 
-    if (inputModule) {
-        inputModule->process(stream, length);
-    } else {
-        clearBuffer();
-        return;
-    }
+    // Получаем аудиоданные от входного модуля
+    inputModule->process(stream, length);
 
-    // Конвертация в float и подготовка данных для FFT
-    CArray data(fftSize);
-    for (int i = 0; i < fftSize; i++) {
-        data[i] = Complex((stream[i]) / 32768.0, 0.0); // Нормировка на [-1, 1]
-    }
+    // Добавляем новые сэмплы в буфер перекрытия
+    overlapBuffer.insert(overlapBuffer.end(), stream, stream + length);
 
-    // Применение оконной функции (Ханна)
-    for (int i = 0; i < fftSize; i++) {
-        double window = 0.5 * (1 - cos(2*M_PI*i/(fftSize-1)));
-        data[i] *= window;
-    }
-
-    // Выполнение FFT
-    fft(data);
-
-    // Расчет амплитуд
-    std::vector<float> amplitudes(fftSize/2);
-    float maxAmplitude = 0.0f;
-    for (int i = 0; i < fftSize/2; i++) {
-        amplitudes[i] = std::abs(data[i]) / (fftSize/2);
-        if (amplitudes[i] > maxAmplitude) {
-            maxAmplitude = amplitudes[i];
+    // Обрабатываем все полные окна
+    while (overlapBuffer.size() >= fftSize) {
+        // Подготовка данных для FFT
+        CArray data(fftSize);
+        for (int i = 0; i < fftSize; i++) {
+            // Нормализация с учетом int16
+            float sample = overlapBuffer[i] / 32768.0f;
+            data[i] = Complex(sample, 0.0);
         }
-    }
 
-    // Нормализация
-    if (maxAmplitude > 0.0f) {
-        for (int i = 0; i < fftSize/2; i++) {
-            amplitudes[i] /= maxAmplitude;
+        // Применение оконной функции Ханна
+        for (int i = 0; i < fftSize; i++) {
+            double window = 0.5 * (1 - cos(2 * M_PI * i / (fftSize - 1)));
+            data[i] *= window;
         }
+
+        // Выполнение FFT
+        fft(data);
+
+        // Расчет амплитуд
+        std::vector<float> amplitudes(fftSize / 2);
+        for (int i = 0; i < fftSize / 2; i++) {
+            amplitudes[i] = std::abs(data[i]) / (fftSize / 2);
+        }
+
+        // Сглаживание амплитуд
+        for (int i = 0; i < fftSize / 2; i++) {
+            smoothedAmplitudes[i] = smoothingFactor * smoothedAmplitudes[i] + (1 - smoothingFactor) * amplitudes[i];
+        }
+
+        // Удаление данных с перекрытием
+        overlapBuffer.erase(overlapBuffer.begin(), overlapBuffer.begin() + overlapSize);
     }
 
-    // Обновление буфера для отображения
+    // Обновление визуализации
     if (++updateTimer >= updateInterval) {
         updateTimer = 0;
-        std::lock_guard<std::mutex> lock(bufferMutex);
-        waveformBuffer = amplitudes;
+        waveformBuffer = smoothedAmplitudes; // Cглаженные значения
     }
 }
 
@@ -107,16 +104,22 @@ void Spectroscope::render() {
     ed::BeginPin(outputPin.Id, ed::PinKind::Output);
     ImGui::Text("Out ->");
     ed::EndPin();
-    std::lock_guard<std::mutex> lock(bufferMutex);
-    ImGui::PlotLines("##Spectrum", waveformBuffer.data(), 256, bufferIndex,
-                     nullptr, 0.0f, 1.0f, ImVec2(width, height));
+    // Конвертация в дБ
+    std::vector<float> dBValues(waveformBuffer.size());
+    for (size_t i = 0; i < waveformBuffer.size(); i++) {
+        dBValues[i] = 20 * log10(waveformBuffer[i] + 1e-6f); // +1e-6 чтобы избежать log(0)
+    }
+
+    ImGui::PlotLines("##Spectrum", dBValues.data(), dBValues.size(), 0,
+                     nullptr, -60.0f, 0.0f, ImVec2(width, height));
 
     ed::EndNode();
 }
 
 void Spectroscope::clearBuffer() {
+    overlapBuffer.clear();
+    std::fill(smoothedAmplitudes.begin(), smoothedAmplitudes.end(), 0.0f);
     std::fill(waveformBuffer.begin(), waveformBuffer.end(), 0.0f);
-    bufferIndex = 0;
 }
 
 std::vector<ed::PinId> Spectroscope::getPins() const {
