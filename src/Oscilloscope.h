@@ -52,6 +52,6 @@ private:
     float indentName = 140.0f;
     std::string AxesOnStr = "Erase Axes";
     std::string AxesOffStr = "Add Axes";
-    int amountOfSpans = 4;         
+    int amountOfSpans = 4;
 };
   

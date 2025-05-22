@@ -156,6 +156,10 @@ struct Example : public Application {
                 Reverb* reverb = new Reverb();
                 reverb->fromJson(moduleJson);
                 module = reverb;
+            } else if (type == NodeType::Spectroscope) {
+                Spectroscope* spec = new Spectroscope();
+                spec->fromJson(moduleJson);
+                module = spec;
             }
     
     
