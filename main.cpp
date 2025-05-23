@@ -3,6 +3,7 @@
 #include <application.h>
 #include <cmath>
 #include "src/Reverb.h"
+#include "src/Spectroscope.h"
 #include "src/Module.h"
 #include "src/AudioOutput.h"
 #include "src/Oscillator.h"
@@ -155,6 +156,10 @@ struct Example : public Application {
                 Reverb* reverb = new Reverb();
                 reverb->fromJson(moduleJson);
                 module = reverb;
+            } else if (type == NodeType::Spectroscope) {
+                Spectroscope* spec = new Spectroscope();
+                spec->fromJson(moduleJson);
+                module = spec;
             }
     
     
@@ -609,6 +614,10 @@ struct Example : public Application {
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Piano")) {
                 node = new Piano();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Spectroscope")) {
+                node = new Spectroscope();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Reverb")) {

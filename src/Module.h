@@ -40,7 +40,8 @@ enum class NodeType {
     ADSR,
     Filter,
     Sequencer,
-    Reverb
+    Reverb,
+    Spectroscope
 };
 
 enum class PinType {
