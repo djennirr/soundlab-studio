@@ -616,10 +616,6 @@ struct Example : public Application {
                 node = new Piano();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Spectroscope")) {
-                node = new Spectroscope();
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Reverb")) {
                 node = new Reverb();
                 modules.push_back(node);
@@ -632,7 +628,11 @@ struct Example : public Application {
                 node = new Sequencer();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            }
+            } else if (ImGui::MenuItem("Spectroscope")) {
+                node = new Spectroscope();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } 
 
             ImGui::EndPopup();
         } 
