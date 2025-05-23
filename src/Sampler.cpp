@@ -126,20 +126,20 @@ void Sampler::process(AudioSample *stream, int len)
                 }
 
 
-        int posInt = static_cast<int>(position);
-        float frac = position - posInt;
-        int nextPos = (posInt + 1) % audioData.size();
-        
-        float sample = audioData[posInt] * (1.0f - frac) + 
-                      audioData[nextPos] * frac;
-        
-        stream[i] = static_cast<AudioSample>(sample * volume);
-        position += pitch; // Изменяем шаг воспроизведения
+            int posInt = static_cast<int>(position);
+            float frac = position - posInt;
+            int nextPos = (posInt + 1) % audioData.size();
+            
+            float sample = audioData[posInt] * (1.0f - frac) + 
+                        audioData[nextPos] * frac;
+            
+            stream[i] = static_cast<AudioSample>(sample * volume);
+            position += pitch; // Изменяем шаг воспроизведения
             }
         } else {
             memset(stream, 0, len * sizeof(AudioSample));
         }
-    } else {
+    } else if (inputModule->getNodeType() == NodeType::Sequencer) {
         bool signal = inputModule->active();
         int freq = inputModule->get();
         if (freq != 0) {
@@ -149,9 +149,7 @@ void Sampler::process(AudioSample *stream, int len)
 
             for (int i = 0; i < len; i++) {
                 if (position >= audioData.size()) {
-                    stream[i] = AMPLITUDE;
-                    stream[i + 1] = AMPLITUDE;
-                    position = audioData.size();
+                    position = 0;
                     continue;
                 }
 
@@ -166,6 +164,23 @@ void Sampler::process(AudioSample *stream, int len)
             memset(stream, 0, len * sizeof(AudioSample));
         }
         lastSignal = signal;
+    } else if (inputModule->getNodeType() == NodeType::Piano){
+        int freq = inputModule->get();
+        for (int i = 0; i < len; i++) {
+                if (position >= audioData.size()) {
+                    position = 0;
+                    continue;
+                }
+
+                float scaled = audioData[position] * volume;
+                AudioSample sample = static_cast<AudioSample>(scaled);
+
+                stream[i] = sample;
+                pitch = freq / 340.0f;
+                
+                position += pitch; 
+            }
+
     }
 }
 
@@ -199,26 +214,31 @@ std::string Sampler::uploadSample() {
 void Sampler::render()
 {
     ed::BeginNode(nodeId);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
     ImGui::Text("Sampler");
     ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
-    ImGui::SameLine(180);
-    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
-    ImGui::Text("Out ->");
-    ed::EndPin();
-
+    ImGui::SameLine(70);
     ImGui::AlignTextToFramePadding();
     std::string buttonLabelOpenPopup = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
     if (ImGui::Button(buttonLabelOpenPopup.c_str()))
     {
         do_popup = true;
     }
+    
+    ImGui::SameLine(190);
+    ed::BeginPin(outputPin.Id, ed::PinKind::Output);
+    ImGui::Text("Out ->");
+    ed::EndPin();
 
-    ImGui::SameLine(120.0F);
+    
+    if (ImGui::Button(("Restart##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+        position = 0;
+    }
 
-    if (ImGui::Button(("Upload file##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+    ImGui::SameLine(175);
+
+    if (ImGui::Button(("Upload##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
         std::string filepath = uploadSample();
         if (!filepath.empty()) {
         
@@ -234,12 +254,13 @@ void Sampler::render()
         }
     }
 
-    ImGui::SetNextItemWidth(150);
+    
+
+    ImGui::SetNextItemWidth(180);
     ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
 
-    ImGui::SetNextItemWidth(150);
-    ImGui::SliderFloat(("Pitch##<" + std::to_string(nodeId.Get()) + ">").c_str(), 
-                      &pitch, 0.5f, 2.0f, "%.2f");
+    ImGui::SetNextItemWidth(180);
+    ImGui::DragFloat(("pitch##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->pitch, 0.005F, 0.5F, 2.0F, "%.2f");
 
     ed::EndNode();
 
@@ -290,11 +311,11 @@ PinType Sampler::getPinType(ed::PinId pinId) {
 ed::NodeId Sampler::getNodeId() { return nodeId; }
 
 void Sampler::connect(Module *module, ed::PinId pin) {
-    this->inputModule = dynamic_cast<ControlModule*>(module);
+    this->inputModule = static_cast<ControlModule*>(module);
     return;    
 }
 void Sampler::disconnect(Module *module, ed::PinId pin) {
-    if (dynamic_cast<ControlModule*>(module) == this->inputModule) {
+    if (static_cast<ControlModule*>(module) == this->inputModule) {
         this->inputModule = nullptr;
     }
     return;

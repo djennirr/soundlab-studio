@@ -35,7 +35,7 @@ enum class NodeType {
     Adder,
     Distortion,
     NoiseGenerator,
-    Control,
+    Piano,
     Sampler,
     ADSR,
     Filter,

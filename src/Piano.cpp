@@ -1,4 +1,4 @@
-#include "Control.h"
+#include "Piano.h"
 #include "Module.h"
 #include "imgui.h"
 #include "imgui_node_editor.h"
@@ -6,24 +6,24 @@
 #include <vector>
 
 
-Control::Control(){
+Piano::Piano(){
     nodeId = nextNodeId++;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::ControlSignal;
 };
 
-int Control::get() {
+int Piano::get() {
     return this->frequency;
 }
 
 
-bool Control::active() {
+bool Piano::active() {
     return this->isActive;
 }
 
-void Control::render() {
+void Piano::render() {
     ed::BeginNode(nodeId);
-        ImGui::Text("Control");
+        ImGui::Text("Piano");
         ed::BeginPin(outputPin.Id, ed::PinKind::Output);
             ImGui::Text("Out ->");
         ed::EndPin();
@@ -86,33 +86,33 @@ void Control::render() {
     }
 }
 
-std::vector<ed::PinId> Control::getPins() const {
+std::vector<ed::PinId> Piano::getPins() const {
     return {outputPin.Id};
 }
 
-ed::PinKind Control::getPinKind(ed::PinId pin) const {
+ed::PinKind Piano::getPinKind(ed::PinId pin) const {
     return ed::PinKind::Output;
 }
 
-PinType Control::getPinType(ed::PinId pinId) {
+PinType Piano::getPinType(ed::PinId pinId) {
     if (outputPin.Id == pinId) {
         return outputPin.pinType;
     }
 }
 
-ed::NodeId Control::getNodeId() {
+ed::NodeId Piano::getNodeId() {
     return nodeId;
 }
 
-void Control::connect(Module* input, ed::PinId pin) {
+void Piano::connect(Module* input, ed::PinId pin) {
     return;
 }
 
-void Control::disconnect(Module* module, ed::PinId pin) {
+void Piano::disconnect(Module* module, ed::PinId pin) {
     return;
 }
 
-void Control::fromJson(const json& data) {
+void Piano::fromJson(const json& data) {
     ControlModule::fromJson(data);
     outputPin.Id = ed::PinId(data["pins"][0].get<int>());
 }

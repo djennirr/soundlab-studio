@@ -14,7 +14,7 @@
 #include "src/NoiseGenerator.h"
 #include "src/Sampler.h"
 #include "src/ADSR.h"
-#include "src/Control.h"
+#include "src/Piano.h"
 #include "src/Filter.h"
 #include "src/Sequencer.h"
 #include <vector>
@@ -140,10 +140,10 @@ struct Example : public Application {
                 ADSR* adsr = new ADSR();
                 adsr->fromJson(moduleJson);
                 module = adsr;
-            } else if (type == NodeType::Control) {
-                Control* control = new Control();
-                control->fromJson(moduleJson);
-                module = control;
+            } else if (type == NodeType::Piano) {
+                Piano* piano = new Piano();
+                piano->fromJson(moduleJson);
+                module = piano;
             } else if (type == NodeType::Filter) {
                 Filter* filter = new Filter(0, 1);
                 filter->fromJson(moduleJson);
@@ -584,43 +584,36 @@ struct Example : public Application {
             auto newNodePostion = openPopupPosition;
             Module* node = nullptr;
             
-            if (ImGui::MenuItem("Oscillator")){
-                node = new Oscillator(440.0, 0.5, WaveType::SINE); //
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Adder")) {
+            if (ImGui::MenuItem("Adder")) {
                 node = new Adder();
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Distortion")) {
-                node = new Distortion();
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Oscilloscope")) {
-                node = new Oscilloscope();
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Noise Generator")) {
-                node = new NoiseGenerator();
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Control")) {
-                node = new Control();
-                modules.push_back(node);
-                ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Sampler")) {
-                //на small_sata работает, а на big_data нет
-            
-                //const std::string& big_sample = "/home/manutdniko21/nsu_stuff/soundlab-studio/samples/Soft Piano Music_16000_mono.wav";
-                node = new Sampler();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("ADSR")) {
                 node = new ADSR();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Distortion")) {
+                node = new Distortion();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Filter")) {
                 node = new Filter(20500);
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Noise Generator")) {
+                node = new NoiseGenerator();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Oscillator")){
+                node = new Oscillator(440.0, 0.5, WaveType::SINE); //
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Oscilloscope")) {
+                node = new Oscilloscope();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            } else if (ImGui::MenuItem("Piano")) {
+                node = new Piano();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
             } else if (ImGui::MenuItem("Spectroscope")) {
@@ -631,7 +624,11 @@ struct Example : public Application {
                 node = new Reverb();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
-            } else if (ImGui::MenuItem("Sequencer")) {
+            } else if (ImGui::MenuItem("Sampler")) {
+                node = new Sampler();
+                modules.push_back(node);
+                ed::SetNodePosition(node->getNodeId(), newNodePostion);
+            }  else if (ImGui::MenuItem("Sequencer")) {
                 node = new Sequencer();
                 modules.push_back(node);
                 ed::SetNodePosition(node->getNodeId(), newNodePostion);
