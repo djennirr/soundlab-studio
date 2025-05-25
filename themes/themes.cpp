@@ -78,7 +78,7 @@ void ApplyLightTheme() {
     style.FrameRounding = 3.0f;
 
     ImVec4* colors = style.Colors;
-    colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_Text] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
     colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
     colors[ImGuiCol_WindowBg] = ImVec4(0.94f, 0.94f, 0.94f, 1.00f);
     colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
