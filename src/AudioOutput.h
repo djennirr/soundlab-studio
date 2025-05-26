@@ -11,6 +11,7 @@ private:
     SDL_AudioSpec wavSpec;
     AudioModule* inputModule;
     bool isPlaying = false;
+    float volume;
     Pin inputPin;
     Pin outputPin;
     NodeType type;
