@@ -25,10 +25,11 @@ class Sampler : public AudioModule
     const std::string SNARE_sample = "samples/snare.wav";
     const std::string ALIEN_sample = "samples/alien.wav";
     const std::string ELECTRO_sample = "samples/electro140bpm.wav";
-    const std::string COOL_DRUMS_sample = "samples/drum-loop.wav";
     const std::string CARTI_sample = "samples/vamp-anthem.wav";
     const std::string TLOU_sample = "samples/tlou.wav";
     const std::string SMESHARIKI_sample = "samples/smeshariki.wav";
+    const std::string TOKYO_sample = "samples/tokyo-bell.wav";
+    const std::string PHONK_sample = "samples/phonk-cowbell.wav";
 
 private:
     std::string userSamplePath;
@@ -56,13 +57,15 @@ private:
 
     const std::vector<SampleType> sampleTypes = {
         DRUMS,
-        ADULT,
-        ALIEN,
         CEREMONIAL,
         CHILD,
-        ELECTRO,
-        SNARE,
+        ADULT,
         VIBE,
+        SNARE,
+        TOKYO,
+        PHONK,
+        ALIEN,
+        ELECTRO,
         CARTI,
         USER,
         TLOU,

@@ -9,9 +9,10 @@ enum SampleType {
     ADULT,
     VIBE,
     SNARE,
+    TOKYO,
+    PHONK,
     ALIEN,
     ELECTRO,
-    COOL_DRUMS,
     CARTI,
     USER,
     TLOU,
@@ -29,11 +30,12 @@ inline std::string SampleTypeToString(SampleType type) {
         case SNARE:       return "SNARE";
         case ALIEN:       return "ALIEN";
         case ELECTRO:     return "ELECTRO";
-        case COOL_DRUMS:  return "COOL_DRUMS";
         case CARTI:       return "CARTI";
         case USER:        return "USER";
         case TLOU:        return "TLOU";
         case SMESHARIKI:  return "SMESHARIKI";
+        case TOKYO:       return "TOKYO";
+        case PHONK:       return "PHONK";
         default:          return "UNKNOWN";
     }
 }
