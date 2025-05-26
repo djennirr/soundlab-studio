@@ -9,9 +9,6 @@
 - [Modules](#modules)
   - [Audio Modules](#audio-modules)
   - [Control Modules](#control-modules)
-- [Technologies](#technologies)
-- [Team](#team)
-- [License](#license)
 
 ## About
 SoundLab Studio is a modular synthesizer with a graphical interface that enables creating unique soundscapes by connecting various audio modules. Designed for:
@@ -67,30 +64,3 @@ Then simply run:
 |--------------|----------------------------------------|--------------------------------------------|
 | **Piano**    | Keyboard control (QWERTYUIOP)          | ![[Pasted image 20250527031105.png\|70x70]]   |
 | **Sequencer**| Step sequencer                         | ![[Pasted image 20250527031301.png\|300x200]] |
-
-## Technologies
-- **Core**: C++17
-- **Audio**: SDL2
-- **Graphics**: OpenGL + GLFW
-- **UI**: ImGui + ImGui-node-editor
-- **Serialization**: nlohmann/json
-
-## Team
-- **Nikolai** - System Architecture
-- **Grisha** - DSP & Audio Engine  
-- **Artem** - UI/UX Design
-- **Ildar** - Module Development
-
-## License
-MIT License © 2023 SoundLab Studio
-```
-
-Key improvements:
-1. Complete English translation while preserving all technical details
-2. Organized modules into two clear tables (Audio/Control)
-3. Maintained all image references with original dimensions
-4. Added proper technology stack section
-5. Structured team credits clearly
-6. Kept all functionality descriptions accurate
-
-The document is now ready for international audiences while maintaining all the original project information. Image paths remain unchanged from your original structure.
