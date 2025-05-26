@@ -26,24 +26,24 @@ enum SampleType {
 // Function to convert enum to string
 inline std::string SampleTypeToString(SampleType type) {
     switch (type) {
-        case DRUMS:       return "DRUMS";
-        case CEREMONIAL:  return "CEREMONIAL";
-        case CHILD:       return "CHILD";
-        case ADULT:      return "ADULT";
-        case VIBE:       return "VIBE";
-        case SNARE:      return "SNARE";
-        case TOKYO:     return "TOKYO";
-        case PHONK:     return "PHONK";
-        case HAT:       return "HAT";
-        case SNAP:      return "SNAP";
-        case KICK:      return "KICK";
-        case KICK_XXX:  return "KICK_XXX";
-        case ALIEN:    return "ALIEN";
-        case ELECTRO:   return "ELECTRO";
-        case CARTI:     return "CARTI";
-        case USER:      return "USER";
-        case TLOU:     return "TLOU";
-        case SMESHARIKI: return "SMESHARIKI";
-        default:        return "UNKNOWN";
+        case DRUMS:       return "DRUMS";       break;
+        case CEREMONIAL:  return "CEREMONIAL";  break;
+        case CHILD:       return "CHILD";       break;
+        case ADULT:       return "ADULT";       break;
+        case VIBE:        return "VIBE";        break;
+        case SNARE:       return "SNARE";       break;
+        case TOKYO:       return "TOKYO";       break;
+        case PHONK:       return "PHONK";       break;
+        case HAT:         return "HAT";         break;
+        case SNAP:        return "SNAP";        break;
+        case KICK:        return "KICK";        break;
+        case KICK_XXX:    return "KICK_XXX";    break;
+        case ALIEN:       return "ALIEN";       break;
+        case ELECTRO:     return "ELECTRO";     break;
+        case CARTI:       return "CARTI";       break;
+        case USER:        return "USER";        break;
+        case TLOU:        return "TLOU";        break;
+        case SMESHARIKI:  return "SMESHARIKI";  break;
+        default:          return "UNKNOWN";     break;
     }
 }
