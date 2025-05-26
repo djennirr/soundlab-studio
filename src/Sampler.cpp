@@ -129,10 +129,6 @@ void Sampler::process(AudioSample *stream, int len)
             loadWAV(ELECTRO_sample);
             currentSample = "ELECTRO";
             break;
-        case SampleType::COOL_DRUMS:
-            loadWAV(COOL_DRUMS_sample);
-            currentSample = "COOL_DRUMS";
-            break;
         case SampleType::CARTI:
             loadWAV(CARTI_sample);
             currentSample = "CARTI";
@@ -150,6 +146,30 @@ void Sampler::process(AudioSample *stream, int len)
         case SampleType::SMESHARIKI:
             loadWAV(SMESHARIKI_sample);
             currentSample = "SMESHARIKI";
+            break;
+        case SampleType::TOKYO:
+            loadWAV(TOKYO_sample);
+            currentSample = "TOKYO";
+            break;
+        case SampleType::PHONK:
+            loadWAV(PHONK_sample);
+            currentSample = "PHONK";
+            break;
+        case SampleType::HAT:
+            loadWAV(HAT_sample);
+            currentSample = "HAT";
+            break;
+        case SampleType::SNAP:
+            loadWAV(SNAP_sample);
+            currentSample = "SNAP";
+            break;
+        case SampleType::KICK:
+            loadWAV(KICK_sample);
+            currentSample = "KICK";
+            break;
+        case SampleType::KICK_XXX:
+            loadWAV(KICK_XXX_sample);
+            currentSample = "KICK_XXX";
             break;
         default:
             std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
@@ -408,9 +428,6 @@ void Sampler::fromJson(const json& data) {
         case SampleType::VIBE:
             popup_text = "VIBE";
             break;
-        case SampleType::COOL_DRUMS:
-            popup_text = "COOL_DRUMS";
-            break;
         case SampleType::CARTI:
             popup_text = "CARTI";
             break;
@@ -419,6 +436,24 @@ void Sampler::fromJson(const json& data) {
             break;
         case SampleType::SMESHARIKI:
             popup_text = "SMESHARIKI";
+            break;
+        case SampleType::PHONK:
+            popup_text = "PHONK";
+            break;
+        case SampleType::TOKYO:
+            popup_text = "TOKYO";
+            break;
+        case SampleType::HAT:
+            popup_text = "HAT";
+            break;
+        case SampleType::SNAP:
+            popup_text = "SNAP";
+            break;
+        case SampleType::KICK:
+            popup_text = "KICK";
+            break;
+        case SampleType::KICK_XXX:
+            popup_text = "KICK_XXX";
             break;
         case SampleType::USER:
             popup_text = "USER";

@@ -17,6 +17,8 @@ class Sampler : public AudioModule
     const int MAX_VALUE = 65535;
     const int STEREO_CHANNELS = 2;
     const float SEQUENCER_QUOTIENT = 246.5f;
+    
+    // Sample file paths
     const std::string CEREMONIAL_sample = "samples/sample-3s.wav";
     const std::string DRUMS_sample = "samples/sample-12s.wav";
     const std::string CHILD_sample = "samples/sample-15s.wav";
@@ -25,16 +27,21 @@ class Sampler : public AudioModule
     const std::string SNARE_sample = "samples/snare.wav";
     const std::string ALIEN_sample = "samples/alien.wav";
     const std::string ELECTRO_sample = "samples/electro140bpm.wav";
-    const std::string COOL_DRUMS_sample = "samples/drum-loop.wav";
     const std::string CARTI_sample = "samples/vamp-anthem.wav";
     const std::string TLOU_sample = "samples/tlou.wav";
     const std::string SMESHARIKI_sample = "samples/smeshariki.wav";
+    const std::string TOKYO_sample = "samples/tokyo-bell.wav";
+    const std::string PHONK_sample = "samples/phonk-cowbell.wav";
+    const std::string KICK_XXX_sample = "samples/808-xxxtentacion_C.wav";
+    const std::string KICK_sample = "samples/dnb-kick_D.wav";
+    const std::string SNAP_sample = "samples/finger-snap.wav";
+    const std::string HAT_sample = "samples/open-hat_E_major.wav";
 
 private:
     std::string userSamplePath;
-    std::string popup_text = "DRUMS"; // Было: char popup_text[20]
+    std::string popup_text = "DRUMS";
     float volume;
-    bool isChanged; // флаг для отслеживания изменил ли пользователь сэмпл
+    bool isChanged;
     void loadWAV(const std::string &filename);
     float position = 0;
     float pitch = 1.0f;
@@ -56,13 +63,19 @@ private:
 
     const std::vector<SampleType> sampleTypes = {
         DRUMS,
-        ADULT,
-        ALIEN,
         CEREMONIAL,
         CHILD,
-        ELECTRO,
-        SNARE,
+        ADULT,
         VIBE,
+        SNARE,
+        TOKYO,
+        PHONK,
+        HAT,
+        SNAP,
+        KICK,
+        KICK_XXX,
+        ALIEN,
+        ELECTRO,
         CARTI,
         USER,
         TLOU,
@@ -83,6 +96,7 @@ private:
         data["userSamplePath"] = userSamplePath;
         return data;
     }
+
 public:
     Sampler(float volume = 1.0f);
 
@@ -92,8 +106,7 @@ public:
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
     ed::NodeId getNodeId() override;
-    NodeType getNodeType() const override
-    {
+    NodeType getNodeType() const override {
         return NodeType::Sampler;
     }
     PinType getPinType(ed::PinId pinId) override;
