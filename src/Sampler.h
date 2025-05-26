@@ -31,6 +31,7 @@ class Sampler : public AudioModule
     const std::string SMESHARIKI_sample = "samples/smeshariki.wav";
 
 private:
+    std::string userSamplePath;
     std::string popup_text = "DRUMS"; // Было: char popup_text[20]
     float volume;
     bool isChanged; // флаг для отслеживания изменил ли пользователь сэмпл
@@ -40,6 +41,9 @@ private:
 
     ControlModule* inputModule = nullptr;
     bool isSignalActive = true;
+    bool isSampleFromUser = false;
+    bool isUserSampleCorrect = true;
+    std::string currentSample = "DRUMS";
     int lastSignal = 0;
 
     std::vector<AudioSample> audioData;
@@ -76,6 +80,7 @@ private:
         data["volume"] = volume;
         data["pitch"] = pitch;
         data["sampleType"] = static_cast<int>(sampleType);
+        data["userSamplePath"] = userSamplePath;
         return data;
     }
 public:
