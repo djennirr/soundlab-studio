@@ -17,6 +17,7 @@ Reverb::Reverb() {
     damping = 0.5f;    // High-frequency damping
     preDelay = 0.05f;  // Seconds
     mix = 0.3f;        // Wet/dry mix
+    lastPreDelay = preDelay;
 
     initDelayLines();
 }
@@ -77,6 +78,10 @@ void Reverb::process(AudioSample* stream, int length) {
 
     module->process(stream, length);
 
+    if (needsReinit) {
+        initDelayLines();
+        needsReinit = false;
+    }
     float decayPerSecond = 1.0f / decayTime;
     for (auto& line : delayLines) {
         line.decay = powf(10.0f, -decayPerSecond * line.buffer.size() / SAMPLE_RATE);
@@ -112,19 +117,17 @@ void Reverb::render() {
     ImGui::Text("Out ->");
     ed::EndPin();
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat("Decay", &decayTime, 0.1f, 5.0f, "%.1f s");
+    ImGui::SliderFloat(("Decay##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &decayTime, 0.1f, 5.0f, "%.1f s");
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat("Damping", &damping, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat(("Damping##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &damping, 0.0f, 1.0f, "%.2f");
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat("Mix", &mix, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat(("Mix##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &mix, 0.0f, 1.0f, "%.2f");
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat("PreDelay", &preDelay, 0.001f, 0.1f, "%.3f s");
+    ImGui::SliderFloat(("PreDelay##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &preDelay, 0.001f, 0.1f, "%.3f s");
 
-    // Reinitialize delay lines if preDelay changes significantly
-    static float lastPreDelay = preDelay;
     if (std::abs(preDelay - lastPreDelay) > 0.001f) {
-        initDelayLines();
         lastPreDelay = preDelay;
+        needsReinit = true;
     }
 
     ed::EndNode();

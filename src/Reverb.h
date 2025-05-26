@@ -25,6 +25,8 @@ private:
     float damping;
     float mix;
     float preDelay;
+    float lastPreDelay;
+    bool needsReinit = false;
 
     void initDelayLines();
     float lowPassFilter(float input, float& state, float damping);
