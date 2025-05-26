@@ -41,6 +41,9 @@ private:
 
     ControlModule* inputModule = nullptr;
     bool isSignalActive = true;
+    bool isSampleFromUser = false;
+    bool isUserSampleCorrect = true;
+    std::string currentSample = "DRUMS";
     int lastSignal = 0;
 
     std::vector<AudioSample> audioData;
@@ -77,9 +80,7 @@ private:
         data["volume"] = volume;
         data["pitch"] = pitch;
         data["sampleType"] = static_cast<int>(sampleType);
-        if (sampleType == SampleType::USER) {
-            data["userSamplePath"] = userSamplePath;
-        }
+        data["userSamplePath"] = userSamplePath;
         return data;
     }
 public:

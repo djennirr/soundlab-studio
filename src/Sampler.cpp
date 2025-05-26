@@ -24,6 +24,8 @@ Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChan
 
 void Sampler::loadWAV(const std::string &filename)
 {
+    isUserSampleCorrect = true;
+    std::string currentButtonText = popup_text;
     if (filename.empty()) {
         std::cerr << "Пустой путь к файлу" << std::endl;
         audioData.clear();
@@ -33,6 +35,7 @@ void Sampler::loadWAV(const std::string &filename)
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "Файл не найден: " << filename << std::endl;
+        isUserSampleCorrect = false;
         audioData.clear();
         return;
     }
@@ -45,6 +48,7 @@ void Sampler::loadWAV(const std::string &filename)
     if (!SDL_LoadWAV(filename.c_str(), &wavSpec, &buffer, &length))
     {
         std::cerr << "Failed to load WAV: " << SDL_GetError() << std::endl;
+        isUserSampleCorrect = false;
         audioData.clear(); // Очищаем данные
         return;
     }
@@ -53,6 +57,7 @@ void Sampler::loadWAV(const std::string &filename)
     {
         std::cerr << "Формат WAV не поддерживается!" << std::endl;
         SDL_FreeWAV(buffer);
+        isUserSampleCorrect = false;
         return;
     }
 
@@ -64,6 +69,7 @@ void Sampler::loadWAV(const std::string &filename)
     {
         std::cerr << "Формат WAV не поддерживается!" << std::endl;
         SDL_FreeWAV(buffer);
+        isUserSampleCorrect = false;
         return;
     }
 
@@ -78,6 +84,11 @@ void Sampler::loadWAV(const std::string &filename)
     SDL_FreeWAV(buffer);
     audioSpec = wavSpec;
     position = 0.0f;
+
+    if(isUserSampleCorrect && isSampleFromUser) {
+        popup_text = "USER";
+        isSampleFromUser = false;
+    }
 }
 
 void Sampler::process(AudioSample *stream, int len)
@@ -88,42 +99,57 @@ void Sampler::process(AudioSample *stream, int len)
         {
         case SampleType::DRUMS:
             loadWAV(DRUMS_sample);
+            currentSample = "DRUMS";
             break;
         case SampleType::CEREMONIAL:
             loadWAV(CEREMONIAL_sample);
+            currentSample = "CEREMONIAL";
             break;
         case SampleType::CHILD:
             loadWAV(CHILD_sample);
+            currentSample = "CHILD";
             break;
         case SampleType::ADULT:
             loadWAV(ADULT_sample);
+            currentSample = "ADULT";
             break;
         case SampleType::VIBE:
             loadWAV(VIBE_sample);
+            currentSample = "VIBE";
             break;
         case SampleType::SNARE:
             loadWAV(SNARE_sample);
-            break;
+            currentSample = "SNARE";
+        break;
         case SampleType::ALIEN:
             loadWAV(ALIEN_sample);
+            currentSample = "ALIEN";
             break;
         case SampleType::ELECTRO:
             loadWAV(ELECTRO_sample);
+            currentSample = "ELECTRO";
             break;
         case SampleType::COOL_DRUMS:
             loadWAV(COOL_DRUMS_sample);
+            currentSample = "COOL_DRUMS";
             break;
         case SampleType::CARTI:
             loadWAV(CARTI_sample);
+            currentSample = "CARTI";
             break;
         case SampleType::USER:
             loadWAV(userSamplePath);
+            if(!isUserSampleCorrect) {
+                popup_text = currentSample;
+            }
             break;
         case SampleType::TLOU:
             loadWAV(TLOU_sample);
+            currentSample = "TLOU";
             break;
         case SampleType::SMESHARIKI:
             loadWAV(SMESHARIKI_sample);
+            currentSample = "SMESHARIKI";
             break;
         default:
             std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
@@ -224,6 +250,7 @@ std::string Sampler::uploadSample() {
         result.pop_back();
     }
 
+    isSampleFromUser = true;
     return result;
 }
 
@@ -338,10 +365,12 @@ void Sampler::fromJson(const json& data) {
     volume = data["volume"];
     pitch = data["pitch"];
     sampleType = static_cast<SampleType>(data["sampleType"].get<int>());
-    if (sampleType == SampleType::USER && data.contains("userSamplePath")) {
+    if (data.contains("userSamplePath")) {
         userSamplePath = data["userSamplePath"].get<std::string>();
+    }
+    if (sampleType == SampleType::USER) {
         loadWAV(userSamplePath);
-        if (audioData.empty()) {
+        if (!isUserSampleCorrect) {
             std::cerr << "Не удалось загрузить пользовательский сэмпл, сбрасываем на DRUMS" << std::endl;
             sampleType = SampleType::DRUMS;
             popup_text = "DRUMS";
