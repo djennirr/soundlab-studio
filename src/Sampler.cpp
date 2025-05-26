@@ -155,6 +155,22 @@ void Sampler::process(AudioSample *stream, int len)
             loadWAV(PHONK_sample);
             currentSample = "PHONK";
             break;
+        case SampleType::HAT:
+            loadWAV(HAT_sample);
+            currentSample = "HAT";
+            break;
+        case SampleType::SNAP:
+            loadWAV(SNAP_sample);
+            currentSample = "SNAP";
+            break;
+        case SampleType::KICK:
+            loadWAV(KICK_sample);
+            currentSample = "KICK";
+            break;
+        case SampleType::KICK_XXX:
+            loadWAV(KICK_XXX_sample);
+            currentSample = "KICK_XXX";
+            break;
         default:
             std::cerr << "Unknown sample type: " << static_cast<int>(sampleType) << std::endl;
             break;
@@ -426,6 +442,18 @@ void Sampler::fromJson(const json& data) {
             break;
         case SampleType::TOKYO:
             popup_text = "TOKYO";
+            break;
+        case SampleType::HAT:
+            popup_text = "HAT";
+            break;
+        case SampleType::SNAP:
+            popup_text = "SNAP";
+            break;
+        case SampleType::KICK:
+            popup_text = "KICK";
+            break;
+        case SampleType::KICK_XXX:
+            popup_text = "KICK_XXX";
             break;
         case SampleType::USER:
             popup_text = "USER";
