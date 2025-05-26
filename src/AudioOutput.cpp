@@ -37,10 +37,7 @@ void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
 
     if (audioOutput && audioOutput->inputModule && audioOutput->isPlaying) {
         // Если есть ссылка на inputModule и флаг воспроизведения включен
-        audioOutput->inputModule->process(stream16, len16);
-        for (int i = 0; i < len16; i++) {
-            stream16[i] *= audioOutput->volume;
-        }
+        audioOutput->process(stream16, len16);
     } else {
         // Если нет ссылки или воспроизведение выключено, заполняем тишиной
         memset(stream16, 0, len16 * sizeof(AudioSample));
@@ -49,6 +46,9 @@ void AudioOutput::audioCallback(void* userdata, Uint8* stream, int len) {
 
 void AudioOutput::process(AudioSample* stream, int length) {
     inputModule->process(stream, length);
+    for (int i = 0; i < length; i++) {
+            stream[i] *= this->volume;
+        }
 }
 
 void AudioOutput::render() {
