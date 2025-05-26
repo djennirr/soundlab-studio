@@ -25,7 +25,7 @@ SoundLab Studio is a modular synthesizer with a graphical interface that enables
 
 ### Build
 ```bash
-git clone https://github.com/your-repo/SoundLabStudio.git
+git clone https://github.com/djennirr/soundlab-studio.git
 git submodule update --init --recursive
 ```
 Then simply run:
