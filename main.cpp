@@ -73,6 +73,7 @@ struct Example : public Application {
     }
 
     void loadFromFile(const std::string& filename) {
+        audiooutput->stop();
         std::ifstream file(filename);
         if (!file.is_open()) {
             std::cerr << "Error: Could not open file " << filename << std::endl;
@@ -213,6 +214,7 @@ struct Example : public Application {
     
         std::cout << "Project loaded successfully. Nodes: " << modules.size() 
                   << ", Links: " << m_Links.size() << std::endl;
+        audiooutput->start();
     }
     
 
