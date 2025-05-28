@@ -17,9 +17,9 @@ SoundLab Studio is a modular synthesizer with a graphical interface that enables
 ## Quick Start
 
 ### Requirements
-- glfw 3.4
-- sdl2 2.32.6
-- opengl
+- GLFW 3.4
+- SDL2 2.32.6
+- OpenGL 4.6
 
 ### Build
 ```bash
