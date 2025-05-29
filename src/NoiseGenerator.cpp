@@ -12,9 +12,9 @@
 
 NoiseGenerator::NoiseGenerator(NoiseType type, float amplitude)
     : noiseType(type), amplitude(amplitude), phase(0.0f), whiteNoise(-1.0f, 1.0f) {
-    nodeId = nextNodeId++;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
+    nodeType = NodeType::NoiseGenerator;
 }
 
 void NoiseGenerator::process(AudioSample* stream, int length) {
@@ -32,7 +32,7 @@ void NoiseGenerator::process(AudioSample* stream, int length) {
 }
 
 void NoiseGenerator::render() {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
     ImGui::Text("Noise Generator");
     ImGui::NewLine();
     ImGui::SameLine(190.0F);
@@ -42,18 +42,18 @@ void NoiseGenerator::render() {
 
     // Выбор типа шума
     ImGui::AlignTextToFramePadding();
-        std::string buttonLabel = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+        std::string buttonLabel = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
         if (ImGui::Button(buttonLabel.c_str())) {
             do_popup = true;
         }
 
     // Регулировка амплитуды
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::DragFloat(("Volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &amplitude, 0.01f, 0.0f, 1.0f);
+    ImGui::DragFloat(("Volume##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &amplitude, 0.01f, 0.0f, 1.0f);
     ed::EndNode();
 
     ed::Suspend();
-    std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+    std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
     if (do_popup) {
         ImGui::OpenPopup(button1Label.c_str()); // Cause openpopup to stick open.
         do_popup = false; // disable bool so that if we click off the popup, it doesn't open the next frame.
@@ -61,19 +61,19 @@ void NoiseGenerator::render() {
     if (ImGui::BeginPopup(button1Label.c_str())) {
 
         ImGui::TextDisabled("Noises:");
-        ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-        if (ImGui::Button((std::string("White") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-            portable_strcpy(popup_text, (std::string("White") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+        ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        if (ImGui::Button((std::string("White") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
+            portable_strcpy(popup_text, (std::string("White") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str());
             noiseType = NoiseType::WHITE;
             ImGui::CloseCurrentPopup();
         }
-        if (ImGui::Button((std::string("Pink") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-            portable_strcpy(popup_text, (std::string("Pink") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+        if (ImGui::Button((std::string("Pink") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
+            portable_strcpy(popup_text, (std::string("Pink") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str());
             noiseType = NoiseType::PINK;
             ImGui::CloseCurrentPopup();
         }
-        if (ImGui::Button((std::string("Brown") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-            portable_strcpy(popup_text, (std::string("Brown") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+        if (ImGui::Button((std::string("Brown") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
+            portable_strcpy(popup_text, (std::string("Brown") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str());
             noiseType = NoiseType::BROWN;
             ImGui::CloseCurrentPopup();
         }
@@ -95,10 +95,6 @@ PinType NoiseGenerator::getPinType(ed::PinId pinId) {
     if (outputPin.Id == pinId) {
         return outputPin.pinType;
     }
-}
-
-ed::NodeId NoiseGenerator::getNodeId() {
-    return nodeId;
 }
 
 void NoiseGenerator::connect(Module* module, ed::PinId pin) {

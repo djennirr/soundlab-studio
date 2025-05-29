@@ -7,7 +7,7 @@
 
 
 Piano::Piano(){
-    nodeId = nextNodeId++;
+    nodeType = NodeType::Piano;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::ControlSignal;
 };
@@ -22,7 +22,7 @@ bool Piano::active() {
 }
 
 void Piano::render() {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
         ImGui::Text("Piano");
         ed::BeginPin(outputPin.Id, ed::PinKind::Output);
             ImGui::Text("Out ->");
@@ -34,7 +34,7 @@ void Piano::render() {
         upd: короче старая версия имгуи у нас возможно из за этого
         
     */
-    if (ed::IsNodeSelected(nodeId)) {
+    if (ed::IsNodeSelected(this->getNodeId())) {
         auto& io = ImGui::GetIO();
         
         std::map<ImGuiKey, int> key_frequency = {
@@ -98,10 +98,6 @@ PinType Piano::getPinType(ed::PinId pinId) {
     if (outputPin.Id == pinId) {
         return outputPin.pinType;
     }
-}
-
-ed::NodeId Piano::getNodeId() {
-    return nodeId;
 }
 
 void Piano::connect(Module* input, ed::PinId pin) {

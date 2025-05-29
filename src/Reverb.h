@@ -48,10 +48,6 @@ public:
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
     PinType getPinType(ed::PinId pinId) override;
-    ed::NodeId getNodeId() override;
-    NodeType getNodeType() const override {
-        return NodeType::Reverb;
-    }
     void connect(Module* input, ed::PinId pin) override;
     void disconnect(Module* module, ed::PinId pin) override;
     void fromJson(const json& data) override;

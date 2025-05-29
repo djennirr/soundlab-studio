@@ -7,10 +7,9 @@
 #include <random>
 
 Sequencer::Sequencer() {
-    nodeId = nextNodeId++;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::ControlSignal;
-
+    nodeType = NodeType::Sequencer;
     resizeSequence();
     generateFrequencies();
 }
@@ -108,22 +107,22 @@ void Sequencer::randomizeSequence() {
 
 void Sequencer::render() {
     advanceSample();
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
     ImGui::Text("Sequencer");
 
     ImGui::SameLine(80);
-    if (ImGui::Button(("Randomize##" + std::to_string(static_cast<int>(nodeId.Get()))).c_str())) {
+    if (ImGui::Button(("Randomize##" + std::to_string(static_cast<int>(this->getNodeId().Get()))).c_str())) {
         randomizeSequence();
     }
 
     ImGui::PushItemWidth(100);
-    ImGui::SliderInt(("Interval##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &interval, 1, 100); 
+    ImGui::SliderInt(("Interval##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &interval, 1, 100); 
     ImGui::PopItemWidth();
    
     ImGui::SameLine(175);
     ImGui::PushItemWidth(100);
 
-    if (ImGui::SliderInt(("Rows##" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &numRows, 1, maxRows)) {
+    if (ImGui::SliderInt(("Rows##" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &numRows, 1, maxRows)) {
         resizeSequence();
         generateFrequencies();
     }
@@ -131,7 +130,7 @@ void Sequencer::render() {
 
     ImGui::SameLine(350);
     ImGui::PushItemWidth(100);
-    if (ImGui::SliderInt(("Steps##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &numSteps, 1, maxSteps)) {
+    if (ImGui::SliderInt(("Steps##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &numSteps, 1, maxSteps)) {
         resizeSequence();
     }
     ImGui::PopItemWidth();
@@ -145,7 +144,7 @@ void Sequencer::render() {
 
         for (int step = 0; step < numSteps; step++) {
             std::string label = std::string(sequence[row][step] ? "X" : "O") + "##" + 
-                               std::to_string(nodeId.Get()) + "_" + 
+                               std::to_string(this->getNodeId().Get()) + "_" + 
                                std::to_string(row) + "_" + 
                                std::to_string(step);
             bool isActive = sequence[row][step];
@@ -210,10 +209,6 @@ PinType Sequencer::getPinType(ed::PinId pinId) {
     if (outputPin.Id == pinId) {
         return outputPin.pinType;
     }
-}
-
-ed::NodeId Sequencer::getNodeId() {
-    return nodeId;
 }
 
 void Sequencer::connect(Module* input, ed::PinId pin) {

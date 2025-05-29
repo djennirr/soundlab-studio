@@ -18,8 +18,6 @@ public:
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
     PinType getPinType(ed::PinId pin) override;
-    NodeType getNodeType() const override { return NodeType::Spectroscope; }
-    ed::NodeId getNodeId() override;
     void process(AudioSample* stream, int length) override;
     void disconnect(Module* module, ed::PinId pin) override;
     void connect(Module* input, ed::PinId pin) override;

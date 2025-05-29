@@ -10,11 +10,11 @@
 
 Filter::Filter(float cut, float res) : cutoff(cut), resonance(res) {
     module1 = nullptr;
-    nodeId = nextNodeId++;
     input1Pin.Id = nextPinId++;
     input1Pin.pinType = PinType::AudioSignal;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
+    nodeType = NodeType::Filter;
 }
 
 void Filter::updateCoefficients() {
@@ -67,7 +67,7 @@ void Filter::process(AudioSample* stream, int length) {
 }
 
 void Filter::render() {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
     ImGui::Text("Filter");
 
     ed::BeginPin(input1Pin.Id, ed::PinKind::Input);
@@ -81,7 +81,7 @@ void Filter::render() {
     ed::EndPin();
 
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat(("cutoff##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->cutoff, 20.0f, 20500.0f, "%.0f Hz", ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderFloat(("cutoff##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &this->cutoff, 20.0f, 20500.0f, "%.0f Hz", ImGuiSliderFlags_Logarithmic);
 
     // ImGui::SetNextItemWidth(150.0f);
     // ImGui::DragFloat(("resonance##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->resonance, 0.1f, 1.0f, 5.0f);
@@ -109,10 +109,6 @@ PinType Filter::getPinType(ed::PinId pinId) {
         return outputPin.pinType;
     }
     return PinType::AudioSignal;
-}
-
-ed::NodeId Filter::getNodeId() {
-    return nodeId;
 }
 
 void Filter::connect(Module* input, ed::PinId pin) {

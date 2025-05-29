@@ -7,12 +7,11 @@ constexpr int SAMPLE_RATE = 44100;
 
 Reverb::Reverb() {
     module = nullptr;
-    nodeId = nextNodeId++;
     inputPin.Id = nextPinId++;
     inputPin.pinType = PinType::AudioSignal;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
-
+    nodeType = NodeType::Reverb;
     decayTime = 2.0f;  // Seconds
     damping = 0.5f;    // High-frequency damping
     preDelay = 0.05f;  // Seconds
@@ -105,7 +104,7 @@ void Reverb::process(AudioSample* stream, int length) {
 }
 
 void Reverb::render() {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
     ImGui::Text("Reverb");
 
     ed::BeginPin(inputPin.Id, ed::PinKind::Input);
@@ -117,13 +116,13 @@ void Reverb::render() {
     ImGui::Text("Out ->");
     ed::EndPin();
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat(("Decay##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &decayTime, 0.1f, 5.0f, "%.1f s");
+    ImGui::SliderFloat(("Decay##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &decayTime, 0.1f, 5.0f, "%.1f s");
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat(("Damping##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &damping, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat(("Damping##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &damping, 0.0f, 1.0f, "%.2f");
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat(("Mix##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &mix, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat(("Mix##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &mix, 0.0f, 1.0f, "%.2f");
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::SliderFloat(("PreDelay##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &preDelay, 0.001f, 0.1f, "%.3f s");
+    ImGui::SliderFloat(("PreDelay##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &preDelay, 0.001f, 0.1f, "%.3f s");
 
     if (std::abs(preDelay - lastPreDelay) > 0.001f) {
         lastPreDelay = preDelay;
@@ -151,10 +150,6 @@ PinType Reverb::getPinType(ed::PinId pinId) {
         return outputPin.pinType;
     }
     return PinType::AudioSignal;
-}
-
-ed::NodeId Reverb::getNodeId() {
-    return nodeId;
 }
 
 void Reverb::connect(Module* input, ed::PinId pin) {

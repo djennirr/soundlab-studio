@@ -7,12 +7,11 @@
 #include <algorithm>
 
 Distortion::Distortion(float drive, float mix) : drive(drive), mix(mix) {
-    nodeId = nextNodeId++;
-    inputPin.Id = nextPinId++;
     inputPin.pinType = PinType::AudioSignal;
     module = nullptr;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
+    nodeType = NodeType::Distortion;
 }
 
 void Distortion::process(AudioSample* stream, int length) {
@@ -48,7 +47,7 @@ void Distortion::process(AudioSample* stream, int length) {
 }
 
 void Distortion::render() {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
     ImGui::Text("Distortion");
     ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
@@ -60,9 +59,9 @@ void Distortion::render() {
     ed::EndPin();
 
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::DragFloat(("Drive##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->drive, 0.1f, 0.0f, 10.0f);
+    ImGui::DragFloat(("Drive##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &this->drive, 0.1f, 0.0f, 10.0f);
     ImGui::SetNextItemWidth(150.0f);
-    ImGui::DragFloat(("Mix##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->mix, 0.01f, 0.0f, 0.990f);
+    ImGui::DragFloat(("Mix##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &this->mix, 0.01f, 0.0f, 0.990f);
 
     ed::EndNode();
 }
@@ -92,9 +91,6 @@ PinType Distortion::getPinType(ed::PinId pinId) {
     }
 }
 
-ed::NodeId Distortion::getNodeId() {
-    return nodeId;
-}
 
 void Distortion::disconnect(Module* module, ed::PinId pin) {
     if (dynamic_cast<AudioModule*>(module) == this->module) {

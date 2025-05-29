@@ -1,6 +1,7 @@
 #include "Oscillator.h"
 #include "AudioModule.h"
 #include "ControlModule.h"
+#include "Module.h"
 #include "imgui.h"
 #include "imgui_node_editor.h"
 #include <cmath>
@@ -12,18 +13,17 @@
 # define portable_strcpy    strcpy
 
 Oscillator::Oscillator(float freq, float vol, WaveType type) : frequency(freq), volume(vol), waveType(type)  {
-    nodeId = nextNodeId++;
     inputPin.Id = nextPinId++;
     inputPin.pinType = PinType::ControlSignal;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
+    nodeType = NodeType::Oscillator;
 }
 
 Oscillator::Oscillator() {
     frequency = 440;
     volume = 0.5;
     waveType = WaveType::SINE;
-    nodeId = nextNodeId++;
     inputPin.Id = nextPinId++;
     inputPin.pinType = PinType::ControlSignal;
     outputPin.Id = nextPinId++;
@@ -79,7 +79,7 @@ void Oscillator::process(AudioSample* stream, int length) {
     
 void Oscillator::render() {
 
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
         // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.f - 150.f) * 0.5f);
         ImGui::Text("Oscillator");
         ed::BeginPin(inputPin.Id, ed::PinKind::Input);
@@ -90,24 +90,24 @@ void Oscillator::render() {
             ImGui::Text("Out ->");
         ed::EndPin();
         ImGui::AlignTextToFramePadding();
-        std::string buttonLabel = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+        std::string buttonLabel = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
         if (ImGui::Button(buttonLabel.c_str())) {
             do_popup = true;
         }
         ImGui::SameLine(180.0F);
-        std::string buttonLabel2 = isSignalActive ? std::string("OFF") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" : std::string("ON") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">" ;
+        std::string buttonLabel2 = isSignalActive ? std::string("OFF") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">" : std::string("ON") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">" ;
         if (ImGui::Button(buttonLabel2.c_str())) {
             isSignalActive = !isSignalActive; // Переключаем флаг состояния сигнала
         }
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->frequency, 7.0F, 0.0F, 1000.0F);
+        ImGui::DragFloat(("frequency##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &this->frequency, 7.0F, 0.0F, 1000.0F);
         
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
+        ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
         ed::EndNode();
         
         ed::Suspend();
-        std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+        std::string button1Label = std::string("popup_button") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
         if (do_popup) {
             ImGui::OpenPopup(button1Label.c_str()); // Cause openpopup to stick open.
             do_popup = false; // disable bool so that if we click off the popup, it doesn't open the next frame.
@@ -115,24 +115,24 @@ void Oscillator::render() {
         if (ImGui::BeginPopup(button1Label.c_str())) {
             // Note: if it weren't for the child window, we would have to PushItemWidth() here to avoid a crash!
             ImGui::TextDisabled("Waves:");
-            ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-            if (ImGui::Button((std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                portable_strcpy(popup_text, (std::string("SIN") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+            ImGui::BeginChild((std::string("popup_scroller") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), ImVec2(120, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+            if (ImGui::Button((std::string("SIN") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SIN") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str());
                 waveType = WaveType::SINE;
                 ImGui::CloseCurrentPopup();  // These calls revoke the popup open state, which was set by OpenPopup above.
             }
-            if (ImGui::Button((std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                portable_strcpy(popup_text, (std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+            if (ImGui::Button((std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SAWTOOTH") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str());
                 waveType = WaveType::SAWTOOTH;
                 ImGui::CloseCurrentPopup();
             }
-            if (ImGui::Button((std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                portable_strcpy(popup_text, (std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+            if (ImGui::Button((std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("SQUARE") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str());
                 waveType = WaveType::SQUARE;
                 ImGui::CloseCurrentPopup();
             }
-            if (ImGui::Button((std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
-                portable_strcpy(popup_text, (std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str());
+            if (ImGui::Button((std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
+                portable_strcpy(popup_text, (std::string("TRIANGLE") + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str());
                 waveType = WaveType::TRIANGLE;
                 ImGui::CloseCurrentPopup();
             }
@@ -161,10 +161,6 @@ PinType Oscillator::getPinType(ed::PinId pinId) {
     } else if (outputPin.Id == pinId) {
         return outputPin.pinType;
     }
-}
-
-ed::NodeId Oscillator::getNodeId() {
-    return nodeId;
 }
 
 void Oscillator::generateSineWave(AudioSample* stream, int length) {

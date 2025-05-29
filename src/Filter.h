@@ -36,11 +36,7 @@ class Filter : public AudioModule{
         std::vector<ed::PinId> getPins() const override;
         ed::PinKind getPinKind(ed::PinId pin) const override;
         PinType getPinType(ed::PinId pin) override;
-        NodeType getNodeType() const override {
-            return NodeType::Filter;
-        }
         void connect(Module* module, ed::PinId pin) override;
-        ed::NodeId getNodeId() override;
         void disconnect(Module* module, ed::PinId pin) override;
         void fromJson(const json& data) override;
 };

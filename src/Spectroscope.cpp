@@ -6,7 +6,6 @@
 
 Spectroscope::Spectroscope() {
     inputModule = nullptr;
-    nodeId = nextNodeId++;
     inputPin.Id = nextPinId++;
     inputPin.pinType = PinType::AudioSignal;
     outputPin.Id = nextPinId++;
@@ -15,6 +14,7 @@ Spectroscope::Spectroscope() {
     smoothedAmplitudes.resize(fftSize / 2, 0.0f);
     waveformBuffer.resize(fftSize / 2);
     clearBuffer();
+    nodeType = NodeType::Spectroscope;
 }
 
 void Spectroscope::fft(CArray& x) {
@@ -92,7 +92,7 @@ void Spectroscope::process(AudioSample* stream, int length) {
 }
 
 void Spectroscope::render() {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (300.0f - 90.0f) * 0.5f);
     ImGui::Text("Spectroscope");
 
@@ -140,10 +140,6 @@ PinType Spectroscope::getPinType(ed::PinId pinId) {
         return outputPin.pinType;
     }
     return PinType::AudioSignal;
-}
-
-ed::NodeId Spectroscope::getNodeId() {
-    return nodeId;
 }
 
 void Spectroscope::connect(Module* input, ed::PinId pin) {

@@ -5,7 +5,7 @@
 Oscilloscope::Oscilloscope()
 {
     inputModule = nullptr;
-    nodeId = nextNodeId++;
+    nodeType = NodeType::Oscilloscope;
     inputPin.Id = nextPinId++;
     inputPin.pinType = PinType::AudioSignal;
     outputPin.Id = nextPinId++;
@@ -62,7 +62,7 @@ void Oscilloscope::ChangeDrawAxisesState() {
 
 void Oscilloscope::render()
 {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
     
     //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + indentName - 7); // для выводы имени модуля по середине(числа выбраны чисто имперически)
     ImGui::Text("Oscilloscope");
@@ -75,7 +75,7 @@ void Oscilloscope::render()
     std::string buttonName = AxesOnStr;
     if (!drawAxises) 
         buttonName = AxesOffStr;
-        std::string buttonLabel = buttonName + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+        std::string buttonLabel = buttonName + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
         if (ImGui::Button(buttonLabel.c_str())) {
             ChangeDrawAxisesState();
         }
@@ -155,11 +155,6 @@ PinType Oscilloscope::getPinType(ed::PinId pinId) {
     } else if (outputPin.Id == pinId) {
         return outputPin.pinType;
     }
-}
-
-ed::NodeId Oscilloscope::getNodeId()
-{
-    return nodeId;
 }
 
 void Oscilloscope::connect(Module *input, ed::PinId pin)

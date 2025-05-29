@@ -12,12 +12,11 @@
 
 Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChanged(true)
 {
-    nodeId = ed::NodeId(nextNodeId++);
     inputPin.Id = ed::PinId(nextPinId++);
     inputPin.pinType = PinType::ControlSignal;
     outputPin.Id = ed::PinId(nextPinId++);
     outputPin.pinType = PinType::AudioSignal;
-
+    nodeType = NodeType::Sampler;
     loadWAV(DRUMS_sample);
     isChanged = false;
 }
@@ -276,14 +275,14 @@ std::string Sampler::uploadSample() {
 
 void Sampler::render()
 {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
     ImGui::Text("Sampler");
     ed::BeginPin(inputPin.Id, ed::PinKind::Input);
     ImGui::Text("-> In");
     ed::EndPin();
     ImGui::SameLine(70);
     ImGui::AlignTextToFramePadding();
-    std::string buttonLabelOpenPopup = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+    std::string buttonLabelOpenPopup = std::string(popup_text) + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
     if (ImGui::Button(buttonLabelOpenPopup.c_str()))
     {
         do_popup = true;
@@ -294,13 +293,13 @@ void Sampler::render()
     ImGui::Text("Out ->");
     ed::EndPin();
 
-    if (ImGui::Button(("Restart##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+    if (ImGui::Button(("Restart##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
         position = 0;
     }
 
     ImGui::SameLine(175);
 
-    if (ImGui::Button(("Upload##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str())) {
+    if (ImGui::Button(("Upload##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
         std::string filepath = uploadSample();
         if (!filepath.empty()) {
             if (filepath.size() > 4 && (filepath.substr(filepath.size() - 4) == ".wav" || filepath.substr(filepath.size() - 4) == ".WAV")) {
@@ -316,16 +315,16 @@ void Sampler::render()
     }
 
     ImGui::SetNextItemWidth(180);
-    ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
+    ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
 
     ImGui::SetNextItemWidth(180);
-    ImGui::DragFloat(("pitch##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->pitch, 0.005F, 0.5F, 2.0F, "%.2f");
+    ImGui::DragFloat(("pitch##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &this->pitch, 0.005F, 0.5F, 2.0F, "%.2f");
 
     ed::EndNode();
 
     ed::Suspend(); // приостанавливает работу редакторов узла
 
-    std::string buttonLabel = std::string("popup_button") + "####<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+    std::string buttonLabel = std::string("popup_button") + "####<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
     if (do_popup)
     {
         ImGui::OpenPopup(buttonLabel.c_str());
@@ -339,7 +338,7 @@ void Sampler::render()
 
         for (SampleType type : sampleTypes)
         {
-            std::string label = SampleTypeToString(type) + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+            std::string label = SampleTypeToString(type) + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
             if (ImGui::Button(label.c_str()))
             {
                 setSample(SampleTypeToString(type), type);
@@ -365,7 +364,6 @@ PinType Sampler::getPinType(ed::PinId pinId) {
     }
 }
 
-ed::NodeId Sampler::getNodeId() { return nodeId; }
 
 void Sampler::connect(Module *module, ed::PinId pin) {
     this->inputModule = static_cast<ControlModule*>(module);

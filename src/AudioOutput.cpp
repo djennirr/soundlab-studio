@@ -23,10 +23,10 @@ AudioOutput::AudioOutput() {
             std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
         }
     }
-    nodeId = nextNodeId++;
     inputPin.Id = nextPinId++;
     inputPin.pinType =  PinType::AudioSignal;
     AudioModule* inputModule = nullptr;
+    nodeType = NodeType::AudioOutput;
     volume = 1;
 }
 
@@ -53,8 +53,8 @@ void AudioOutput::process(AudioSample* stream, int length) {
 
 void AudioOutput::render() {
 
-    if (m_FirstFrame) ed::SetNodePosition(nodeId, ImVec2(210, 60));
-    ed::BeginNode(nodeId);
+    if (m_FirstFrame) ed::SetNodePosition(this->getNodeId(), ImVec2(210, 60));
+    ed::BeginNode(this->getNodeId());
         ImGui::Text("Audio Output");
         ed::BeginPin(inputPin.Id, ed::PinKind::Input);
         ImGui::Text("=> In");
@@ -68,7 +68,7 @@ void AudioOutput::render() {
             isPlaying = not(isPlaying);
         }
         ImGui::SetNextItemWidth(50.0f);
-        ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
+        ImGui::DragFloat(("volume##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &this->volume, 0.007F, 0.0F, 1.0F);
     ed::EndNode();
     m_FirstFrame = 0;
 }
@@ -87,10 +87,6 @@ PinType AudioOutput::getPinType(ed::PinId pinId) {
     if (inputPin.Id == pinId) {
         return inputPin.pinType;
     }
-}
-
-ed::NodeId AudioOutput::getNodeId() {
-    return nodeId;
 }
 
 void AudioOutput::connect(Module* input, ed::PinId pin) {

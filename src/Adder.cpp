@@ -9,13 +9,13 @@
 Adder::Adder()  {
     module1 = nullptr;
     module2 = nullptr;
-    nodeId = nextNodeId++;
     input1Pin.Id = nextPinId++;
     input1Pin.pinType = PinType::AudioSignal;
     input2Pin.Id = nextPinId++;
     input2Pin.pinType = PinType::AudioSignal;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
+    nodeType = NodeType::Adder;
 }
 
 void Adder::process(AudioSample* stream, int length) {
@@ -59,7 +59,7 @@ void Adder::process(AudioSample* stream, int length) {
 }
 
 void Adder::render() {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
 
         ImGui::Text("Adder");
         ed::BeginPin(input1Pin.Id, ed::PinKind::Input);
@@ -102,10 +102,6 @@ PinType Adder::getPinType(ed::PinId pinId) {
         return outputPin.pinType;
     }
 
-}
-
-ed::NodeId Adder::getNodeId() {
-    return nodeId;
 }
 
 void Adder::connect(Module* input, ed::PinId pin) {

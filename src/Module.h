@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <imgui_node_editor.h>
 #include <application.h>
+#include <iostream>
 #include <vector>
 #include "../libs/json/single_include/nlohmann/json.hpp"
 
@@ -55,15 +56,37 @@ typedef struct {
 } Pin;
 
 class Module {
+private:
+    ed::NodeId nodeId = nextNodeId++;
+protected:
+    NodeType nodeType;
 public:
-    ed::NodeId nodeId; //а почему у нас нод айди то паблик йоу
     virtual ~Module() = default;
     virtual void render() = 0;
     virtual std::vector<ed::PinId> getPins() const = 0;
     virtual ed::PinKind getPinKind(ed::PinId pin) const = 0;
-    virtual NodeType getNodeType() const = 0;
+    NodeType getNodeType() const {
+        switch (nodeType) {
+            case NodeType::Oscillator: return NodeType::Oscillator;
+            case NodeType::Oscilloscope: return NodeType::Oscilloscope;
+            case NodeType::AudioOutput: return NodeType::AudioOutput;
+            case NodeType::Adder: return NodeType::Adder;
+            case NodeType::Distortion: return NodeType::Distortion;
+            case NodeType::NoiseGenerator: return NodeType::NoiseGenerator;
+            case NodeType::Piano: return NodeType::Piano;
+            case NodeType::Sampler: return NodeType::Sampler;
+            case NodeType::ADSR: return NodeType::ADSR;
+            case NodeType::Filter: return NodeType::Filter;
+            case NodeType::Sequencer: return NodeType::Sequencer;
+            case NodeType::Reverb: return NodeType::Reverb;
+            case NodeType::Spectroscope: return  NodeType::Spectroscope;
+            default: std::cout << "there is no node type like this";
+        }
+    };
     virtual PinType getPinType(ed::PinId pinId) = 0;
-    virtual ed::NodeId getNodeId() = 0;
+    ed::NodeId getNodeId() {
+        return nodeId;
+    };
     virtual void connect(Module* input, ed::PinId pin) = 0;
     virtual void disconnect(Module* module, ed::PinId pin) = 0;
 

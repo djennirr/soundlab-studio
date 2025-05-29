@@ -83,7 +83,7 @@ private:
     };
 
     inline void setSample(const std::string& sampleName, SampleType type) {
-        popup_text = sampleName + "##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">";
+        popup_text = sampleName + "##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">";
         sampleType = type;
         isChanged = true;
     }
@@ -105,10 +105,6 @@ public:
 
     std::vector<ed::PinId> getPins() const override;
     ed::PinKind getPinKind(ed::PinId pin) const override;
-    ed::NodeId getNodeId() override;
-    NodeType getNodeType() const override {
-        return NodeType::Sampler;
-    }
     PinType getPinType(ed::PinId pinId) override;
     void connect(Module *module, ed::PinId pin) override;
     void disconnect(Module *module, ed::PinId pin) override;

@@ -10,13 +10,13 @@
 #endif
 
 ADSR::ADSR() {
-    nodeId = nextNodeId++;
     audioInputPin.Id = nextPinId++;
     audioInputPin.pinType = PinType::AudioSignal;
     triggerInputPin.Id = nextPinId++;
     triggerInputPin.pinType = PinType::ControlSignal;
     outputPin.Id = nextPinId++;
     outputPin.pinType = PinType::AudioSignal;
+    nodeType = NodeType::ADSR;
 
     attack = 0.5f;
     decay = 0.5f;
@@ -137,7 +137,7 @@ void ADSR::updateEnvelope() {
 }
 
 void ADSR::render() {
-    ed::BeginNode(nodeId);
+    ed::BeginNode(this->getNodeId());
         ImGui::Text("ADSR");
         ed::BeginPin(audioInputPin.Id, ed::PinKind::Input);
             ImGui::Text("-> Audio In");
@@ -151,15 +151,15 @@ void ADSR::render() {
         ed::EndPin();
 
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Attack##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &attack, 0.01f, 0.01f, 2.0f, "%.2f s");
+        ImGui::DragFloat(("Attack##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &attack, 0.01f, 0.01f, 2.0f, "%.2f s");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Decay##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &decay, 0.01f, 0.01f, 2.0f, "%.2f s");
+        ImGui::DragFloat(("Decay##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &decay, 0.01f, 0.01f, 2.0f, "%.2f s");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Sustain##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &sustain, 0.01f, 0.0f, 2.0f, "%.2f");
+        ImGui::DragFloat(("Sustain##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &sustain, 0.01f, 0.0f, 2.0f, "%.2f");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Release##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &release, 0.01f, 0.01f, 2.0f, "%.2f s");
+        ImGui::DragFloat(("Release##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &release, 0.01f, 0.01f, 2.0f, "%.2f s");
         ImGui::SetNextItemWidth(150.0f);
-        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(nodeId.Get())) + ">").c_str(), &peak, 0.01f, 0.0f, 1.0f, "%.2f");
+        ImGui::DragFloat(("Peak##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str(), &peak, 0.01f, 0.0f, 1.0f, "%.2f");
 
         if (triggerInputModule != nullptr) {
             gate = triggerInputModule->active();
@@ -183,10 +183,6 @@ PinType ADSR::getPinType(ed::PinId pinId) {
     } else if (pinId == outputPin.Id) {
         return outputPin.pinType;
     }
-}
-
-ed::NodeId ADSR::getNodeId() {
-    return nodeId;
 }
 
 void ADSR::connect(Module* module, ed::PinId pin) {
