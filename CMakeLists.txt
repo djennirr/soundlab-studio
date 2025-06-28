@@ -39,6 +39,8 @@ add_executable(main
     ${CMAKE_SOURCE_DIR}/src/Spectroscope.cpp
 )
 
+target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/libs/minimp3)
+
 target_link_libraries(main PRIVATE imgui imgui_node_editor SDL2::SDL2 application nlohmann_json::nlohmann_json)
 
 add_custom_command(TARGET main POST_BUILD
@@ -52,6 +54,8 @@ add_custom_command(TARGET main POST_BUILD
         "${CMAKE_SOURCE_DIR}/samples"
         $<TARGET_FILE_DIR:main>/samples
 )
+
+
 
 set_target_properties(main PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"

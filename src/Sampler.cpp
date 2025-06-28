@@ -7,6 +7,9 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#define MINIMP3_IMPLEMENTATION
+#include "minimp3_ex.h"
+
 
 # define portable_strcpy    strcpy
 
@@ -21,8 +24,60 @@ Sampler::Sampler(float vol) : volume(vol), sampleType(SampleType::DRUMS), isChan
     isChanged = false;
 }
 
+
+
+void Sampler::loadMP3(const std::string &filename)
+{
+    mp3dec_t mp3d;
+    mp3dec_file_info_t info;
+    mp3dec_load(&mp3d, filename.c_str(), &info, NULL, NULL);
+    if (!info.buffer) {
+        std::cerr << "Не удалось загрузить MP3!" << std::endl;
+        isUserSampleCorrect = false;
+        audioData.clear();
+        return;
+    }
+
+    // if (info.hz != 44100) {
+    //     std::cerr << "MP3: только 44100 Hz sample rate поддерживается! Ваш файл: " << info.hz << " Hz" << std::endl;
+    //     isUserSampleCorrect = false;
+    //     audioData.clear();
+    //     free(info.buffer);
+    //     return;
+    // }
+    
+    int channels = info.channels;
+    int sampleCount = info.samples / channels;
+    audioData.resize(sampleCount);
+
+    for (size_t i = 0; i < audioData.size(); ++i)
+    {
+        if (channels == 2)
+            audioData[i] = (info.buffer[2 * i] + info.buffer[2 * i + 1]) / 2;
+        else
+            audioData[i] = info.buffer[i];
+    }
+
+    free(info.buffer);
+    position = 0.0f;
+
+    if(isUserSampleCorrect && isSampleFromUser) {
+        popup_text = "USER";
+        isSampleFromUser = false;
+    }
+}
+
 void Sampler::loadWAV(const std::string &filename)
 {
+    if (filename.size() > 4) {
+        std::string ext = filename.substr(filename.size() - 4);
+        for (auto &c : ext) c = tolower(c);
+        if (ext == ".mp3") {
+            loadMP3(filename);
+            return;
+        }
+    }
+
     isUserSampleCorrect = true;
     std::string currentButtonText = popup_text;
     if (filename.empty()) {
@@ -302,14 +357,18 @@ void Sampler::render()
     if (ImGui::Button(("Upload##<" + std::to_string(static_cast<int>(this->getNodeId().Get())) + ">").c_str())) {
         std::string filepath = uploadSample();
         if (!filepath.empty()) {
-            if (filepath.size() > 4 && (filepath.substr(filepath.size() - 4) == ".wav" || filepath.substr(filepath.size() - 4) == ".WAV")) {
-                loadWAV(filepath);
-                sampleType = SampleType::USER;
-                userSamplePath = filepath;
-                isChanged = false;
-                std::cout << "Загружен пользовательский файл: " << filepath << std::endl;
-            } else {
-                std::cerr << "Неподдерживаемый формат файла" << std::endl;
+            if (filepath.size() > 4) {
+                std::string ext = filepath.substr(filepath.size() - 4);
+                for (auto &c : ext) c = tolower(c);
+                if (ext == ".wav" || ext == ".mp3") {
+                    loadWAV(filepath);
+                    sampleType = SampleType::USER;
+                    userSamplePath = filepath;
+                    isChanged = false;
+                    std::cout << "Загружен пользовательский файл: " << filepath << std::endl;
+                } else {
+                    std::cerr << "Неподдерживаемый формат файла" << std::endl;
+                }
             }
         }
     }

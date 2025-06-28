@@ -43,6 +43,7 @@ private:
     float volume;
     bool isChanged;
     void loadWAV(const std::string &filename);
+    void loadMP3(const std::string &filename);
     float position = 0;
     float pitch = 1.0f;
 
